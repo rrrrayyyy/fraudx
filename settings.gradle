@@ -1,1 +1,2 @@
 rootProject.name = 'fraudx-base'
+include 'payment-service', 'fraud-detection-service'
