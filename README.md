@@ -2,8 +2,11 @@
 
 # procedures
 ```zsh
-./gradlew :fraud-detection-service:bootRun
+# ./gradlew :fraud-detection-service:bootRun
+
 ./gradlew :payment-service:bootRun
+# move to another terminal
+curl -X POST "http://localhost:8080/publish-payment-event?n=10"
 ```
 
 # development environment setup
@@ -43,5 +46,6 @@ subprojects {
 
 
 # Spring Boot memo
+- build.gradle を変更したら Java: Clean Java Language Server Workspace も必要（classpath 再認識）
 - CommandLineRunner と ApplicationRunner の違い
     - 後者は起動時の引数を型定義できる（前者は `--key=value` をparse）
