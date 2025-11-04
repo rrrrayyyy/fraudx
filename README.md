@@ -49,3 +49,8 @@ subprojects {
 - build.gradle を変更したら Java: Clean Java Language Server Workspace も必要（classpath 再認識）
 - CommandLineRunner と ApplicationRunner の違い
     - 後者は起動時の引数を型定義できる（前者は `--key=value` をparse）
+
+
+# Kafka memo
+- Apache Kafka は「分散メッセージキュー／イベントログシステム」
+    - Kafka Streams は、Kafkaに流れるデータをリアルタイムで加工・集約・結合するためのJavaライブラリ
