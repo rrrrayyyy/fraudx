@@ -4,6 +4,8 @@
 ```zsh
 # ./gradlew :fraud-detection-service:bootRun
 
+CLUSTER_ID=$(uuidgen) docker compose up -d
+
 ./gradlew :payment-service:bootRun
 # move to another terminal
 curl -X POST "http://localhost:8080/publish-payment-event?n=10"
@@ -52,5 +54,14 @@ subprojects {
 
 
 # Kafka memo
+- broker: message retention + distribution + replication
+    - replication.factor=3
+- controller: cluster manager
+    - KRaft mode では controller 専用ノードを立てるのが推奨
 - Apache Kafka は「分散メッセージキュー／イベントログシステム」
     - Kafka Streams は、Kafkaに流れるデータをリアルタイムで加工・集約・結合するためのJavaライブラリ
+
+
+# TODO
+- [ ] [Kafka] kafka-producer-perf-test.sh と kafka-consumer-perf-test.sh を使い、メッセージサイズ・batching・compression・acks を変えて実測するのが必須
+
