@@ -2,13 +2,12 @@
 
 # procedures
 ```zsh
-# CLUSTER_ID=$(uuidgen) docker compose up -d
 ./gradlew :payment-service:bootRun -PcomposeUpD=true
 
 # ./gradlew :fraud-detection-service:bootRun
 
 # move to another terminal
-curl -X POST "http://localhost:8080/publish-payment-event?n=10"
+curl -X POST "http://localhost:8080/payment-events?n=10"
 ```
 
 # development environment setup
