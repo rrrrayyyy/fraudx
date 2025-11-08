@@ -63,5 +63,9 @@ subprojects {
 
 
 # TODO
-- [ ] [Kafka] kafka-producer-perf-test.sh と kafka-consumer-perf-test.sh を使い、メッセージサイズ・batching・compression・acks を変えて実測するのが必須
+- [ ] Kafka docker compose up -d の成功確認
+- [ ] SpringBoot 起動時引数でKafka docker compose up -d + Kafkaへの接続を行う（引数なしで両方行わない）
+- [ ] Kafka producer client実装
+- [ ] Kafka subscriber 実装 (Reactive)
+- [ ] kafka-producer-perf-test.sh と kafka-consumer-perf-test.sh を使い、メッセージサイズ・batching・compression・acks を変えて実測するのが必須
 
