@@ -2,7 +2,7 @@
 
 # procedures
 ```zsh
-./gradlew :payment-service:bootRun -PcomposeUpD=true -Dkafka.connect=true
+./gradlew :payment-service:bootRun -DcomposeUpD=true -Dkafka.connect=true
 
 # ./gradlew :fraud-detection-service:bootRun
 

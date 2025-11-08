@@ -3,9 +3,9 @@ package com.example.payment_service.adapter;
 import java.util.*;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
-@Configuration
+@Component
 @ConfigurationProperties(prefix = "kafka.topic")
 public class KafkaTopics {
     private Map<String, String> topics = Collections.emptyMap();

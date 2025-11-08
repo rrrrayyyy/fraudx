@@ -32,16 +32,12 @@ tasks.named('test') {
 }
 
 tasks.named('bootRun') {
-    if (project.hasProperty("composeUpD")) {
-        systemProperty "composeUpD", project.property("composeUpD")
-    }
-
     doFirst {
         if (project.hasProperty('composeUpD') && project.property('composeUpD') == 'true') {
             println "🔧 Restarting Docker Compose environment..."
 
             exec {
-                commandLine "bash", "-c", "docker compose stop && yes | docker compose rm"
+                commandLine "bash", "-c", "docker compose down -v --remove-orphans"
             }
 
 			def String clusterId = java.util.UUID.randomUUID().toString()
@@ -73,4 +69,6 @@ tasks.named('bootRun') {
             println "Skipping Docker Compose & Kafka connection setup..."
         }
     }
+
+    systemProperty "kafka.connect", System.getProperty("kafka.connect")
 }

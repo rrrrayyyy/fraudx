@@ -14,14 +14,14 @@ public class KafkaConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    @Value("${spring.kafka.acks}")
+    @Value("${spring.kafka.producer.acks}")
     private String acks;
 
-    @Value("${spring.kafka.batch-size}")
-    private String batchSize;
+    @Value("${spring.kafka.producer.batch-size}")
+    private int batchSize;
 
-    @Value("${spring.kafka.buffer-memory}")
-    private String bufferMemory;
+    @Value("${spring.kafka.producer.buffer-memory}")
+    private long bufferMemory;
 
     @Bean
     public ProducerFactory<String, String> producerFactory() {
