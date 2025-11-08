@@ -2,18 +2,18 @@ package com.example.payment_service.adapter;
 
 import org.springframework.web.bind.annotation.*;
 
-import com.example.payment_service.usecase.PaymentEventsPublishUseCase;
+import com.example.payment_service.usecase.PaymentEventsProduceUseCase;
 
 @RestController
 public class PaymentController {
-    private final PaymentEventsPublishUseCase paymentEventsPublishUseCase;
+    private final PaymentEventsProduceUseCase paymentEventsProduceUseCase;
 
     public PaymentController() {
-        paymentEventsPublishUseCase = new PaymentEventsPublishUseCase();
+        paymentEventsProduceUseCase = new PaymentEventsProduceUseCase();
     }
 
     @PostMapping("payment-events")
     public void publishPaymentEvents(@RequestParam int n) {
-        paymentEventsPublishUseCase.run(n);
+        paymentEventsProduceUseCase.run(n);
     }
 }

@@ -2,9 +2,9 @@ package com.example.payment_service.usecase;
 
 import java.util.concurrent.*;
 
-public class PaymentEventsPublishUseCase {
+public class PaymentEventsProduceUseCase {
     public void run(int n) {
-        System.out.println("PaymentEventsPublishUseCase.run() started with: " + n);
+        System.out.println("PaymentEventsProduceUseCase.run() started with: " + n);
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
             for (int i = 0; i < n; i++) {
                 int id = i;

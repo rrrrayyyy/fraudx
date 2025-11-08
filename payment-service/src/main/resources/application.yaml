@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: payment-service
+  kafka:
+    bootstrap-servers: broker-1:9092,broker-2:9092
+    producer:
+      acks: 1
+      batch-size: 1048576           # 1MB
+      buffer-memory: 134217728      # 128MB
+
+kafka:
+  connect: false
+  topic: payment-events
