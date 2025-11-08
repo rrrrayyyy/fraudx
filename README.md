@@ -2,11 +2,11 @@
 
 # procedures
 ```zsh
+# CLUSTER_ID=$(uuidgen) docker compose up -d
+./gradlew :payment-service:bootRun -PcomposeUpD=true
+
 # ./gradlew :fraud-detection-service:bootRun
 
-CLUSTER_ID=$(uuidgen) docker compose up -d
-
-./gradlew :payment-service:bootRun
 # move to another terminal
 curl -X POST "http://localhost:8080/publish-payment-event?n=10"
 ```
@@ -63,7 +63,7 @@ subprojects {
 
 
 # TODO
-- [ ] Kafka docker compose up -d の成功確認
+- [x] Kafka docker compose up -d の成功確認
 - [ ] SpringBoot 起動時引数でKafka docker compose up -d + Kafkaへの接続を行う（引数なしで両方行わない）
 - [ ] Kafka producer client実装
 - [ ] Kafka subscriber 実装 (Reactive)
