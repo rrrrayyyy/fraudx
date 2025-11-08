@@ -7,17 +7,22 @@ import org.springframework.kafka.core.KafkaTemplate;
 
 @Configuration
 @ConditionalOnProperty(value = "kafka.connect", havingValue = "true")
-public class KafkaConnectionChecker {
+public class KafkaStarter {
     private final KafkaTopics kafkaTopics;
+    private final KafkaTopicCreator topicCreator;
 
-    public KafkaConnectionChecker(KafkaTopics kafkaTopics) {
+    public KafkaStarter(KafkaTopics kafkaTopics, KafkaTopicCreator topicCreator) {
         this.kafkaTopics = kafkaTopics;
+        this.topicCreator = topicCreator;
     }
 
     @Bean
-    public ApplicationRunner kafkaConnectionRunner(KafkaTemplate<String, String> kafkaTemplate) {
+    public ApplicationRunner kafkaStarterRunner(KafkaTemplate<String, String> kafkaTemplate) {
         return args -> {
             try {
+                var paymentTopic = kafkaTopics.get("payment");
+                topicCreator.createTopic(paymentTopic, 4, (short) 2);
+                System.out.println("✅ Kafka topic created: " + paymentTopic);
                 kafkaTemplate.partitionsFor(kafkaTopics.get("payment"));
                 System.out.println("✅ Kafka connection successful");
             } catch (Exception e) {
