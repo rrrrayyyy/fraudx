@@ -19,10 +19,6 @@ services:
     mem_swappiness: 0
     sysctls:
       net.core.somaxconn: 65535
-      net.core.rmem_max: 16777216
-      net.core.wmem_max: 16777216
-      vm.max_map_count: 262144
-      net.core.netdev_max_backlog: 32768
       net.ipv4.tcp_max_syn_backlog: 4096
       net.ipv4.tcp_tw_reuse: 1
       net.ipv4.tcp_fin_timeout: 15
@@ -56,10 +52,6 @@ services:
     mem_swappiness: 0
     sysctls:
       net.core.somaxconn: 65535
-      net.core.rmem_max: 16777216
-      net.core.wmem_max: 16777216
-      vm.max_map_count: 262144
-      net.core.netdev_max_backlog: 32768
       net.ipv4.tcp_max_syn_backlog: 4096
       net.ipv4.tcp_tw_reuse: 1
       net.ipv4.tcp_fin_timeout: 15
@@ -93,10 +85,6 @@ services:
     mem_swappiness: 0
     sysctls:
       net.core.somaxconn: 65535
-      net.core.rmem_max: 16777216
-      net.core.wmem_max: 16777216
-      vm.max_map_count: 262144
-      net.core.netdev_max_backlog: 32768
       net.ipv4.tcp_max_syn_backlog: 4096
       net.ipv4.tcp_tw_reuse: 1
       net.ipv4.tcp_fin_timeout: 15
@@ -122,13 +110,14 @@ services:
       KAFKA_PROCESS_ROLES: broker
       KAFKA_LISTENERS: PLAINTEXT://:19092,PLAINTEXT_HOST://:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker-1:19092,PLAINTEXT_HOST://localhost:9004
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_NUM_NETWORK_THREADS: 4
       KAFKA_NUM_IO_THREADS: 8
       KAFKA_HEAP_OPTS: "-Xms2g -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
-      KAFKA_LOG_DIRS: /var/lib/kafka
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_SOCKET_SEND_BUFFER_BYTES: 1048576
       KAFKA_SOCKET_RECEIVE_BUFFER_BYTES: 1048576
       KAFKA_REPLICA_FETCH_MAX_BYTES: 52428800
@@ -144,10 +133,6 @@ services:
     mem_swappiness: 0
     sysctls:
       net.core.somaxconn: 65535
-      net.core.rmem_max: 16777216
-      net.core.wmem_max: 16777216
-      vm.max_map_count: 262144
-      net.core.netdev_max_backlog: 32768
       net.ipv4.tcp_max_syn_backlog: 4096
       net.ipv4.tcp_tw_reuse: 1
       net.ipv4.tcp_fin_timeout: 15
@@ -177,13 +162,14 @@ services:
       KAFKA_PROCESS_ROLES: broker
       KAFKA_LISTENERS: PLAINTEXT://:19092,PLAINTEXT_HOST://:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker-2:19092,PLAINTEXT_HOST://localhost:9005
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_NUM_NETWORK_THREADS: 4
       KAFKA_NUM_IO_THREADS: 8
       KAFKA_HEAP_OPTS: "-Xms2g -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
-      KAFKA_LOG_DIRS: /var/lib/kafka
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_SOCKET_SEND_BUFFER_BYTES: 1048576
       KAFKA_SOCKET_RECEIVE_BUFFER_BYTES: 1048576
       KAFKA_REPLICA_FETCH_MAX_BYTES: 52428800
@@ -199,10 +185,6 @@ services:
     mem_swappiness: 0
     sysctls:
       net.core.somaxconn: 65535
-      net.core.rmem_max: 16777216
-      net.core.wmem_max: 16777216
-      vm.max_map_count: 262144
-      net.core.netdev_max_backlog: 32768
       net.ipv4.tcp_max_syn_backlog: 4096
       net.ipv4.tcp_tw_reuse: 1
       net.ipv4.tcp_fin_timeout: 15
@@ -226,6 +208,7 @@ services:
 
   kafka-ui:
     image: ghcr.io/kafbat/kafka-ui:latest
+    container_name: kafka-ui
     ports:
       - 8888:8080
     environment:
