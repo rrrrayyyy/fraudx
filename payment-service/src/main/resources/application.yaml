@@ -10,4 +10,5 @@ spring:
 
 kafka:
   connect: false
-  topic: payment-events
+  topic:
+    payment: payment-events

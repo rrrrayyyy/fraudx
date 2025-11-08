@@ -21,7 +21,7 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation("org.apache.kafka:kafka-streams:4.1.0")
+	implementation 'org.springframework.kafka:spring-kafka'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -32,6 +32,10 @@ tasks.named('test') {
 }
 
 tasks.named('bootRun') {
+    if (project.hasProperty("composeUpD")) {
+        systemProperty "composeUpD", project.property("composeUpD")
+    }
+
     doFirst {
         if (project.hasProperty('composeUpD') && project.property('composeUpD') == 'true') {
             println "🔧 Restarting Docker Compose environment..."
