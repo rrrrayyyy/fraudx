@@ -23,7 +23,7 @@ public class KafkaTopicCreator {
             if (e.getCause() instanceof org.apache.kafka.common.errors.TopicExistsException) {
                 System.out.println("⚠️ Topic already exists: " + topicName);
             } else {
-                throw new RuntimeException("Failed to create topic: " + topicName, e);
+                throw new RuntimeException("❌ Failed to create topic: " + topicName, e);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

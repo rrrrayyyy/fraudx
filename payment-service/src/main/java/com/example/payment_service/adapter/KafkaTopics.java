@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "kafka.topic")
+@ConfigurationProperties(prefix = "kafka")
 public class KafkaTopics {
     private Map<String, String> topics = Collections.emptyMap();
 
@@ -21,7 +21,7 @@ public class KafkaTopics {
     public String get(String key) {
         var t = topics.get(key);
         if (t == null || t.isEmpty()) {
-            throw new IllegalArgumentException("Kafka topic not found for key: " + key);
+            throw new IllegalArgumentException("❌ Kafka topic not found for key: " + key);
         }
         return t;
     }

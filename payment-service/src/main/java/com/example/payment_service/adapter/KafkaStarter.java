@@ -23,10 +23,10 @@ public class KafkaStarter {
                 var paymentTopic = kafkaTopics.get("payment");
                 topicCreator.createTopic(paymentTopic, 4, (short) 2);
                 System.out.println("✅ Kafka topic created: " + paymentTopic);
-                kafkaTemplate.partitionsFor(kafkaTopics.get("payment"));
+                kafkaTemplate.partitionsFor(paymentTopic);
                 System.out.println("✅ Kafka connection successful");
             } catch (Exception e) {
-                System.err.println("❌ Kafka connection fialed: " + e.getMessage());
+                System.err.println("❌ Kafka connection failed: " + e.getMessage());
             }
         };
     }

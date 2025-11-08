@@ -2,7 +2,8 @@ spring:
   application:
     name: payment-service
   kafka:
-    bootstrap-servers: broker-1:9004,broker-2:9005
+    bootstrap-servers: localhost:9004,localhost:9005
+    # bootstrap-servers: broker-1:9004,broker-2:9005
     producer:
       acks: 1
       batch-size: 1048576           # 1MB
@@ -10,5 +11,5 @@ spring:
 
 kafka:
   connect: false
-  topic:
+  topics:
     payment: payment-events
