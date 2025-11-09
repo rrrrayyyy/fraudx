@@ -12,11 +12,3 @@ protobuf {
         artifact = "com.google.protobuf:protoc:4.33.0"
     }
 }
-
-sourceSets {
-    main {
-        proto {
-            srcDir "src/main/java/com/example/proto"
-        }
-    }
-}
