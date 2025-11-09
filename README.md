@@ -14,7 +14,7 @@ curl -X POST "http://localhost:8080/payment-events?n=10&isString=false"
 
 # development environment setup
 - Spring Initializr: Create a Gradle Project
-- `mv fraudx-base/{*,.*} .`
+- `mv fraudx/{*,.*} .`
 - project-root > build.gradle に subprojects を追加
     - subprojects はsub moduleに共通適用される設定
     - version はapp versionで、SNAPSHOT == 開発中の最新verを意味する（Release Candidate前）
