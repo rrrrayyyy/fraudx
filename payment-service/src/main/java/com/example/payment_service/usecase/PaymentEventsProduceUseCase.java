@@ -4,6 +4,9 @@ import java.util.concurrent.*;
 
 import org.springframework.stereotype.Service;
 
+import com.example.payment.Payment.PaymentEventValue;
+import com.fasterxml.uuid.Generators;
+
 @Service
 public class PaymentEventsProduceUseCase {
     private final KafkaProducer kafkaProducer;
@@ -16,10 +19,12 @@ public class PaymentEventsProduceUseCase {
         System.out.println("PaymentEventsProduceUseCase.run() started with: " + n);
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
             for (int i = 0; i < n; i++) {
-                int id = i;
+                int sequenceId = i;
                 executor.submit(() -> {
-                    System.out.println("🧵 Task " + id + " running on " + Thread.currentThread());
-                    kafkaProducer.send("payment", "payment event id: " + id);
+                    System.out.println("🧵 Thread " + Thread.currentThread() + " processes " + sequenceId);
+                    var v7 = Generators.timeBasedEpochGenerator().generate();
+                    var event = PaymentEventValue.newBuilder().setId(v7.toString()).build();
+                    kafkaProducer.sendPaymentEvent(event);
                     return null;
                 });
             }

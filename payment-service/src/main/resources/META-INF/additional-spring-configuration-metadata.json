@@ -1,0 +1,14 @@
+{
+    "properties": [
+        {
+            "name": "kafka.connect",
+            "type": "java.lang.String",
+            "description": "A description for 'kafka.connect'"
+        },
+        {
+            "name": "kafka.topics.payment",
+            "type": "java.lang.String",
+            "description": "A description for 'kafka.topics.payment'"
+        }
+    ]
+}
