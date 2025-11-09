@@ -6,14 +6,14 @@ import com.example.payment_service.usecase.PaymentEventsProduceUseCase;
 
 @RestController
 public class PaymentController {
-    private final PaymentEventsProduceUseCase paymentEventsProduceUseCase;
+	private final PaymentEventsProduceUseCase paymentEventsProduceUseCase;
 
-    public PaymentController(PaymentEventsProduceUseCase paymentEventsProduceUseCase) {
-        this.paymentEventsProduceUseCase = paymentEventsProduceUseCase;
-    }
+	public PaymentController(PaymentEventsProduceUseCase paymentEventsProduceUseCase) {
+		this.paymentEventsProduceUseCase = paymentEventsProduceUseCase;
+	}
 
-    @PostMapping("payment-events")
-    public void publishPaymentEvents(@RequestParam int n) {
-        paymentEventsProduceUseCase.run(n);
-    }
+	@PostMapping("payment-events")
+	public void publishPaymentEvents(@RequestParam int n, @RequestParam boolean isString) {
+		paymentEventsProduceUseCase.run(n, isString);
+	}
 }
