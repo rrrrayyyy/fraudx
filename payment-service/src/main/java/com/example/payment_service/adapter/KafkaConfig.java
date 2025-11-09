@@ -17,6 +17,11 @@ public class KafkaConfig {
 	@Value("${spring.kafka.bootstrap-servers}")
 	private String bootstrapServers;
 
+	@Bean
+	public String bootstrapServers() {
+		return bootstrapServers;
+	}
+
 	@Value("${spring.kafka.producer.acks}")
 	private String acks;
 
