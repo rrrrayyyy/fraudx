@@ -24,12 +24,13 @@ public class PaymentEventsProduceUseCase {
 					System.out.println("🧵 " + Thread.currentThread() + " processes " + sequenceId);
 					var v7 = Generators.timeBasedEpochGenerator().generate();
 					if (isString) {
-						kafkaProducer.sendStringPaymentEvent("string val: " + v7.toString());
+						kafkaProducer.send(v7.toString());
 					} else {
-						var event = PaymentEventValue.newBuilder().setId(v7.toString()).build();
-						kafkaProducer.sendPaymentEvent(event);
+						var event = PaymentEventValue.newBuilder()
+								.setId(v7.toString())
+								.build();
+						kafkaProducer.send(event);
 					}
-					return null;
 				});
 			}
 		}
