@@ -9,10 +9,10 @@ import com.fasterxml.uuid.Generators;
 
 @Service
 public class PaymentEventsProduceUseCase {
-	private final KafkaProducer kafkaProducer;
+	private final PaymentEventProducer paymentEventProducer;
 
-	public PaymentEventsProduceUseCase(KafkaProducer kafkaProducer) {
-		this.kafkaProducer = kafkaProducer;
+	public PaymentEventsProduceUseCase(PaymentEventProducer paymentEventProducer) {
+		this.paymentEventProducer = paymentEventProducer;
 	}
 
 	public void run(int n, boolean isString) {
@@ -22,14 +22,14 @@ public class PaymentEventsProduceUseCase {
 				int sequenceId = i;
 				executor.submit(() -> {
 					System.out.println("🧵 " + Thread.currentThread() + " processes " + sequenceId);
-					var v7 = Generators.timeBasedEpochGenerator().generate();
+					var id = Generators.timeBasedEpochGenerator().generate().toString();
 					if (isString) {
-						kafkaProducer.send(v7.toString());
+						paymentEventProducer.sendPaymentEvent(id);
 					} else {
 						var event = PaymentEventValue.newBuilder()
-								.setId(v7.toString())
+								.setId(id)
 								.build();
-						kafkaProducer.send(event);
+						paymentEventProducer.sendPaymentEvent(event);
 					}
 				});
 			}

@@ -5,6 +5,14 @@ import java.util.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+enum KafkaTopic {
+	PAYMENT;
+
+	public String key() {
+		return name().toLowerCase();
+	}
+}
+
 @Component
 @ConfigurationProperties(prefix = "kafka")
 public class KafkaTopicConfig {
@@ -21,7 +29,7 @@ public class KafkaTopicConfig {
 	public String getTopicName(String key) {
 		var t = topicConfig.get(key);
 		if (t == null || t.getTopicName().isEmpty()) {
-			throw new IllegalArgumentException("❌ Kafka topic not found for key: " + key);
+			throw new IllegalArgumentException("❌ Unexpected topic key: " + key);
 		}
 		return t.getTopicName();
 	}
@@ -54,15 +62,5 @@ public class KafkaTopicConfig {
 		public void setReplicationFactor(short replicationFactor) {
 			this.replicationFactor = replicationFactor;
 		}
-	}
-}
-
-enum KafkaTopic {
-	PAYMENT("payment");
-
-	final String key;
-
-	private KafkaTopic(String key) {
-		this.key = key;
 	}
 }

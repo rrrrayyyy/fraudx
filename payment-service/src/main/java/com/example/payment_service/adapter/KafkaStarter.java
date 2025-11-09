@@ -26,12 +26,12 @@ public class KafkaStarter {
 					var setting = topicConfig.getTopicConfig().get(key);
 					var t = setting.getTopicName();
 					if (t == null) {
-						System.out.println("😈 Unexpected topic key specified: " + key);
+						System.out.println("😈 Unexpected topic key: " + key);
 						continue;
 					}
 					topicCreator.createTopic(t, setting.getPartitions(), setting.getReplicationFactor());
 					kafkaTemplate.partitionsFor(t);
-					System.out.println("✅ Kafka connection successful");
+					System.out.println("✅ Kafka connection succeeded");
 				}
 			} catch (Exception e) {
 				System.err.println("❌ Kafka connection failed: " + e.getMessage());
