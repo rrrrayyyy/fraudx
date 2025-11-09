@@ -8,8 +8,8 @@ import com.example.payment_service.usecase.PaymentEventsProduceUseCase;
 public class PaymentController {
     private final PaymentEventsProduceUseCase paymentEventsProduceUseCase;
 
-    public PaymentController() {
-        paymentEventsProduceUseCase = new PaymentEventsProduceUseCase();
+    public PaymentController(PaymentEventsProduceUseCase paymentEventsProduceUseCase) {
+        this.paymentEventsProduceUseCase = paymentEventsProduceUseCase;
     }
 
     @PostMapping("payment-events")

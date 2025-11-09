@@ -3,8 +3,10 @@ package com.example.payment_service.adapter;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import com.example.payment_service.usecase.KafkaProducer;
+
 @Service
-public class KafkaClient {
+public class KafkaClient implements KafkaProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final KafkaTopics kafkaTopics;
 
@@ -13,6 +15,7 @@ public class KafkaClient {
         this.kafkaTopics = kafkaTopics;
     }
 
+    @Override
     public void send(String key, String payload) {
         var t = kafkaTopics.get(key);
         kafkaTemplate.send(t, payload);
