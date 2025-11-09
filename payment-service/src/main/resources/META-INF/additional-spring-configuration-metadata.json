@@ -1,14 +1,24 @@
 {
-    "properties": [
-        {
-            "name": "kafka.connect",
-            "type": "java.lang.String",
-            "description": "A description for 'kafka.connect'"
-        },
-        {
-            "name": "kafka.topics.payment",
-            "type": "java.lang.String",
-            "description": "A description for 'kafka.topics.payment'"
-        }
-    ]
+	"properties": [
+		{
+			"name": "kafka.connect",
+			"type": "java.lang.String",
+			"description": "A description for 'kafka.connect'"
+		},
+		{
+			"name": "kafka.topic-config.payment.topic-name",
+			"type": "java.lang.String",
+			"description": "A description for 'kafka.topic-config.payment.topic-name'"
+		},
+		{
+			"name": "kafka.topic-config.payment.partitions",
+			"type": "java.lang.String",
+			"description": "A description for 'kafka.topic-config.payment.partitions'"
+		},
+		{
+			"name": "kafka.topic-config.payment.replication-factor",
+			"type": "java.lang.String",
+			"description": "A description for 'kafka.topic-config.payment.replication-factor'"
+		}
+	]
 }

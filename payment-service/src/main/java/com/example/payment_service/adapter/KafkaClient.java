@@ -8,30 +8,30 @@ import com.example.payment_service.usecase.KafkaProducer;
 
 @Service
 public class KafkaClient implements KafkaProducer {
-	private final KafkaTopics kafkaTopics;
-	private final KafkaTemplate<String, String> kafkaTemplate;
-	private final KafkaTemplate<String, PaymentEventValue> paymentEventTemplate;
+	private final KafkaTopicConfig topicConfig;
+	private final KafkaTemplate<String, String> stringTemplate;
+	private final KafkaTemplate<String, PaymentEventValue> protoTemplate;
 
 	public KafkaClient(
-			KafkaTopics kafkaTopics,
-			KafkaTemplate<String, String> kafkaTemplate,
-			KafkaTemplate<String, PaymentEventValue> paymentEventTemplate) {
-		this.kafkaTopics = kafkaTopics;
-		this.kafkaTemplate = kafkaTemplate;
-		this.paymentEventTemplate = paymentEventTemplate;
+			KafkaTopicConfig topicConfig,
+			KafkaTemplate<String, String> stringTemplate,
+			KafkaTemplate<String, PaymentEventValue> protoTemplate) {
+		this.topicConfig = topicConfig;
+		this.stringTemplate = stringTemplate;
+		this.protoTemplate = protoTemplate;
 	}
 
 	@Override
 	public void send(String payload) {
-		var t = kafkaTopics.get(KafkaTopic.PAYMENT.key);
-		kafkaTemplate.send(t, payload);
+		var t = topicConfig.getTopicName(KafkaTopic.PAYMENT.key);
+		stringTemplate.send(t, payload);
 		System.out.println("✅ Published payment event as String: " + payload);
 	}
 
 	@Override
 	public void send(PaymentEventValue value) {
-		var t = kafkaTopics.get(KafkaTopic.PAYMENT.key);
-		paymentEventTemplate.send(t, value);
+		var t = topicConfig.getTopicName(KafkaTopic.PAYMENT.key);
+		protoTemplate.send(t, value);
 		System.out.println("✅ Published payment event: " + value);
 	}
 }

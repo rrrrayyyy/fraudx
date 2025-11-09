@@ -61,13 +61,3 @@ public class KafkaConfig {
 		props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, bufferMemory);
 	}
 }
-
-enum KafkaTopic {
-	PAYMENT("payment");
-
-	final String key;
-
-	private KafkaTopic(String key) {
-		this.key = key;
-	}
-}

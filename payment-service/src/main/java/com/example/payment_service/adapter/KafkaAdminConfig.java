@@ -8,13 +8,13 @@ import org.springframework.context.annotation.*;
 
 @Configuration
 public class KafkaAdminConfig {
-    @Value("${spring.kafka.bootstrap-servers}")
-    private String bootstrapServers;
+	@Value("${spring.kafka.bootstrap-servers}")
+	private String bootstrapServers;
 
-    @Bean
-    public AdminClient adminClient() {
-        var configs = new HashMap<String, Object>();
-        configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        return AdminClient.create(configs);
-    }
+	@Bean
+	public AdminClient adminClient() {
+		var configs = new HashMap<String, Object>();
+		configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+		return AdminClient.create(configs);
+	}
 }
