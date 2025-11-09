@@ -31,44 +31,51 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-tasks.named('bootRun') {
-    doFirst {
-        if (project.hasProperty('composeUpD') && project.property('composeUpD') == 'true') {
-            println "🔧 Restarting Docker Compose environment..."
+tasks.register("composeUp") {
+    if (System.getProperty('composeUpD')) {
+        println "🔧 Restarting Docker Compose environment..."
 
-            exec {
-                commandLine "bash", "-c", "docker compose down -v --remove-orphans"
-            }
-
-			def String clusterId = java.util.UUID.randomUUID().toString()
-            def env = [
-                "CLUSTER_ID": clusterId
-            ]
-            println "🌐 Generated CLUSTER_ID=${clusterId}"
-
-            exec {
-                environment env
-                commandLine "docker", "compose", "up", "-d"
-            }
-
-            println "⏳ Waiting for Kafka to become available (localhost:9004)..."
-            exec {
-                ignoreExitValue true
-                commandLine "bash", "-c", """
-                    for i in {1..30}; do
-                      nc -z localhost 9004 && echo "✅ Kafka is up!" && exit 0
-                      echo "Waiting for Kafka... (\$i)"
-                      sleep 2
-                    done
-                    echo "❌ Kafka did not start in time" >&2
-                    exit 1
-                """
-            }
-
-        } else {
-            println "Skipping Docker Compose & Kafka connection setup..."
+        exec {
+            commandLine "bash", "-c", "docker compose down -v --remove-orphans"
         }
-    }
 
-    systemProperty "kafka.connect", System.getProperty("kafka.connect")
+        def String clusterId = java.util.UUID.randomUUID().toString()
+        def env = [
+            "CLUSTER_ID": clusterId
+        ]
+        println "🌐 Generated CLUSTER_ID=${clusterId}"
+
+        exec {
+            environment env
+            commandLine "docker", "compose", "up", "-d"
+        }
+
+        println "⏳ Waiting for Kafka to become available (localhost:9004)..."
+        exec {
+            ignoreExitValue true
+            commandLine "bash", "-c", """
+                for i in {1..30}; do
+                    nc -z localhost 9004 && echo "✅ Kafka is up!" && exit 0
+                    echo "Waiting for Kafka... (\$i)"
+                    sleep 2
+                done
+                echo "❌ Kafka did not start in time" >&2
+                exit 1
+            """
+        }
+    } else {
+        println "Skipping Docker Compose & Kafka connection setup..."
+    } 
+}
+
+tasks.named('bootRun') {
+    dependsOn("composeUp")
+    def kafkaConnect = System.getProperty("kafka.connect") == "true"
+    systemProperty "kafka.connect", kafkaConnect.toString()
+
+    if (kafkaConnect) {
+        println "🔗 Kafka connect flag detected, performing Kafka connection setup..."
+    } else {
+        println "Skipping Kafka connection setup..."
+    }
 }
