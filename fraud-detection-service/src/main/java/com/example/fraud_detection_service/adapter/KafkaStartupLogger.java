@@ -22,6 +22,7 @@ public class KafkaStartupLogger {
             var running = container.isRunning();
             log.info("✅ Kafka listener [{}] started: {}", listenerId, running);
             if (running) {
+                System.out.println("✅ assigned partitions:" + container.getAssignedPartitions());
                 container.getAssignedPartitions().forEach(p -> log.info("  -> assigned partition: {}", p));
             }
         });

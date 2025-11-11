@@ -12,3 +12,8 @@ kafka:
   consumer:
     concurrency: 3
     poll-timeout: 3000
+
+logging:
+  level:
+    org.apache.kafka.clients.consumer: DEBUG
+    org.springframework.kafka.listener: DEBUG
