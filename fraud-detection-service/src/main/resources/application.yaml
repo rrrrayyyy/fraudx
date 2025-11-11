@@ -7,5 +7,8 @@ spring:
       group-id: fraudx-dev
       auto-offset-reset: earliest
       enable-auto-commit: false
-      concurrency: 3
-      poll-timeout: 3000
+
+kafka:
+  consumer:
+    concurrency: 3
+    poll-timeout: 3000

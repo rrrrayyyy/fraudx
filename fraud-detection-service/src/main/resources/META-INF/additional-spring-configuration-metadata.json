@@ -1,0 +1,14 @@
+{
+    "properties": [
+        {
+            "name": "kafka.consumer.concurrency",
+            "type": "java.lang.String",
+            "description": "A description for 'kafka.consumer.concurrency'"
+        },
+        {
+            "name": "kafka.consumer.poll-timeout",
+            "type": "java.lang.String",
+            "description": "A description for 'kafka.consumer.poll-timeout'"
+        }
+    ]
+}

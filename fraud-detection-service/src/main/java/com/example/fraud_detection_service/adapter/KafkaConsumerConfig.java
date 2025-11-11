@@ -5,7 +5,7 @@ import java.util.HashMap;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.*;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
@@ -13,6 +13,7 @@ import org.springframework.kafka.core.*;
 import com.example.payment.Payment.PaymentEventValue;
 
 @EnableKafka
+@Configuration
 public class KafkaConsumerConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
@@ -26,10 +27,10 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.consumer.enable-auto-commit}")
     private boolean enableAutoCommit;
 
-    @Value("${spring.kafka.consumer.concurrency}")
+    @Value("${kafka.consumer.concurrency}")
     private int concurrency;
 
-    @Value("${spring.kafka.consumer.poll-timeout}")
+    @Value("${kafka.consumer.poll-timeout}")
     private int pollTimeout;
 
     @Bean
