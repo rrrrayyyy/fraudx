@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: fraud-detection-service
+  kafka:
+    bootstrap-servers: localhost:9004,localhost:9005
+    consumer:
+      group-id: fraudx-dev
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      concurrency: 3
+      poll-timeout: 3000
