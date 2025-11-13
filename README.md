@@ -61,7 +61,12 @@ subprojects {
     - KRaft mode では controller 専用ノードを立てるのが推奨
 - Apache Kafka は「分散メッセージキュー／イベントログシステム」
     - Kafka Streams は、Kafkaに流れるデータをリアルタイムで加工・集約・結合するためのJavaライブラリ
-
+- consumer 起動時の CoordinatorNotAvailableException
+    - 結論、KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR 未指定（default: 3) > num of brokers (2) で発生していた...
+        - 1を指定して治った
+    - 結果として broker 設定は以下で良かった
+        - KAFKA_LISTENERS: PLAINTEXT://:19092,PLAINTEXT_HOST://:9092
+        - KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker-1:19092,PLAINTEXT_HOST://localhost:9004
 
 # TODO
 - [x] Kafka docker compose up -d の成功確認
