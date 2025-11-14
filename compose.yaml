@@ -13,9 +13,7 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
-    # cpus: 2
     mem_limit: 1g
-    # memswap_limit: 4G
     mem_swappiness: 0
     sysctls:
       net.core.somaxconn: 1024
@@ -26,10 +24,6 @@ services:
       nofile: 65536
     logging:
       driver: none
-      # driver: json-file
-      # options:
-      #   max-size: "10m"
-      #   max-file: "3"    
     volumes:
       - kafka-data-controller-1:/var/lib/kafka
     networks:
@@ -47,9 +41,7 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
-    # cpus: 2
     mem_limit: 1g
-    # memswap_limit: 4G
     mem_swappiness: 0
     sysctls:
       net.core.somaxconn: 1024
@@ -60,10 +52,6 @@ services:
       nofile: 65536
     logging:
       driver: none
-      # driver: json-file
-      # options:
-      #   max-size: "10m"
-      #   max-file: "3"    
     volumes:
       - kafka-data-controller-2:/var/lib/kafka
     networks:
@@ -81,9 +69,7 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
-    # cpus: 2
     mem_limit: 1g
-    # memswap_limit: 4G
     mem_swappiness: 0
     sysctls:
       net.core.somaxconn: 1024
@@ -94,10 +80,6 @@ services:
       nofile: 65536
     logging:
       driver: none
-      # driver: json-file
-      # options:
-      #   max-size: "10m"
-      #   max-file: "3"    
     volumes:
       - kafka-data-controller-3:/var/lib/kafka
     networks:
@@ -133,7 +115,6 @@ services:
       - "9004:9092"
     cpus: 4
     mem_limit: 8g
-    # memswap_limit: 4G
     mem_swappiness: 0
     sysctls:
       net.core.somaxconn: 65535
@@ -144,10 +125,6 @@ services:
       nofile: 1000000
     logging:
       driver: none
-      # driver: json-file
-      # options:
-      #   max-size: "10m"
-      #   max-file: "3"
     volumes:
       - kafka-data-broker-1:/var/lib/kafka
     networks:
@@ -187,7 +164,6 @@ services:
       - "9005:9092"
     cpus: 4
     mem_limit: 8g
-    # memswap_limit: 4G
     mem_swappiness: 0
     sysctls:
       net.core.somaxconn: 65535
@@ -198,10 +174,6 @@ services:
       nofile: 1000000
     logging:
       driver: none
-      # driver: json-file
-      # options:
-      #   max-size: "10m"
-      #   max-file: "3"
     volumes:
       - kafka-data-broker-2:/var/lib/kafka
     networks:
