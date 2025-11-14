@@ -12,23 +12,24 @@ services:
       KAFKA_LISTENERS: CONTROLLER://:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
-      KAFKA_HEAP_OPTS: "-Xms2g -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
-    cpus: 2
-    mem_limit: 4g
-    memswap_limit: 4G
+      KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
+    # cpus: 2
+    mem_limit: 1g
+    # memswap_limit: 4G
     mem_swappiness: 0
     sysctls:
-      net.core.somaxconn: 65535
-      net.ipv4.tcp_max_syn_backlog: 4096
+      net.core.somaxconn: 1024
+      net.ipv4.tcp_max_syn_backlog: 1024
       net.ipv4.tcp_tw_reuse: 1
       net.ipv4.tcp_fin_timeout: 15
     ulimits:
       nofile: 65536
     logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"    
+      driver: none
+      # driver: json-file
+      # options:
+      #   max-size: "10m"
+      #   max-file: "3"    
     volumes:
       - kafka-data-controller-1:/var/lib/kafka
     networks:
@@ -45,23 +46,24 @@ services:
       KAFKA_LISTENERS: CONTROLLER://:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
-      KAFKA_HEAP_OPTS: "-Xms2g -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
-    cpus: 2
-    mem_limit: 4g
-    memswap_limit: 4G
+      KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
+    # cpus: 2
+    mem_limit: 1g
+    # memswap_limit: 4G
     mem_swappiness: 0
     sysctls:
-      net.core.somaxconn: 65535
-      net.ipv4.tcp_max_syn_backlog: 4096
+      net.core.somaxconn: 1024
+      net.ipv4.tcp_max_syn_backlog: 1024
       net.ipv4.tcp_tw_reuse: 1
       net.ipv4.tcp_fin_timeout: 15
     ulimits:
       nofile: 65536
     logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"    
+      driver: none
+      # driver: json-file
+      # options:
+      #   max-size: "10m"
+      #   max-file: "3"    
     volumes:
       - kafka-data-controller-2:/var/lib/kafka
     networks:
@@ -78,23 +80,24 @@ services:
       KAFKA_LISTENERS: CONTROLLER://:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
-      KAFKA_HEAP_OPTS: "-Xms2g -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
-    cpus: 2
-    mem_limit: 4g
-    memswap_limit: 4G
+      KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
+    # cpus: 2
+    mem_limit: 1g
+    # memswap_limit: 4G
     mem_swappiness: 0
     sysctls:
-      net.core.somaxconn: 65535
-      net.ipv4.tcp_max_syn_backlog: 4096
+      net.core.somaxconn: 1024
+      net.ipv4.tcp_max_syn_backlog: 1024
       net.ipv4.tcp_tw_reuse: 1
       net.ipv4.tcp_fin_timeout: 15
     ulimits:
       nofile: 65536
     logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"    
+      driver: none
+      # driver: json-file
+      # options:
+      #   max-size: "10m"
+      #   max-file: "3"    
     volumes:
       - kafka-data-controller-3:/var/lib/kafka
     networks:
@@ -116,34 +119,35 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_NUM_NETWORK_THREADS: 4
       KAFKA_NUM_IO_THREADS: 8
-      KAFKA_HEAP_OPTS: "-Xms2g -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
+      KAFKA_HEAP_OPTS: "-Xms1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_SOCKET_SEND_BUFFER_BYTES: 1048576
       KAFKA_SOCKET_RECEIVE_BUFFER_BYTES: 1048576
       KAFKA_REPLICA_FETCH_MAX_BYTES: 52428800
       KAFKA_REPLICA_FETCH_MIN_BYTES: 1048576
       KAFKA_LOG_SEGMENT_BYTES: 1073741824
-      KAFKA_NUM_PARTITIONS: 2
+      KAFKA_NUM_PARTITIONS: 16
       KAFKA_COMPRESSION_TYPE: lz4
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     ports:
       - "9004:9092"
-    cpus: 2
-    mem_limit: 4g
-    memswap_limit: 4G
+    cpus: 4
+    mem_limit: 8g
+    # memswap_limit: 4G
     mem_swappiness: 0
     sysctls:
       net.core.somaxconn: 65535
-      net.ipv4.tcp_max_syn_backlog: 4096
+      net.ipv4.tcp_max_syn_backlog: 65535
       net.ipv4.tcp_tw_reuse: 1
       net.ipv4.tcp_fin_timeout: 15
     ulimits:
-      nofile: 65536
+      nofile: 1000000
     logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
+      driver: none
+      # driver: json-file
+      # options:
+      #   max-size: "10m"
+      #   max-file: "3"
     volumes:
       - kafka-data-broker-1:/var/lib/kafka
     networks:
@@ -169,34 +173,35 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_NUM_NETWORK_THREADS: 4
       KAFKA_NUM_IO_THREADS: 8
-      KAFKA_HEAP_OPTS: "-Xms2g -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
+      KAFKA_HEAP_OPTS: "-Xms1g -Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_SOCKET_SEND_BUFFER_BYTES: 1048576
       KAFKA_SOCKET_RECEIVE_BUFFER_BYTES: 1048576
       KAFKA_REPLICA_FETCH_MAX_BYTES: 52428800
       KAFKA_REPLICA_FETCH_MIN_BYTES: 1048576
       KAFKA_LOG_SEGMENT_BYTES: 1073741824
-      KAFKA_NUM_PARTITIONS: 2
+      KAFKA_NUM_PARTITIONS: 16
       KAFKA_COMPRESSION_TYPE: lz4
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     ports:
       - "9005:9092"
-    cpus: 2
-    mem_limit: 4g
-    memswap_limit: 4G
+    cpus: 4
+    mem_limit: 8g
+    # memswap_limit: 4G
     mem_swappiness: 0
     sysctls:
       net.core.somaxconn: 65535
-      net.ipv4.tcp_max_syn_backlog: 4096
+      net.ipv4.tcp_max_syn_backlog: 65535
       net.ipv4.tcp_tw_reuse: 1
       net.ipv4.tcp_fin_timeout: 15
     ulimits:
-      nofile: 65536
+      nofile: 1000000
     logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
+      driver: none
+      # driver: json-file
+      # options:
+      #   max-size: "10m"
+      #   max-file: "3"
     volumes:
       - kafka-data-broker-2:/var/lib/kafka
     networks:
