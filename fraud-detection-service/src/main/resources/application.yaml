@@ -10,5 +10,5 @@ spring:
 
 kafka:
   consumer:
-    concurrency: 3
-    poll-timeout: 3000
+    concurrency: 8
+    poll-timeout: 5000
