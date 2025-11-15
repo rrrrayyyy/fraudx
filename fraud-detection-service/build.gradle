@@ -20,8 +20,8 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	implementation 'org.springframework.kafka:spring-kafka'
+	implementation 'org.springframework.kafka:spring-kafka:'
+    implementation 'org.apache.kafka:kafka-clients:4.1.0'
 	implementation "com.google.protobuf:protobuf-java:4.33.0"
 	implementation project(":proto")
 

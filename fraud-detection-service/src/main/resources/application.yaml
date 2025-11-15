@@ -4,7 +4,7 @@ spring:
   kafka:
     bootstrap-servers: localhost:9004,localhost:9005
     consumer:
-      group-id: fraudx-dev
+      group-id: fraud-detection-dev
       auto-offset-reset: earliest
       enable-auto-commit: false
 

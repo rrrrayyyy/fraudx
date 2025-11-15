@@ -22,11 +22,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.apache.kafka:kafka-clients:4.1.0'
 	implementation "com.google.protobuf:protobuf-java:4.33.0"
 	implementation project(":proto")
 	implementation 'com.fasterxml.uuid:java-uuid-generator:5.1.1'
 
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

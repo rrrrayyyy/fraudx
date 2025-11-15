@@ -6,7 +6,6 @@ services:
     container_name: controller-1
     hostname: controller-1
     environment:
-      KAFKA_CLUSTER_ID: ${CLUSTER_ID}
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: controller
       KAFKA_LISTENERS: CONTROLLER://:9093
@@ -34,7 +33,6 @@ services:
     container_name: controller-2
     hostname: controller-2
     environment:
-      KAFKA_CLUSTER_ID: ${CLUSTER_ID}
       KAFKA_NODE_ID: 2
       KAFKA_PROCESS_ROLES: controller
       KAFKA_LISTENERS: CONTROLLER://:9093
@@ -62,7 +60,6 @@ services:
     container_name: controller-3
     hostname: controller-3
     environment:
-      KAFKA_CLUSTER_ID: ${CLUSTER_ID}
       KAFKA_NODE_ID: 3
       KAFKA_PROCESS_ROLES: controller
       KAFKA_LISTENERS: CONTROLLER://:9093
@@ -90,7 +87,6 @@ services:
     container_name: broker-1
     hostname: broker-1
     environment:
-      KAFKA_CLUSTER_ID: ${CLUSTER_ID}
       KAFKA_NODE_ID: 4
       KAFKA_PROCESS_ROLES: broker
       KAFKA_LISTENERS: PLAINTEXT://:19092,PLAINTEXT_HOST://:9092
@@ -139,7 +135,6 @@ services:
     container_name: broker-2
     hostname: broker-2
     environment:
-      KAFKA_CLUSTER_ID: ${CLUSTER_ID}
       KAFKA_NODE_ID: 5
       KAFKA_PROCESS_ROLES: broker
       KAFKA_LISTENERS: PLAINTEXT://:19092,PLAINTEXT_HOST://:9092
