@@ -1,5 +1,6 @@
 package com.example.payment_service.adapter;
 
+import org.slf4j.*;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.*;
@@ -10,6 +11,7 @@ import com.example.payment.Payment.PaymentEventValue;
 @Configuration
 @ConditionalOnProperty(value = "kafka.connect", havingValue = "true")
 public class KafkaStarter {
+	private static final Logger log = LoggerFactory.getLogger(KafkaClient.class);
 	private final KafkaTopicConfig topicConfig;
 	private final KafkaTopicCreator topicCreator;
 
@@ -26,15 +28,15 @@ public class KafkaStarter {
 					var setting = topicConfig.getTopicConfig().get(key);
 					var t = setting.getTopicName();
 					if (t == null) {
-						System.out.println("😈 Unexpected topic key: " + key);
+						log.warn("😈 Unexpected topic key: {}", key);
 						continue;
 					}
 					topicCreator.createTopic(t, setting.getPartitions(), setting.getReplicationFactor());
 					kafkaTemplate.partitionsFor(t);
-					System.out.println("✅ Kafka connection succeeded");
+					log.info("✅ Kafka connection succeeded");
 				}
 			} catch (Exception e) {
-				System.err.println("❌ Kafka connection failed: " + e.getMessage());
+				log.error("❌ Kafka connection failed: {}", e.getMessage());
 			}
 		};
 	}

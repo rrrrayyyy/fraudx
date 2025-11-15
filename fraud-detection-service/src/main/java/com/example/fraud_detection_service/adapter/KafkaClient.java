@@ -23,10 +23,9 @@ public class KafkaClient {
 
     private void processRecord(ConsumerRecord<String, String> record) {
         try {
-            log.info("📩 Processing event [partition={}, offset={}]: {}", record.partition(), record.offset(),
-                    record.value());
             // execute some logic
-            System.out.println("✅ event subscription succeeded");
+            log.info("✅ Processing event [partition={}, offset={}]: {}", record.partition(), record.offset(),
+                    record.value());
         } catch (Exception e) {
             log.error("❌ Error processing record: {}", e.getMessage(), e);
         }

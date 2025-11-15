@@ -16,12 +16,9 @@ public class PaymentEventsProduceUseCase {
 	}
 
 	public void run(int n, boolean isString) {
-		System.out.println("PaymentEventsProduceUseCase.run() started with: " + n);
 		try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			for (int i = 0; i < n; i++) {
-				int sequenceId = i;
 				executor.submit(() -> {
-					System.out.println("🧵 " + Thread.currentThread() + " processes " + sequenceId);
 					var id = Generators.timeBasedEpochGenerator().generate().toString();
 					if (isString) {
 						paymentEventProducer.sendPaymentEvent(id);

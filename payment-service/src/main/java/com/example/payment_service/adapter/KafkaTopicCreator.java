@@ -4,10 +4,12 @@ import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.kafka.clients.admin.*;
+import org.slf4j.*;
 import org.springframework.stereotype.Component;
 
 @Component
 public class KafkaTopicCreator {
+	private static final Logger log = LoggerFactory.getLogger(KafkaClient.class);
 	private final AdminClient adminClient;
 
 	public KafkaTopicCreator(AdminClient adminClient) {
@@ -18,10 +20,10 @@ public class KafkaTopicCreator {
 		var topic = new NewTopic(topicName, partitions, replicationFactor);
 		try {
 			adminClient.createTopics(Collections.singleton(topic)).all().get();
-			System.out.println("✅ Created topic: " + topicName);
+			log.info("✅ Created topic: {}", topicName);
 		} catch (ExecutionException e) {
 			if (e.getCause() instanceof org.apache.kafka.common.errors.TopicExistsException) {
-				System.out.println("⚠️ Topic already exists: " + topicName);
+				log.warn("⚠️ Topic already exists: {}", topicName);
 			} else {
 				throw new RuntimeException("❌ Failed to create topic: " + topicName, e);
 			}
