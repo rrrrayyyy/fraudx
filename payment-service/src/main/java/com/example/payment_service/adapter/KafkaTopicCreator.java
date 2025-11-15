@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class KafkaTopicCreator {
-	private static final Logger log = LoggerFactory.getLogger(KafkaClient.class);
+	private static final Logger log = LoggerFactory.getLogger("payment-service");
 	private final AdminClient adminClient;
 
 	public KafkaTopicCreator(AdminClient adminClient) {

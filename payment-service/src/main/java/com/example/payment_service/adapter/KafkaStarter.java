@@ -11,7 +11,7 @@ import com.example.payment.Payment.PaymentEventValue;
 @Configuration
 @ConditionalOnProperty(value = "kafka.connect", havingValue = "true")
 public class KafkaStarter {
-	private static final Logger log = LoggerFactory.getLogger(KafkaClient.class);
+	private static final Logger log = LoggerFactory.getLogger("payment-service");
 	private final KafkaTopicConfig topicConfig;
 	private final KafkaTopicCreator topicCreator;
 

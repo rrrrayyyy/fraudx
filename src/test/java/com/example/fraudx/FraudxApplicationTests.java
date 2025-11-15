@@ -1,10 +1,10 @@
-package com.example.fraudx_base;
+package com.example.fraudx;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class FraudxBaseApplicationTests {
+class FraudxApplicationTests {
 
 	@Test
 	void contextLoads() {

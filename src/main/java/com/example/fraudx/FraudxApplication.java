@@ -1,13 +1,13 @@
-package com.example.fraudx_base;
+package com.example.fraudx;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class FraudxBaseApplication {
+public class FraudxApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(FraudxBaseApplication.class, args);
+		SpringApplication.run(FraudxApplication.class, args);
 	}
 
 }

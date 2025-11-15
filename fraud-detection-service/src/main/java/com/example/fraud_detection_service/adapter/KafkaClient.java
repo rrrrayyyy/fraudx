@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class KafkaClient {
-    private static final Logger log = LoggerFactory.getLogger(KafkaClient.class);
+    private static final Logger log = LoggerFactory.getLogger("fraud-detection-service");
     private final ExecutorService executor;
 
     public KafkaClient(ExecutorService virtualThreadExecutor) {

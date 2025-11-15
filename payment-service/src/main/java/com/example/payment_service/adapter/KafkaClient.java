@@ -9,7 +9,7 @@ import com.example.payment_service.usecase.PaymentEventProducer;
 
 @Service
 public class KafkaClient implements PaymentEventProducer {
-	private static final Logger log = LoggerFactory.getLogger(KafkaClient.class);
+	private static final Logger log = LoggerFactory.getLogger("payment-service");
 	private final KafkaTopicConfig topicConfig;
 	private final KafkaTemplate<String, String> stringTemplate;
 	private final KafkaTemplate<String, PaymentEventValue> protoTemplate;
