@@ -17,14 +17,14 @@ public class KafkaClient {
     }
 
     @KafkaListener(topics = "payment-events", concurrency = "3")
-    public void receive(ConsumerRecord<String, String> record) {
-        executor.submit(() -> processRecord(record));
+    public void process(ConsumerRecord<String, String> record) {
+        executor.submit(() -> subscribe(record));
     }
 
-    private void processRecord(ConsumerRecord<String, String> record) {
+    private void subscribe(ConsumerRecord<String, String> record) {
         try {
             // execute some logic
-            log.info("✅ Processing event [partition={}, offset={}]: {}", record.partition(), record.offset(),
+            log.info("✅ Subscribed event [partition={}, offset={}]: {}", record.partition(), record.offset(),
                     record.value());
         } catch (Exception e) {
             log.error("❌ Error processing record: {}", e.getMessage(), e);

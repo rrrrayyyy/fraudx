@@ -11,27 +11,17 @@ import com.example.payment_service.usecase.PaymentEventProducer;
 public class KafkaClient implements PaymentEventProducer {
 	private static final Logger log = LoggerFactory.getLogger("payment-service");
 	private final KafkaTopicConfig topicConfig;
-	private final KafkaTemplate<String, String> stringTemplate;
 	private final KafkaTemplate<String, PaymentEventValue> protoTemplate;
 
 	public KafkaClient(
 			KafkaTopicConfig topicConfig,
-			KafkaTemplate<String, String> stringTemplate,
 			KafkaTemplate<String, PaymentEventValue> protoTemplate) {
 		this.topicConfig = topicConfig;
-		this.stringTemplate = stringTemplate;
 		this.protoTemplate = protoTemplate;
 	}
 
 	@Override
-	public void sendPaymentEvent(String payload) {
-		var t = topicConfig.getTopicName(KafkaTopic.PAYMENT.key());
-		stringTemplate.send(t, payload);
-		log.info("✅ Published payment event as String: {}", payload);
-	}
-
-	@Override
-	public void sendPaymentEvent(PaymentEventValue value) {
+	public void publish(PaymentEventValue value) {
 		var t = topicConfig.getTopicName(KafkaTopic.PAYMENT.key());
 		protoTemplate.send(t, value);
 		log.info("✅ Published payment event: {}", value);

@@ -3,7 +3,6 @@ package com.example.payment_service.adapter;
 import java.util.HashMap;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.*;
@@ -34,7 +33,10 @@ public class KafkaConfig {
 	@Bean
 	public ProducerFactory<String, PaymentEventValue> protobufProducerFactory() {
 		var props = new HashMap<String, Object>();
-		setCommonProducerConfig(props);
+		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+		props.put(ProducerConfig.ACKS_CONFIG, acks);
+		props.put(ProducerConfig.BATCH_SIZE_CONFIG, batchSize);
+		props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, bufferMemory);
 		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaProtobufSerializer.class);
 		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaProtobufSerializer.class);
 		return new DefaultKafkaProducerFactory<String, PaymentEventValue>(props);
@@ -43,26 +45,5 @@ public class KafkaConfig {
 	@Bean
 	public KafkaTemplate<String, PaymentEventValue> protobufKafkaTemplate() {
 		return new KafkaTemplate<>(protobufProducerFactory());
-	}
-
-	@Bean
-	public ProducerFactory<String, String> stringProducerFactory() {
-		var props = new HashMap<String, Object>();
-		setCommonProducerConfig(props);
-		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-		return new DefaultKafkaProducerFactory<String, String>(props);
-	}
-
-	@Bean
-	public KafkaTemplate<String, String> stringKafkaTemplate() {
-		return new KafkaTemplate<>(stringProducerFactory());
-	}
-
-	private void setCommonProducerConfig(HashMap<String, Object> props) {
-		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-		props.put(ProducerConfig.ACKS_CONFIG, acks);
-		props.put(ProducerConfig.BATCH_SIZE_CONFIG, batchSize);
-		props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, bufferMemory);
 	}
 }

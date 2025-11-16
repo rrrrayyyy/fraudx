@@ -15,19 +15,15 @@ public class PaymentEventsProduceUseCase {
 		this.paymentEventProducer = paymentEventProducer;
 	}
 
-	public void run(int n, boolean isString) {
+	public void run(int n) {
 		try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			for (int i = 0; i < n; i++) {
 				executor.submit(() -> {
 					var id = UuidCreator.getTimeOrderedEpoch().toString();
-					if (isString) {
-						paymentEventProducer.sendPaymentEvent(id);
-					} else {
-						var event = PaymentEventValue.newBuilder()
-								.setId(id)
-								.build();
-						paymentEventProducer.sendPaymentEvent(event);
-					}
+					var event = PaymentEventValue.newBuilder()
+							.setId(id)
+							.build();
+					paymentEventProducer.publish(event);
 				});
 			}
 		}
