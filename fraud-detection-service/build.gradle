@@ -24,6 +24,7 @@ dependencies {
     implementation 'org.apache.kafka:kafka-clients:4.1.0'
 	implementation "com.google.protobuf:protobuf-java:4.33.0"
 	implementation project(":proto")
+    implementation 'ch.qos.logback:logback-classic'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

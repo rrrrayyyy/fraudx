@@ -26,6 +26,7 @@ dependencies {
 	implementation "com.google.protobuf:protobuf-java:4.33.0"
 	implementation project(":proto")
 	implementation 'com.fasterxml.uuid:java-uuid-generator:5.1.1'
+    implementation 'ch.qos.logback:logback-classic'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
