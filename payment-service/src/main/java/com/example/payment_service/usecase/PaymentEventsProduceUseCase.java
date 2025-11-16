@@ -5,7 +5,7 @@ import java.util.concurrent.*;
 import org.springframework.stereotype.Service;
 
 import com.example.payment.Payment.PaymentEventValue;
-import com.fasterxml.uuid.Generators;
+import com.github.f4b6a3.uuid.UuidCreator;
 
 @Service
 public class PaymentEventsProduceUseCase {
@@ -19,7 +19,7 @@ public class PaymentEventsProduceUseCase {
 		try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			for (int i = 0; i < n; i++) {
 				executor.submit(() -> {
-					var id = Generators.timeBasedEpochGenerator().generate().toString();
+					var id = UuidCreator.getTimeOrderedEpoch().toString();
 					if (isString) {
 						paymentEventProducer.sendPaymentEvent(id);
 					} else {
