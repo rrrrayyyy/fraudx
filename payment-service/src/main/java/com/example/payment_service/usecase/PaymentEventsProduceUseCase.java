@@ -1,7 +1,9 @@
 package com.example.payment_service.usecase;
 
+import java.time.*;
 import java.util.concurrent.*;
 
+import org.slf4j.*;
 import org.springframework.stereotype.Service;
 
 import com.example.payment.Payment.PaymentEventValue;
@@ -9,6 +11,7 @@ import com.github.f4b6a3.uuid.UuidCreator;
 
 @Service
 public class PaymentEventsProduceUseCase {
+	private static final Logger log = LoggerFactory.getLogger("payment-service");
 	private final PaymentEventProducer paymentEventProducer;
 
 	public PaymentEventsProduceUseCase(PaymentEventProducer paymentEventProducer) {
@@ -16,6 +19,7 @@ public class PaymentEventsProduceUseCase {
 	}
 
 	public void run(int n) {
+		var start = Instant.now();
 		try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			for (int i = 0; i < n; i++) {
 				executor.submit(() -> {
@@ -26,6 +30,10 @@ public class PaymentEventsProduceUseCase {
 					paymentEventProducer.publish(event);
 				});
 			}
+		} finally {
+			var elapsed = Duration.between(start, Instant.now());
+			var ms = elapsed.toMillis();
+			log.info("🚀 Producer average RPS: " + (double) n / ms * 1000);
 		}
 	}
 }
