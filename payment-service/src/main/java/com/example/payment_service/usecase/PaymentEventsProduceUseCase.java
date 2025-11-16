@@ -19,7 +19,7 @@ public class PaymentEventsProduceUseCase {
 	}
 
 	public void run(int n) {
-		var start = Instant.now();
+		var startTime = Instant.now();
 		try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			for (int i = 0; i < n; i++) {
 				executor.submit(() -> {
@@ -31,7 +31,7 @@ public class PaymentEventsProduceUseCase {
 				});
 			}
 		} finally {
-			var elapsed = Duration.between(start, Instant.now());
+			var elapsed = Duration.between(startTime, Instant.now());
 			var ms = elapsed.toMillis();
 			log.info("🚀 Producer average RPS: " + (double) n / ms * 1000);
 		}

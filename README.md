@@ -6,10 +6,10 @@
 
 ./gradlew :payment-service:bootRun -DcomposeUpD=true -Dkafka.connect=true --args="--kafka.topic-config.payment.partitions=3 --kafka.topic-config.payment.replication-factor=1"
 
-./gradlew :fraud-detection-service:bootRun
+./gradlew :fraud-detection-service:bootRun --args='--n=10000'
 
 # move to another terminal
-curl -X POST "http://localhost:8080/payment-events?n=10"
+curl -X POST "http://localhost:8080/payment-events?n=10000"
 ```
 
 # development environment setup
