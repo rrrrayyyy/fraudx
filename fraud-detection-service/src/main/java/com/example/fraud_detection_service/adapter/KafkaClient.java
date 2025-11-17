@@ -54,7 +54,7 @@ public class KafkaClient {
 
         if (startTime.get() != null) {
             double ms = (endTime - startTime.get()) / 1_000_000;
-            log.info("🚀 Consumer average RPS: " + (double) n / ms * 1000);
+            log.info("🚀 Consumer average RPS: " + (int) ((double) n / ms * 1000));
         }
     }
 }

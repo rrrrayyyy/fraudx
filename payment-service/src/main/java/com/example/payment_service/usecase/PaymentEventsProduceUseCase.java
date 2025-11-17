@@ -31,9 +31,8 @@ public class PaymentEventsProduceUseCase {
 				});
 			}
 		} finally {
-			var elapsed = Duration.between(startTime, Instant.now());
-			var ms = elapsed.toMillis();
-			log.info("🚀 Producer average RPS: " + (double) n / ms * 1000);
+			var ms = Duration.between(startTime, Instant.now()).toMillis();
+			log.info("🚀 Producer average RPS: " + (int) ((double) n / ms * 1000));
 		}
 	}
 }
