@@ -43,6 +43,9 @@
     <logger name="org.springframework" level="INFO"/>
     <logger name="org.hibernate" level="WARN"/>
 
+    <logger name="org.apache.kafka.clients.admin.internals.AdminMetadataManager" level="WARN"/>
+    <logger name="org.apache.kafka.clients.NetworkClient" level="WARN"/>
+
     <root level="INFO">
         <appender-ref ref="ASYNC_CONSOLE"/>
         <appender-ref ref="ASYNC_FILE"/>
