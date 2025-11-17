@@ -13,7 +13,7 @@ public class PaymentController {
 	}
 
 	@PostMapping("payment-events")
-	public void publishPaymentEvents(@RequestParam int n) {
-		paymentEventsProduceUseCase.run(n);
+	public void publishPaymentEvents(@RequestParam boolean logging, @RequestParam int n) {
+		paymentEventsProduceUseCase.run(logging, n);
 	}
 }

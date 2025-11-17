@@ -1,6 +1,5 @@
 package com.example.payment_service.adapter;
 
-import org.slf4j.*;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +8,6 @@ import com.example.payment_service.usecase.PaymentEventProducer;
 
 @Service
 public class KafkaClient implements PaymentEventProducer {
-	private static final Logger log = LoggerFactory.getLogger("payment-service");
 	private final KafkaTopicConfig topicConfig;
 	private final KafkaTemplate<String, PaymentEventValue> protoTemplate;
 
@@ -24,6 +22,5 @@ public class KafkaClient implements PaymentEventProducer {
 	public void publish(PaymentEventValue value) {
 		var t = topicConfig.getTopicName(KafkaTopic.PAYMENT.key());
 		protoTemplate.send(t, value);
-		log.info("✅ Published payment event: {}", value);
 	}
 }

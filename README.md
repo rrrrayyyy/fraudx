@@ -9,7 +9,7 @@
 ./gradlew :fraud-detection-service:bootRun --args='--n=10000'
 
 # move to another terminal
-curl -X POST "http://localhost:8080/payment-events?n=10000"
+curl -X POST "http://localhost:8080/payment-events?logging=false&n=10000"
 ```
 
 # development environment setup

@@ -18,7 +18,7 @@ public class PaymentEventsProduceUseCase {
 		this.paymentEventProducer = paymentEventProducer;
 	}
 
-	public void run(int n) {
+	public void run(boolean logging, int n) {
 		var startTime = Instant.now();
 		try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			for (int i = 0; i < n; i++) {
@@ -28,6 +28,9 @@ public class PaymentEventsProduceUseCase {
 							.setId(id)
 							.build();
 					paymentEventProducer.publish(event);
+					if (logging && log.isInfoEnabled()) {
+						log.info("✅ Published payment event: {}", event);
+					}
 				});
 			}
 		} finally {
