@@ -13,7 +13,9 @@ public class PaymentController {
 	}
 
 	@PostMapping("payment-events")
-	public void publishPaymentEvents(@RequestParam boolean logging, @RequestParam int n) {
+	public void publishPaymentEvents(
+			@RequestParam(defaultValue = "false") boolean logging,
+			@RequestParam(defaultValue = "10000") int n) {
 		paymentEventsProduceUseCase.run(logging, n);
 	}
 }

@@ -21,6 +21,9 @@ public class KafkaClient {
     @Value("${n:0}")
     private int n;
 
+    @Value("${logging:false}")
+    private boolean logging;
+
     public KafkaClient(ExecutorService virtualThreadExecutor) {
         executor = virtualThreadExecutor;
     }
@@ -35,8 +38,10 @@ public class KafkaClient {
     private void subscribe(ConsumerRecord<String, String> record) {
         try {
             // execute some logic
-            log.info("✅ Subscribed event [partition={}, offset={}]: {}", record.partition(), record.offset(),
-                    record.value());
+            if (logging && log.isInfoEnabled()) {
+                log.info("✅ Subscribed event [partition={}, offset={}]: {}", record.partition(), record.offset(),
+                        record.value());
+            }
         } catch (Exception e) {
             log.error("❌ Error processing record: {}", e.getMessage(), e);
         }
