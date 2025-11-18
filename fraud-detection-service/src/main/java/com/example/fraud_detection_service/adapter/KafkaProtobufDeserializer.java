@@ -5,7 +5,10 @@ import org.apache.kafka.common.serialization.Deserializer;
 import com.google.protobuf.*;
 
 public class KafkaProtobufDeserializer<T extends Message> implements Deserializer<T> {
-    private final Parser<T> parser;
+    private Parser<T> parser = null;
+
+    public KafkaProtobufDeserializer() {
+    }
 
     public KafkaProtobufDeserializer(Parser<T> parser) {
         this.parser = parser;
