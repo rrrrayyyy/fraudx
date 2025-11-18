@@ -1,6 +1,5 @@
 package com.example.payment_service.usecase;
 
-import java.time.*;
 import java.util.concurrent.*;
 
 import org.slf4j.*;
@@ -19,7 +18,7 @@ public class PaymentEventsProduceUseCase {
 	}
 
 	public void run(boolean logging, int n) {
-		var startTime = Instant.now();
+		var startTime = System.nanoTime();
 		try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			for (int i = 0; i < n; i++) {
 				executor.submit(() -> {
@@ -34,8 +33,9 @@ public class PaymentEventsProduceUseCase {
 				});
 			}
 		} finally {
-			var ms = Duration.between(startTime, Instant.now()).toMillis();
-			log.info("🚀 Producer average RPS: " + (int) ((double) n / ms * 1000));
+			var ns = System.nanoTime() - startTime;
+			log.info("🚀 Producer average RPS: {} with requests: {}, duration(ms): {}",
+					(int) ((long) 1e9 * n / ns), n, ns / (long) 1e6);
 		}
 	}
 }

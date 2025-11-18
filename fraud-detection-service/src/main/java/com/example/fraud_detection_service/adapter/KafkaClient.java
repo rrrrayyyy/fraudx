@@ -1,7 +1,7 @@
 package com.example.fraud_detection_service.adapter;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.*;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.*;
@@ -15,14 +15,13 @@ import jakarta.annotation.PreDestroy;
 public class KafkaClient {
     private static final Logger log = LoggerFactory.getLogger("fraud-detection-service");
     private final ExecutorService executor;
-    private final AtomicReference<Long> startTime = new AtomicReference<>();
-    private long endTime;
-
-    @Value("${n:0}")
-    private int n;
 
     @Value("${logging:false}")
     private boolean logging;
+
+    private final AtomicReference<Long> startTime = new AtomicReference<>();
+    private long endTime;
+    private LongAdder counter = new LongAdder();
 
     public KafkaClient(ExecutorService virtualThreadExecutor) {
         executor = virtualThreadExecutor;
@@ -32,6 +31,7 @@ public class KafkaClient {
     public void process(ConsumerRecord<String, String> record) {
         startTime.compareAndSet(null, System.nanoTime());
         endTime = System.nanoTime();
+        counter.increment();
         executor.submit(() -> subscribe(record));
     }
 
@@ -58,8 +58,10 @@ public class KafkaClient {
         }
 
         if (startTime.get() != null) {
-            double ms = (endTime - startTime.get()) / 1_000_000;
-            log.info("🚀 Consumer average RPS: " + (int) ((double) n / ms * 1000));
+            long ns = endTime - startTime.get();
+            var count = counter.sum();
+            log.info("🚀 Consumer average RPS: {} with requests: {}, duration(ms): {}",
+                    (int) ((long) 1e9 * count / ns), count, ns / (long) 1e6);
         }
     }
 }
