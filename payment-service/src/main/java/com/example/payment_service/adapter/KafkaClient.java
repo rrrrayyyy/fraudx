@@ -8,19 +8,14 @@ import com.example.payment_service.usecase.PaymentEventProducer;
 
 @Service
 public class KafkaClient implements PaymentEventProducer {
-	private final KafkaTopicConfig topicConfig;
 	private final KafkaTemplate<String, PaymentEventValue> protoTemplate;
 
-	public KafkaClient(
-			KafkaTopicConfig topicConfig,
-			KafkaTemplate<String, PaymentEventValue> protoTemplate) {
-		this.topicConfig = topicConfig;
+	public KafkaClient(KafkaTemplate<String, PaymentEventValue> protoTemplate) {
 		this.protoTemplate = protoTemplate;
 	}
 
 	@Override
 	public void publish(PaymentEventValue value) {
-		var t = topicConfig.getTopicName(KafkaTopic.PAYMENT.key());
-		protoTemplate.send(t, value);
+		protoTemplate.send("payment-events", value);
 	}
 }

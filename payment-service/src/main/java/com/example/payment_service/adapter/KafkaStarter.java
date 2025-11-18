@@ -25,14 +25,13 @@ public class KafkaStarter {
 		return args -> {
 			try {
 				for (var key : topicConfig.getTopicConfig().keySet()) {
-					var setting = topicConfig.getTopicConfig().get(key);
-					var t = setting.getTopicName();
-					if (t == null) {
+					var topic = topicConfig.getTopicConfig().get(key);
+					if (topic == null) {
 						log.warn("😈 Unexpected topic key: {}", key);
 						continue;
 					}
-					topicCreator.createTopic(t, setting.getPartitions(), setting.getReplicationFactor());
-					kafkaTemplate.partitionsFor(t);
+					topicCreator.createTopic(key, topic.getPartitions(), topic.getReplicationFactor());
+					kafkaTemplate.partitionsFor(key);
 					log.info("✅ Kafka connection succeeded");
 				}
 			} catch (Exception e) {
