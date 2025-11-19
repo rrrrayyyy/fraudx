@@ -4,7 +4,7 @@
 ```zsh
 ./gradlew generateProto
 
-./gradlew :payment-service:bootRun -DcomposeUpD=true -Dkafka.connect=true --args="--kafka.topic-config.payment.partitions=16 --kafka.topic-config.payment.replication-factor=1"
+./gradlew :payment-service:bootRun -DcomposeUpD=true -Dkafka.connect=true --args="--kafka.topic.payment-events.partitions=16 --kafka.topic.payment-events.replication-factor=1"
 
 ./gradlew :fraud-detection-service:bootRun
 
@@ -74,4 +74,15 @@ subprojects {
 - [x] Kafka producer client実装
 - [ ] Kafka subscriber 実装 (Reactive)
 - [ ] kafka-producer-perf-test.sh と kafka-consumer-perf-test.sh を使い、メッセージサイズ・batching・compression・acks を変えて実測するのが必須
+
+
+|changes|producer|consumer|
+|:-|:-|:-|
+|(default1)|22786|58402|
+|(default2)|62181|57888|
+|(default1)|63757|67156|
+|(default1)|x|x|
+|(default1)|x|x|
+|(default1)|x|x|
+|(default1)|x|x|
 
