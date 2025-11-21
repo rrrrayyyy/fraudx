@@ -13,4 +13,4 @@ kafka:
   topic:
     payment-events:
       partitions: 10
-      replication-factor: 2
+      replication-factor: 1

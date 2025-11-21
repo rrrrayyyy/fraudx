@@ -17,25 +17,25 @@ public class KafkaTopicConfig {
 	public void setTopicConfig(Map<String, Topic> topics) {
 		this.topicConfig = topics;
 	}
+}
 
-	public static class Topic {
-		private int partitions;
-		private short replicationFactor;
+class Topic {
+	private int partitions;
+	private short replicationFactor;
 
-		public int getPartitions() {
-			return partitions;
-		}
+	public int getPartitions() {
+		return partitions;
+	}
 
-		public void setPartitions(int partitions) {
-			this.partitions = partitions;
-		}
+	public void setPartitions(int partitions) {
+		this.partitions = partitions;
+	}
 
-		public short getReplicationFactor() {
-			return replicationFactor;
-		}
+	public short getReplicationFactor() {
+		return replicationFactor;
+	}
 
-		public void setReplicationFactor(short replicationFactor) {
-			this.replicationFactor = replicationFactor;
-		}
+	public void setReplicationFactor(short replicationFactor) {
+		this.replicationFactor = replicationFactor;
 	}
 }

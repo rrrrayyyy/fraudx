@@ -29,34 +29,33 @@ public class KafkaClient {
 
     @KafkaListener(topics = "payment-events", concurrency = "${kafka.consumer.concurrency}")
     public void process(ConsumerRecord<String, String> record) {
-        startTime.compareAndSet(null, System.nanoTime());
-        endTime = System.nanoTime();
-        counter.increment();
         executor.submit(() -> subscribe(record));
     }
 
     private void subscribe(ConsumerRecord<String, String> record) {
+        startTime.compareAndSet(null, System.nanoTime());
+        endTime = System.nanoTime();
+        counter.increment();
         try {
             // execute some logic
+        } catch (Exception e) {
+            log.error("❌ Error processing record: {}", e.getMessage(), e);
+        } finally {
             if (logging && log.isInfoEnabled()) {
                 log.info("✅ Subscribed event [partition={}, offset={}]: {}", record.partition(), record.offset(),
                         record.value());
             }
-        } catch (Exception e) {
-            log.error("❌ Error processing record: {}", e.getMessage(), e);
         }
     }
 
     @PreDestroy
     public void onShutdown() {
         executor.shutdown();
-
         try {
             executor.awaitTermination(60, java.util.concurrent.TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-
         if (startTime.get() != null) {
             long ns = endTime - startTime.get();
             var count = counter.sum();

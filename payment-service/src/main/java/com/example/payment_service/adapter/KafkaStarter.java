@@ -30,12 +30,13 @@ public class KafkaStarter {
 						log.warn("😈 Unexpected topic key: {}", key);
 						continue;
 					}
-					topicCreator.createTopic(key, topic.getPartitions(), topic.getReplicationFactor());
+					topicCreator.createTopic(key, topic);
 					kafkaTemplate.partitionsFor(key);
-					log.info("✅ Kafka connection succeeded");
 				}
 			} catch (Exception e) {
 				log.error("❌ Kafka connection failed: {}", e.getMessage());
+			} finally {
+				log.info("✅ Kafka connection succeeded");
 			}
 		};
 	}

@@ -4,12 +4,12 @@
 ```zsh
 ./gradlew generateProto
 
-./gradlew :payment-service:bootRun -DcomposeUpD=true -Dkafka.connect=true --args="--kafka.topic.payment-events.partitions=16 --kafka.topic.payment-events.replication-factor=1"
+./gradlew :payment-service:bootRun -DcomposeUpD=true -Dkafka.connect=true --args="--kafka.topic.payment-events.partitions=16"
 
-./gradlew :fraud-detection-service:bootRun --args="--kafka.consumer.concurrency=7"
+./gradlew :fraud-detection-service:bootRun --args="--logging=true --kafka.consumer.concurrency=7"
 
 # move to another terminal
-curl -X POST "http://localhost:8080/payment-events?n=10000"
+curl -X POST "http://localhost:8080/payment-events?logging=true&n=10000"
 ```
 
 # development environment setup

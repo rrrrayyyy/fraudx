@@ -16,8 +16,8 @@ public class KafkaTopicCreator {
 		this.adminClient = adminClient;
 	}
 
-	public void createTopic(String topicName, int partitions, short replicationFactor) {
-		var topic = new NewTopic(topicName, partitions, replicationFactor);
+	public void createTopic(String topicName, Topic t) {
+		var topic = new NewTopic(topicName, t.getPartitions(), t.getReplicationFactor());
 		try {
 			adminClient.createTopics(Collections.singleton(topic)).all().get();
 			log.info("✅ Created topic: {}", topicName);
