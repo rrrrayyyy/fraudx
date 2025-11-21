@@ -29,7 +29,7 @@ public class KafkaClient {
         executor = virtualThreadExecutor;
     }
 
-    @KafkaListener(topics = "payment-events", concurrency = "${kafka.consumer.concurrency}")
+    @KafkaListener(topics = "${kafka.topics.payment.name}", concurrency = "${kafka.consumer.concurrency}")
     public void process(ConsumerRecord<String, PaymentEventValue> record) {
         executor.submit(() -> subscribe(record));
     }

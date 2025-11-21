@@ -26,10 +26,10 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.consumer.enable-auto-commit}")
     private boolean enableAutoCommit;
 
-    @Value("${kafka.consumer.concurrency}")
+    @Value("${spring.kafka.consumer.concurrency}")
     private int concurrency;
 
-    @Value("${kafka.consumer.poll-timeout}")
+    @Value("${spring.kafka.consumer.poll-timeout}")
     private int pollTimeout;
 
     @Bean

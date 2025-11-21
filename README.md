@@ -4,7 +4,7 @@
 ```zsh
 ./gradlew generateProto
 
-./gradlew :payment-service:bootRun -DcomposeUpD=true -Dkafka.connect=true --args="--kafka.topic.payment-events.partitions=16"
+./gradlew :payment-service:bootRun -DcomposeUpD=true -Dkafka.connect=true --args="--kafka.topics.payment.partitions=16"
 
 ./gradlew :fraud-detection-service:bootRun --args="--logging=true --kafka.consumer.concurrency=7"
 
