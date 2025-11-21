@@ -10,7 +10,8 @@ spring:
 
 kafka:
   connect: false
-  topic:
-    payment-events:
+  topics:
+    payment:
+      name: payment-events
       partitions: 10
       replication-factor: 1

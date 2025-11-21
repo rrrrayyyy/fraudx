@@ -8,20 +8,29 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "kafka")
 public class KafkaTopicConfig {
-	private Map<String, Topic> topicConfig = new HashMap<>();
+	private Map<String, Topic> topics = new HashMap<>();
 
-	public Map<String, Topic> getTopicConfig() {
-		return topicConfig;
+	public Map<String, Topic> getTopics() {
+		return topics;
 	}
 
-	public void setTopicConfig(Map<String, Topic> topics) {
-		this.topicConfig = topics;
+	public void setTopics(Map<String, Topic> topics) {
+		this.topics = topics;
 	}
 }
 
 class Topic {
+	private String name;
 	private int partitions;
 	private short replicationFactor;
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	public int getPartitions() {
 		return partitions;

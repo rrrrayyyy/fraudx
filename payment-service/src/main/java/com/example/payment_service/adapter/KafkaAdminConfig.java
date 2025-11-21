@@ -3,13 +3,14 @@ package com.example.payment_service.adapter;
 import java.util.HashMap;
 
 import org.apache.kafka.clients.admin.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 
 @Configuration
 public class KafkaAdminConfig {
 	private final String bootstrapServers;
 
-	public KafkaAdminConfig(String bootstrapServers) {
+	public KafkaAdminConfig(@Value("${spring.kafka.bootstrap-servers}") String bootstrapServers) {
 		this.bootstrapServers = bootstrapServers;
 	}
 

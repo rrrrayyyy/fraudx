@@ -24,14 +24,14 @@ public class KafkaStarter {
 	public ApplicationRunner kafkaStarterRunner(KafkaTemplate<String, PaymentEventValue> kafkaTemplate) {
 		return args -> {
 			try {
-				for (var key : topicConfig.getTopicConfig().keySet()) {
-					var topic = topicConfig.getTopicConfig().get(key);
+				for (var key : topicConfig.getTopics().keySet()) {
+					var topic = topicConfig.getTopics().get(key);
 					if (topic == null) {
 						log.warn("😈 Unexpected topic key: {}", key);
 						continue;
 					}
-					topicCreator.createTopic(key, topic);
-					kafkaTemplate.partitionsFor(key);
+					topicCreator.createTopic(topic);
+					kafkaTemplate.partitionsFor(topic.getName());
 				}
 			} catch (Exception e) {
 				log.error("❌ Kafka connection failed: {}", e.getMessage());

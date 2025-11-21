@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import com.example.payment.Payment.PaymentEventValue;
+
 import jakarta.annotation.PreDestroy;
 
 @Service
@@ -28,11 +30,11 @@ public class KafkaClient {
     }
 
     @KafkaListener(topics = "payment-events", concurrency = "${kafka.consumer.concurrency}")
-    public void process(ConsumerRecord<String, String> record) {
+    public void process(ConsumerRecord<String, PaymentEventValue> record) {
         executor.submit(() -> subscribe(record));
     }
 
-    private void subscribe(ConsumerRecord<String, String> record) {
+    private void subscribe(ConsumerRecord<String, PaymentEventValue> record) {
         startTime.compareAndSet(null, System.nanoTime());
         endTime = System.nanoTime();
         counter.increment();
