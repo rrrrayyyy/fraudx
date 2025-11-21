@@ -1,5 +1,27 @@
 # fraudx
 
+# Performance optimization
+- compose.yaml
+
+(producer, consumer) with 1M requests x 3
+- partition (with half the number of consumers):
+    - 1()
+    - 2()
+    - 4()
+    - 8()
+    - 16()
+    - 32()
+    - 64()
+    - 128()
+    - 256()
+    - 512()
+    - 1024()
+    - 2048()
+    - 4096
+    - 8192()
+
+
+
 # procedures
 ```zsh
 ./gradlew generateProto
@@ -52,7 +74,7 @@ subprojects {
 - build.gradle を変更したら Java: Clean Java Language Server Workspace も必要（classpath 再認識）
 - CommandLineRunner と ApplicationRunner の違い
     - 後者は起動時の引数を型定義できる（前者は `--key=value` をparse）
-
+- ./gradlew --stop # to stop deamon
 
 # Kafka memo
 - broker: message retention + distribution + replication
@@ -72,17 +94,8 @@ subprojects {
 - [x] Kafka docker compose up -d の成功確認
 - [x] SpringBoot 起動時引数でKafka docker compose up -d + Kafkaへの接続を行う（引数なしで両方行わない）
 - [x] Kafka producer client実装
-- [ ] Kafka subscriber 実装 (Reactive)
+- [x] Kafka subscriber 実装
 - [ ] kafka-producer-perf-test.sh と kafka-consumer-perf-test.sh を使い、メッセージサイズ・batching・compression・acks を変えて実測するのが必須
 
 
-|changes|producer|consumer|
-|:-|:-|:-|
-|(default1)|22786|58402|
-|(default2)|62181|57888|
-|(default1)|63757|67156|
-|(default1)|x|x|
-|(default1)|x|x|
-|(default1)|x|x|
-|(default1)|x|x|
 
