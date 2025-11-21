@@ -27,7 +27,7 @@ public class KafkaClient {
         executor = virtualThreadExecutor;
     }
 
-    @KafkaListener(topics = "payment-events", concurrency = "3")
+    @KafkaListener(topics = "payment-events", concurrency = "${kafka.consumer.concurrency}")
     public void process(ConsumerRecord<String, String> record) {
         startTime.compareAndSet(null, System.nanoTime());
         endTime = System.nanoTime();
