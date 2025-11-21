@@ -10,7 +10,7 @@ import com.github.f4b6a3.uuid.UuidCreator;
 
 @Service
 public class PaymentEventsProduceUseCase {
-	private static final Logger log = LoggerFactory.getLogger("payment-service");
+	private static final Logger log = LoggerFactory.getLogger(PaymentEventsProduceUseCase.class);
 	private final PaymentEventProducer paymentEventProducer;
 
 	public PaymentEventsProduceUseCase(PaymentEventProducer paymentEventProducer) {

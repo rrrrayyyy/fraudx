@@ -15,7 +15,7 @@ import jakarta.annotation.PreDestroy;
 
 @Service
 public class KafkaClient {
-    private static final Logger log = LoggerFactory.getLogger("fraud-detection-service");
+    private static final Logger log = LoggerFactory.getLogger(KafkaClient.class);
     private final ExecutorService executor;
 
     @Value("${logging:false}")
