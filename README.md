@@ -3,22 +3,24 @@
 # Performance optimization
 - compose.yaml
 
-(producer, consumer) with 1M requests x 3
-- partition (with half the number of consumers):
-    - 1()
-    - 2()
-    - 4()
-    - 8()
-    - 16()
-    - 32()
-    - 64()
-    - 128()
-    - 256()
-    - 512()
-    - 1024()
-    - 2048()
-    - 4096
-    - 8192()
+(producer, consumer) with 1M requests (without logging)
+- partition (with half the number of consumers): => 8/8 is good (core * 2 ???)
+    - 8(63896, 39352) ⭐️
+    - 8/8(76009, 74720) ⭐️⭐️
+    - 12(64344, 63318)
+    - 12/12(42342, 38375)
+    - 16(48976, 52672)
+    - 16/16(41419, 51560)
+    - 20()
+    - 20/20()
+    - 32(49812, 50189)
+    - 32/32()
+    - 64(36025, 45076)
+    - 128(42611, 63948) ⭐️
+    - 256(41185, 56370)
+    - 512(33945, 51929)
+    - 1024(27138, 37409)
+
 
 
 
@@ -28,10 +30,12 @@
 
 ./gradlew :payment-service:bootRun -DcomposeUpD=true -Dkafka.connect=true --args="--kafka.topics.payment.partitions=16"
 
-./gradlew :fraud-detection-service:bootRun --args="--logging=true --kafka.consumer.concurrency=7"
+# ./gradlew :fraud-detection-service:bootRun --args="--logging=true"
+./gradlew :fraud-detection-service:bootRun --args="--spring.kafka.consumer.concurrency=16"
 
 # move to another terminal
-curl -X POST "http://localhost:8080/payment-events?logging=true&n=10000"
+# curl -X POST "http://localhost:8080/payment-events?logging=true&n=1000000"
+curl -X POST "http://localhost:8080/payment-events?n=1000000"
 ```
 
 # development environment setup

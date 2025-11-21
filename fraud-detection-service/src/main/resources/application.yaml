@@ -7,7 +7,7 @@ spring:
       group-id: fraud-detection-dev
       auto-offset-reset: earliest
       enable-auto-commit: false
-      concurrency: 4
+      concurrency: 8
       poll-timeout: 5000
 
 kafka:
