@@ -2,9 +2,9 @@ spring:
   application:
     name: fraud-detection-service
   kafka:
-    bootstrap-servers: localhost:9004,localhost:9005
+    bootstrap-servers: localhost:9004,localhost:9005,localhost:9006
     consumer:
-      group-id: fraud-detection-dev
+      group-id: fraud-detection
       auto-offset-reset: earliest
       enable-auto-commit: false
       concurrency: 8

@@ -1,5 +1,7 @@
 package com.example.payment_service.adapter;
 
+import java.time.Duration;
+
 import org.slf4j.*;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -23,6 +25,7 @@ public class KafkaStarter {
 	@Bean
 	public ApplicationRunner kafkaStarterRunner(KafkaTemplate<String, PaymentEventValue> kafkaTemplate) {
 		return args -> {
+			topicCreator.waitForBrokers(3, Duration.ofSeconds(60));
 			try {
 				for (var key : topicConfig.getTopics().keySet()) {
 					var topic = topicConfig.getTopics().get(key);

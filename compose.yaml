@@ -97,6 +97,7 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_NUM_NETWORK_THREADS: 4
       KAFKA_NUM_IO_THREADS: 8
+      KAFKA_BACKGROUND_THREADS: 4
       KAFKA_HEAP_OPTS: "-Xms4g -Xmx4g -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_SOCKET_SEND_BUFFER_BYTES: 1048576
@@ -108,7 +109,6 @@ services:
       KAFKA_COMPRESSION_TYPE: lz4
     ports:
       - "9004:9092"
-    cpus: 4
     mem_limit: 9g
     mem_swappiness: 0
     sysctls:
@@ -143,8 +143,8 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_NUM_NETWORK_THREADS: 4
-      KAFKA_NUM_IO_THREADS: 8 # -> 4
-      # KAFKA_BACKGROUND_THREADS: 2
+      KAFKA_NUM_IO_THREADS: 8
+      KAFKA_BACKGROUND_THREADS: 4
       KAFKA_HEAP_OPTS: "-Xms4g -Xmx4g -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_SOCKET_SEND_BUFFER_BYTES: 1048576
@@ -161,7 +161,6 @@ services:
       # KAFKA_MIN_INSYNC_REPLICAS: 1
     ports:
       - "9005:9092"
-    cpus: 4 # delete this
     mem_limit: 9g
     mem_swappiness: 0
     sysctls:
@@ -196,8 +195,8 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_NUM_NETWORK_THREADS: 4
-      KAFKA_NUM_IO_THREADS: 8 # -> 4
-      # KAFKA_BACKGROUND_THREADS: 2
+      KAFKA_NUM_IO_THREADS: 8
+      KAFKA_BACKGROUND_THREADS: 4
       KAFKA_HEAP_OPTS: "-Xms4g -Xmx4g -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_SOCKET_SEND_BUFFER_BYTES: 1048576
@@ -214,7 +213,6 @@ services:
       # KAFKA_MIN_INSYNC_REPLICAS: 1
     ports:
       - "9006:9092"
-    cpus: 4 # delete this
     mem_limit: 9g
     mem_swappiness: 0
     sysctls:
