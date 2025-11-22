@@ -16,22 +16,26 @@ public class KafkaConfig {
 	@Value("${spring.kafka.bootstrap-servers}")
 	private String bootstrapServers;
 
-	@Value("${spring.kafka.producer.acks}")
-	private String acks;
+	@Value("${spring.kafka.producer.buffer-memory}")
+	private long bufferMemory;
+
+	@Value("${spring.kafka.producer.compression-type}")
+	private String compressionType;
 
 	@Value("${spring.kafka.producer.batch-size}")
 	private int batchSize;
 
-	@Value("${spring.kafka.producer.buffer-memory}")
-	private long bufferMemory;
+	@Value("${spring.kafka.producer.acks}")
+	private String acks;
 
 	@Bean
 	public ProducerFactory<String, PaymentEventValue> protobufProducerFactory() {
 		var props = new HashMap<String, Object>();
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-		props.put(ProducerConfig.ACKS_CONFIG, acks);
-		props.put(ProducerConfig.BATCH_SIZE_CONFIG, batchSize);
 		props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, bufferMemory);
+		props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, compressionType);
+		props.put(ProducerConfig.BATCH_SIZE_CONFIG, batchSize);
+		props.put(ProducerConfig.ACKS_CONFIG, acks);
 		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaProtobufSerializer.class);
 		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaProtobufSerializer.class);
 		return new DefaultKafkaProducerFactory<String, PaymentEventValue>(props);
