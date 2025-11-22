@@ -4,7 +4,7 @@
 - producer/consumer => 8/8 (core * 2 ???)
 
 - compose.yaml
-
+    - xms/xmx 1g (25822, 3711), 3g (44149, 4807), 4g (80581, 3599)
 
 
 # procedures
