@@ -2,9 +2,7 @@
 
 # Performance optimization
 - producer/consumer => 8/8 (4 core), 64/64 (8 core)
-    - 32/32 (74560, 5899)
     - 64/32 (72900, 10492)
-    - 64/64 (61225, 10880)
 
 - compose.yaml
 
