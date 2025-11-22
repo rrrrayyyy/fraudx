@@ -1,26 +1,9 @@
 # fraudx
 
 # Performance optimization
+- producer/consumer => 8/8 (core * 2 ???)
+
 - compose.yaml
-
-(producer, consumer) with 1M requests (without logging)
-- partition (with half the number of consumers): => 8/8 is good (core * 2 ???)
-    - 8(63896, 39352) ⭐️
-    - 8/8(76009, 74720) ⭐️⭐️
-    - 12(64344, 63318)
-    - 12/12(42342, 38375)
-    - 16(48976, 52672)
-    - 16/16(41419, 51560)
-    - 20()
-    - 20/20()
-    - 32(49812, 50189)
-    - 32/32()
-    - 64(36025, 45076)
-    - 128(42611, 63948) ⭐️
-    - 256(41185, 56370)
-    - 512(33945, 51929)
-    - 1024(27138, 37409)
-
 
 
 
