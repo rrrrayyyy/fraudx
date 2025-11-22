@@ -1,10 +1,8 @@
 # fraudx
 
 # Performance optimization
-- producer/consumer => 8/8 (4 core), 64/64 (8 core)
+- producer/consumer => 8/8 (4 core), 200/200 (8 core)
     - 64/32 (72900, 10492)
-
-- compose.yaml
 
 
 
@@ -12,10 +10,10 @@
 ```zsh
 ./gradlew generateProto
 
-./gradlew :payment-service:bootRun -DcomposeUpD=true -Dkafka.connect=true --args="--kafka.topics.payment.partitions=64"
+./gradlew :payment-service:bootRun -DcomposeUpD=true -Dkafka.connect=true --args="--kafka.topics.payment.partitions=200"
 
 # ./gradlew :fraud-detection-service:bootRun --args="--logging=true"
-./gradlew :fraud-detection-service:bootRun --args="--spring.kafka.consumer.concurrency=64"
+./gradlew :fraud-detection-service:bootRun --args="--spring.kafka.consumer.concurrency=200"
 
 # move to another terminal
 # curl -X POST "http://localhost:8080/payment-events?logging=true&n=1000000"
