@@ -32,6 +32,9 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.consumer.concurrency}")
     private int concurrency;
 
+    @Value("${spring.kafka.consumer.max-poll-records}")
+    private int maxPollRecords;
+
     @Bean
     public ConsumerFactory<String, PaymentEventValue> protobufConsumerFactory() {
         var props = new HashMap<String, Object>();
@@ -40,6 +43,7 @@ public class KafkaConsumerConfig {
         props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, fetchMinSize);
         props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, maxPartitionFetchBytes);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enableAutoCommit);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, KafkaProtobufDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaProtobufDeserializer.class);
         return new DefaultKafkaConsumerFactory<>(props);

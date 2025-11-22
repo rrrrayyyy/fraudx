@@ -1,6 +1,7 @@
 package com.example.fraud_detection_service.adapter;
 
-import java.util.concurrent.ExecutorService;
+import java.util.List;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -21,23 +22,33 @@ public class KafkaClient {
     @Value("${logging:false}")
     private boolean logging;
 
-    private final AtomicReference<Long> startTime = new AtomicReference<>();
-    private long endTime;
-    private LongAdder counter = new LongAdder();
+    private final AtomicLong startTime = new AtomicLong(0);
+    private final AtomicLong endTime = new AtomicLong(0);
+    private final LongAdder counter = new LongAdder();
 
-    public KafkaClient(ExecutorService virtualThreadExecutor) {
-        executor = virtualThreadExecutor;
+    public KafkaClient() {
+        executor = Executors.newVirtualThreadPerTaskExecutor();
     }
 
-    @KafkaListener(topics = "${kafka.topics.payment.name}", concurrency = "${spring.kafka.consumer.concurrency}")
-    public void process(ConsumerRecord<String, PaymentEventValue> record) {
-        executor.submit(() -> subscribe(record));
+    @KafkaListener(topics = "${kafka.topics.payment.name}", concurrency = "${spring.kafka.consumer.concurrency}", batch = "true")
+    public void process(List<ConsumerRecord<String, PaymentEventValue>> records) {
+        var now = System.nanoTime();
+        startTime.compareAndSet(0, now);
+        counter.add(records.size());
+        var last = endTime.longValue();
+        endTime.compareAndSet(last, now);
+        for (var record : records) {
+            try {
+                executor.submit(() -> subscribe(record));
+            } catch (RejectedExecutionException e) {
+                log.warn("⚠️ Executor queue full, dropping record: {}", record);
+            } catch (Exception e) {
+                log.warn("⚠️ Subscription failed: {}", e.getMessage());
+            }
+        }
     }
 
     private void subscribe(ConsumerRecord<String, PaymentEventValue> record) {
-        startTime.compareAndSet(null, System.nanoTime());
-        endTime = System.nanoTime();
-        counter.increment();
         try {
             // execute some logic
         } catch (Exception e) {
@@ -58,8 +69,8 @@ public class KafkaClient {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        if (startTime.get() != null) {
-            long ns = endTime - startTime.get();
+        if (startTime.get() != 0) {
+            long ns = endTime.get() - startTime.get();
             var count = counter.sum();
             log.info("🚀 Consumer average RPS: {} with requests: {}, duration(ms): {}",
                     (int) ((long) 1e9 * count / ns), count, ns / (long) 1e6);
