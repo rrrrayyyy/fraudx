@@ -7,6 +7,7 @@ spring:
       buffer-memory: 134217728      # 128MB
       compression-type: zstd
       batch-size: 1048576           # 1MB
+      linger-ms: 50
       acks: 1
 
 kafka:

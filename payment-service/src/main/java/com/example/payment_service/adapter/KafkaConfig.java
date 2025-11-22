@@ -25,6 +25,9 @@ public class KafkaConfig {
 	@Value("${spring.kafka.producer.batch-size}")
 	private int batchSize;
 
+	@Value("${spring.kafka.producer.linger-ms}")
+	private long lingerMs;
+
 	@Value("${spring.kafka.producer.acks}")
 	private String acks;
 
@@ -35,6 +38,7 @@ public class KafkaConfig {
 		props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, bufferMemory);
 		props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, compressionType);
 		props.put(ProducerConfig.BATCH_SIZE_CONFIG, batchSize);
+		props.put(ProducerConfig.LINGER_MS_CONFIG, lingerMs);
 		props.put(ProducerConfig.ACKS_CONFIG, acks);
 		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaProtobufSerializer.class);
 		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaProtobufSerializer.class);
