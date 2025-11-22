@@ -5,10 +5,10 @@ spring:
     bootstrap-servers: localhost:9004,localhost:9005,localhost:9006
     consumer:
       group-id: fraud-detection
-      auto-offset-reset: earliest
+      fetch-min-size: 1048576 # 1MB
+      max-partition-fetch-bytes: 10485760 # 10MB
       enable-auto-commit: false
       concurrency: 8
-      poll-timeout: 5000
 
 kafka:
   topics:

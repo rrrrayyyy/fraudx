@@ -2,8 +2,11 @@
 
 # Performance optimization
 - producer/consumer => 8/8 (4 core), 200/200 (8 core)
-    - 64/32 (72900, 10492)
-
+    - 16/16 (76035, 6567)
+    - 32/32 (78826, )
+    - 64/64 ()
+    - 128/128 ()
+    - 200/200 ()
 
 
 # procedures
