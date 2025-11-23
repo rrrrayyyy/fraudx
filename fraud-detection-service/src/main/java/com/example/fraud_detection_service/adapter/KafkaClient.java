@@ -5,6 +5,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.serialization.Deserializer;
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -17,6 +18,7 @@ import jakarta.annotation.PreDestroy;
 @Service
 public class KafkaClient {
     private static final Logger log = LoggerFactory.getLogger(KafkaClient.class);
+    private final Deserializer<PaymentEventValue> deserializer;
     private final ExecutorService executor;
 
     @Value("${logging:false}")
@@ -27,11 +29,12 @@ public class KafkaClient {
     private final LongAdder counter = new LongAdder();
 
     public KafkaClient() {
+        deserializer = new KafkaProtobufDeserializer<>(PaymentEventValue.parser());
         executor = Executors.newVirtualThreadPerTaskExecutor();
     }
 
-    @KafkaListener(topics = "${kafka.topics.payment.name}", concurrency = "${spring.kafka.consumer.concurrency}", batch = "true")
-    public void process(List<ConsumerRecord<String, PaymentEventValue>> records) {
+    @KafkaListener(topics = "${kafka.topics.payment.name}", concurrency = "${spring.kafka.consumer.concurrency}", batch = "true", containerFactory = "protobufConcurrentKafkaListenerContainerFactory")
+    public void process(List<ConsumerRecord<byte[], byte[]>> records) {
         var now = System.nanoTime();
         startTime.compareAndSet(0, now);
         counter.add(records.size());
@@ -48,9 +51,10 @@ public class KafkaClient {
         }
     }
 
-    private void subscribe(ConsumerRecord<String, PaymentEventValue> record) {
+    private void subscribe(ConsumerRecord<byte[], byte[]> record) {
         try {
             // execute some logic
+            deserializer.deserialize(null, record.value());
         } catch (Exception e) {
             log.error("❌ Error processing record: {}", e.getMessage(), e);
         } finally {

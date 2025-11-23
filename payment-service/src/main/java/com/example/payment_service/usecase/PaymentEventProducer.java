@@ -1,7 +1,7 @@
 package com.example.payment_service.usecase;
 
-import com.example.payment.Payment.PaymentEventValue;
+import com.example.payment.Payment.*;
 
 public interface PaymentEventProducer {
-	void publish(PaymentEventValue value);
+	void publish(PaymentEventKey key, PaymentEventValue value);
 }

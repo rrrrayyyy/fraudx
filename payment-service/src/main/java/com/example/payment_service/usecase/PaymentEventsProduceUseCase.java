@@ -5,7 +5,7 @@ import java.util.concurrent.*;
 import org.slf4j.*;
 import org.springframework.stereotype.Service;
 
-import com.example.payment.Payment.PaymentEventValue;
+import com.example.payment.Payment.*;
 import com.github.f4b6a3.uuid.UuidCreator;
 
 @Service
@@ -23,12 +23,15 @@ public class PaymentEventsProduceUseCase {
 			for (int i = 0; i < n; i++) {
 				executor.submit(() -> {
 					var id = UuidCreator.getTimeOrderedEpoch().toString();
-					var event = PaymentEventValue.newBuilder()
+					var key = PaymentEventKey.newBuilder()
 							.setId(id)
 							.build();
-					paymentEventProducer.publish(event);
+					var value = PaymentEventValue.newBuilder()
+							.setId(id)
+							.build();
+					paymentEventProducer.publish(key, value);
 					if (logging && log.isInfoEnabled()) {
-						log.info("✅ Published payment event: {}", event);
+						log.info("✅ Published payment event: {}", value);
 					}
 				});
 			}

@@ -8,8 +8,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.*;
 import org.springframework.kafka.core.KafkaTemplate;
 
-import com.example.payment.Payment.PaymentEventValue;
-
 @Configuration
 @ConditionalOnProperty(value = "kafka.connect", havingValue = "true")
 public class KafkaStarter {
@@ -23,7 +21,7 @@ public class KafkaStarter {
 	}
 
 	@Bean
-	public ApplicationRunner kafkaStarterRunner(KafkaTemplate<String, PaymentEventValue> kafkaTemplate) {
+	public ApplicationRunner kafkaStarterRunner(KafkaTemplate<byte[], byte[]> kafkaTemplate) {
 		return args -> {
 			topicCreator.waitForBrokers(3, Duration.ofSeconds(60));
 			try {
