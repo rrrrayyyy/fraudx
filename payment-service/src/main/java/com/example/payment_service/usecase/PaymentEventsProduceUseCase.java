@@ -1,7 +1,5 @@
 package com.example.payment_service.usecase;
 
-import java.util.concurrent.*;
-
 import org.slf4j.*;
 import org.springframework.stereotype.Service;
 
@@ -19,26 +17,21 @@ public class PaymentEventsProduceUseCase {
 
 	public void run(boolean logging, int n) {
 		var startTime = System.nanoTime();
-		try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-			for (int i = 0; i < n; i++) {
-				executor.submit(() -> {
-					var id = UuidCreator.getTimeOrderedEpoch().toString();
-					var key = PaymentEventKey.newBuilder()
-							.setId(id)
-							.build();
-					var value = PaymentEventValue.newBuilder()
-							.setId(id)
-							.build();
-					paymentEventProducer.publish(key, value);
-					if (logging && log.isInfoEnabled()) {
-						log.info("✅ Published payment event: {}", value);
-					}
-				});
+		for (int i = 0; i < n; i++) {
+			var id = UuidCreator.getTimeOrderedEpoch().toString();
+			var key = PaymentEventKey.newBuilder()
+					.setId(id)
+					.build();
+			var value = PaymentEventValue.newBuilder()
+					.setId(id)
+					.build();
+			paymentEventProducer.publish(key, value);
+			if (logging && log.isInfoEnabled()) {
+				log.info("✅ Published payment event: {}", value);
 			}
-		} finally {
-			var ns = System.nanoTime() - startTime;
-			log.info("🚀 Producer average RPS: {} with requests: {}, duration(ms): {}",
-					(int) ((long) 1e9 * n / ns), n, ns / (long) 1e6);
 		}
+		var ns = System.nanoTime() - startTime;
+		log.info("🚀 Producer average RPS: {} with requests: {}, duration(ms): {}",
+				(int) ((long) 1e9 * n / ns), n, ns / (long) 1e6);
 	}
 }
