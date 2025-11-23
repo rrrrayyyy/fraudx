@@ -11,7 +11,7 @@ services:
       KAFKA_LISTENERS: CONTROLLER://:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
-      KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
+      KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m -XX:+UseG1GC"
     mem_limit: 1g
     mem_swappiness: 0
     sysctls:
@@ -38,7 +38,7 @@ services:
       KAFKA_LISTENERS: CONTROLLER://:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
-      KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
+      KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m -XX:+UseG1GC"
     mem_limit: 1g
     mem_swappiness: 0
     sysctls:
@@ -65,7 +65,7 @@ services:
       KAFKA_LISTENERS: CONTROLLER://:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
-      KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
+      KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m -XX:+UseG1GC"
     mem_limit: 1g
     mem_swappiness: 0
     sysctls:
@@ -96,7 +96,7 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_BACKGROUND_THREADS: 4
-      KAFKA_HEAP_OPTS: "-Xms4g -Xmx4g -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
+      KAFKA_HEAP_OPTS: "-Xmx4g -Xms4g -XX:MetaspaceSize=96m -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent -XX:+UseG1GC -XX:G1HeapRegionSize=2M -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_SOCKET_SEND_BUFFER_BYTES: 16777216 # 16MB
       KAFKA_SOCKET_RECEIVE_BUFFER_BYTES: 16777216 # 16MB
@@ -140,7 +140,7 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_BACKGROUND_THREADS: 4
-      KAFKA_HEAP_OPTS: "-Xms4g -Xmx4g -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
+      KAFKA_HEAP_OPTS: "-Xmx4g -Xms4g -XX:MetaspaceSize=96m -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent -XX:+UseG1GC -XX:G1HeapRegionSize=2M -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_SOCKET_SEND_BUFFER_BYTES: 16777216 # 16MB
       KAFKA_SOCKET_RECEIVE_BUFFER_BYTES: 16777216 # 16MB
@@ -184,7 +184,7 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_BACKGROUND_THREADS: 4
-      KAFKA_HEAP_OPTS: "-Xms4g -Xmx4g -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC"
+      KAFKA_HEAP_OPTS: "-Xmx4g -Xms4g -XX:MetaspaceSize=96m -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent -XX:+UseG1GC -XX:G1HeapRegionSize=2M -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_SOCKET_SEND_BUFFER_BYTES: 16777216 # 16MB
       KAFKA_SOCKET_RECEIVE_BUFFER_BYTES: 16777216 # 16MB
