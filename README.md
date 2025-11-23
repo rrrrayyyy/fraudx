@@ -8,16 +8,23 @@
     - 128/128 (53950, 11480)
     - 200/200 ()
 
-- 17770, 4580 -> 26025, -> 44889, 128877 -> 50870, 61461
+- 4: (74849, 133553)
+- 8/4: (74375, 111985)
+- 8: (74927, 110453)
+- 16: (67498, 77401)
+- 20: (67683, 79599)
+- 24: (56183, 61540)
+- 64: (12451, 12897)
+
 
 # procedures
 ```zsh
 ./gradlew generateProto
 
-./gradlew :payment-service:bootRun -DcomposeUpD=true -Dkafka.connect=true --args="--kafka.topics.payment.partitions=200"
+./gradlew :payment-service:bootRun -DcomposeUpD=true -Dkafka.connect=true --args="--kafka.topics.payment.partitions=4"
 
 # ./gradlew :fraud-detection-service:bootRun --args="--logging=true"
-./gradlew :fraud-detection-service:bootRun --args="--spring.kafka.consumer.concurrency=200"
+./gradlew :fraud-detection-service:bootRun --args="--spring.kafka.consumer.concurrency=4"
 
 # move to another terminal
 # curl -X POST "http://localhost:8080/payment-events?logging=true&n=1000000"

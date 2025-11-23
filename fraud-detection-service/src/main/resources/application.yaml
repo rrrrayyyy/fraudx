@@ -8,7 +8,7 @@ spring:
       fetch-min-size: 1048576 # 1MB
       max-partition-fetch-bytes: 10485760 # 10MB
       enable-auto-commit: false
-      concurrency: 8
+      concurrency: 4
       max-poll-records: 50000
 
 kafka:
