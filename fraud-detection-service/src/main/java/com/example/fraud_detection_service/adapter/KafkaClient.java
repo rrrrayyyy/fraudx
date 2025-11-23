@@ -1,7 +1,7 @@
 package com.example.fraud_detection_service.adapter;
 
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.*;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -19,7 +19,6 @@ import jakarta.annotation.PreDestroy;
 public class KafkaClient {
     private static final Logger log = LoggerFactory.getLogger(KafkaClient.class);
     private final Deserializer<PaymentEventValue> deserializer;
-    private final ExecutorService executor;
 
     @Value("${logging:false}")
     private boolean logging;
@@ -30,7 +29,6 @@ public class KafkaClient {
 
     public KafkaClient() {
         deserializer = new KafkaProtobufDeserializer<>(PaymentEventValue.parser());
-        executor = Executors.newVirtualThreadPerTaskExecutor();
     }
 
     @KafkaListener(topics = "${kafka.topics.payment.name}", concurrency = "${spring.kafka.consumer.concurrency}", batch = "true", containerFactory = "protobufConcurrentKafkaListenerContainerFactory")
@@ -42,37 +40,23 @@ public class KafkaClient {
         endTime.compareAndSet(last, now);
         for (var record : records) {
             try {
-                executor.submit(() -> subscribe(record));
+                // execute some logic
+                deserializer.deserialize(null, record.value());
             } catch (RejectedExecutionException e) {
                 log.warn("⚠️ Executor queue full, dropping record: {}", record);
             } catch (Exception e) {
                 log.warn("⚠️ Subscription failed: {}", e.getMessage());
-            }
-        }
-    }
-
-    private void subscribe(ConsumerRecord<byte[], byte[]> record) {
-        try {
-            // execute some logic
-            deserializer.deserialize(null, record.value());
-        } catch (Exception e) {
-            log.error("❌ Error processing record: {}", e.getMessage(), e);
-        } finally {
-            if (logging && log.isInfoEnabled()) {
-                log.info("✅ Subscribed event [partition={}, offset={}]: {}", record.partition(), record.offset(),
-                        record.value());
+            } finally {
+                if (logging && log.isInfoEnabled()) {
+                    log.info("✅ Subscribed event [partition={}, offset={}]: {}", record.partition(), record.offset(),
+                            record.value());
+                }
             }
         }
     }
 
     @PreDestroy
     public void onShutdown() {
-        executor.shutdown();
-        try {
-            executor.awaitTermination(60, java.util.concurrent.TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
         if (startTime.get() != 0) {
             long ns = endTime.get() - startTime.get();
             var count = counter.sum();
