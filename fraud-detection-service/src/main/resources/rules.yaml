@@ -1,0 +1,9 @@
+fraud-detection:
+  rules:
+    card-frequency:
+      enabled: false
+    device-frequency:
+      enabled: false
+    amount-deviation:
+      enabled: false
+    
