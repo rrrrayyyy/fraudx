@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+import "entity.proto";
+import "google/protobuf/timestamp.proto";
+
+package com.example.proto;
+
+message PaymentEventKey {
+    string transaction_id = 1;
+}
+
+message PaymentEventValue {
+    string user_id = 1;
+    string merchant_id = 2;
+    int64 amount = 3;
+    Currency currency = 4;
+    PaymentMethod payment_method = 5;
+    google.protobuf.Timestamp processed_at = 6;
+    google.protobuf.Timestamp created_at = 7;
+    string device_id = 10;
+    string ip_address = 11;
+    string trace_id = 12;
+}

@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import com.example.payment.Payment.PaymentEventValue;
+import com.example.proto.Event.PaymentEventValue;
 
 import jakarta.annotation.PreDestroy;
 
