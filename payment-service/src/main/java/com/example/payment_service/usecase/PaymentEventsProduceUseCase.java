@@ -3,7 +3,7 @@ package com.example.payment_service.usecase;
 import org.slf4j.*;
 import org.springframework.stereotype.Service;
 
-import com.example.proto.Event.*;
+import com.example.proto.domain.PaymentEventFactory;
 import com.github.f4b6a3.uuid.UuidCreator;
 
 @Service
@@ -20,12 +20,8 @@ public class PaymentEventsProduceUseCase {
 		for (int i = 0; i < n; i++) {
 			var transactionId = UuidCreator.getTimeOrderedEpoch().toString();
 			var userId = UuidCreator.getTimeOrderedEpoch().toString();
-			var key = PaymentEventKey.newBuilder()
-					.setTransactionId(transactionId)
-					.build();
-			var value = PaymentEventValue.newBuilder()
-					.setUserId(userId)
-					.build();
+			var key = PaymentEventFactory.generateKey(transactionId);
+			var value = PaymentEventFactory.generateValue(userId);
 			paymentEventProducer.publish(key, value);
 			if (logging && log.isInfoEnabled()) {
 				log.info("✅ Published payment event: {}", value);

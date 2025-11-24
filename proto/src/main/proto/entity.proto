@@ -2,6 +2,10 @@ syntax = "proto3";
 
 package com.example.proto;
 
+message Account {
+    string user_id = 1;
+}
+
 message PaymentMethod {
     string id = 1;
 

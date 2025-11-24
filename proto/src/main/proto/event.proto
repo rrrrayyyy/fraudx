@@ -10,7 +10,7 @@ message PaymentEventKey {
 }
 
 message PaymentEventValue {
-    string user_id = 1;
+    Account account = 1;
     string merchant_id = 2;
     int64 amount = 3;
     Currency currency = 4;

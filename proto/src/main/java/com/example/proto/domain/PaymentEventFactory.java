@@ -1,0 +1,21 @@
+package com.example.proto.domain;
+
+import com.example.proto.Entity.Account;
+import com.example.proto.Event.*;
+
+public class PaymentEventFactory {
+    public static PaymentEventKey generateKey(String transactionId) {
+        return PaymentEventKey.newBuilder()
+                .setTransactionId(transactionId)
+                .build();
+    }
+
+    public static PaymentEventValue generateValue(String userId) {
+        var account = Account.newBuilder()
+                .setUserId(userId)
+                .build();
+        return PaymentEventValue.newBuilder()
+                .setAccount(account)
+                .build();
+    }
+}
