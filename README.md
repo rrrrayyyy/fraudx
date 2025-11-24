@@ -1,19 +1,17 @@
 # fraudx
 
 # Detection rules
-1. important
-    1. unusual device_id (detect device reregistration/new device)
-    1. high amount (threshold-based)
-    1. velocity/frequency (same card/device_id used M times in N min)
-    1. account/user linkage
-        - same IP address or device_id between multiple accounts/users
-        - same card used by multiple users
-1. high demand
-    1. Transactional pattern deviation (amount deviates 3σ from user mean)
-    1. unusual geo location
-        - detected by IP address and/or merchant country mismatch   
-    1. unusual merchant/MCC code with high amount (compared to previous ones)
-    1. unusual currency (USD -> TRY, detected by issuer's country vs used currency)
+1. velocity/frequency (same card/device_id used M times in N min)
+    - => Sliding window
+        - Redis SortedSets
+        - Redis HyperLogLog
+1. Transactional pattern deviation (amount deviates 3σ from user mean)
+    - => ScyllaDB historical records, Stream aggregation
+1. account/user linkage
+    - same IP address or device_id between multiple accounts/users
+    - same card used by multiple users
+    - => Graph traversal
+1. unusual geo location (transaction interval vs time required to move)
 
 # Performance optimization
 - producer/consumer
