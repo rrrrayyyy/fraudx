@@ -4,7 +4,11 @@
 - producer/consumer
     - 4: (189208, 201249)
 
-
+46467, 56125 (update)
+84808, 90130
+108024, 119728 (update)
+123056, 124930 (update 9M)
+106179, 
 
 # procedures
 ```zsh
@@ -77,11 +81,8 @@ subprojects {
         - KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker-1:19092,PLAINTEXT_HOST://localhost:9004
 
 # TODO
-- [x] Kafka docker compose up -d の成功確認
-- [x] SpringBoot 起動時引数でKafka docker compose up -d + Kafkaへの接続を行う（引数なしで両方行わない）
-- [x] Kafka producer client実装
-- [x] Kafka subscriber 実装
-- [ ] kafka-producer-perf-test.sh と kafka-consumer-perf-test.sh を使い、メッセージサイズ・batching・compression・acks を変えて実測するのが必須
-
+- 動的にmessage内容を変える + subscriber側にそのカウントを伝える(精度計算のため)
+- Redis and/or Scylla と接続する
+- Kafka Stream
 
 
