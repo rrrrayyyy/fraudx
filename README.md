@@ -4,11 +4,6 @@
 - producer/consumer
     - 4: (189208, 201249)
 
-46467, 56125 (update)
-84808, 90130
-108024, 119728 (update)
-123056, 124930 (update 9M)
-130501, 132379 (24 io threads)
 
 # procedures
 ```zsh
