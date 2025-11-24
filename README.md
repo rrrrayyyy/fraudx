@@ -12,6 +12,7 @@
     - same card used by multiple users
     - => Graph traversal
 1. unusual geo location (transaction interval vs time required to move)
+    - Redis Geohash
 
 # Performance optimization
 - producer/consumer
