@@ -23,13 +23,10 @@
 ```zsh
 ./gradlew generateProto
 
-./gradlew :payment-service:bootRun -DcomposeUpD=true -Dkafka.connect=true --args="--kafka.topics.payment.partitions=4"
+./gradlew :payment-service:bootRun -DcomposeUpD=true -Dkafka.connect=true --args=" --logging.level.com.example.payment_service=INFO --kafka.topics.payment.partitions=4"
 
-# ./gradlew :fraud-detection-service:bootRun --args="--logging=true"
-./gradlew :fraud-detection-service:bootRun --args="--spring.kafka.consumer.concurrency=4"
+./gradlew :fraud-detection-service:bootRun --args="--logging.level.com.example.fraud_detection_service=INFO --spring.kafka.consumer.concurrency=4"
 
-# move to another terminal
-# curl -X POST "http://localhost:8080/payment-events?logging=true&n=1000000"
 curl -X POST "http://localhost:8080/payment-events?n=1000000"
 ```
 

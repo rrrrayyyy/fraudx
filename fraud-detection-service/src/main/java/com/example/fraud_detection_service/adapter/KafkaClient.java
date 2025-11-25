@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.*;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.slf4j.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +18,6 @@ import jakarta.annotation.PreDestroy;
 public class KafkaClient {
     private static final Logger log = LoggerFactory.getLogger(KafkaClient.class);
     private final Deserializer<PaymentEventValue> deserializer;
-
-    @Value("${logging:false}")
-    private boolean logging;
 
     private final AtomicLong startTime = new AtomicLong(0);
     private final AtomicLong endTime = new AtomicLong(0);
@@ -43,12 +39,12 @@ public class KafkaClient {
                 // execute some logic
                 deserializer.deserialize(null, record.value());
             } catch (RejectedExecutionException e) {
-                log.warn("⚠️ Executor queue full, dropping record: {}", record);
+                log.error("❌ Executor queue full, dropping record: {}", record);
             } catch (Exception e) {
-                log.warn("⚠️ Subscription failed: {}", e.getMessage());
+                log.error("❌ Subscription failed: {}", e.getMessage());
             } finally {
-                if (logging && log.isInfoEnabled()) {
-                    log.info("✅ Subscribed event [partition={}, offset={}]: {}", record.partition(), record.offset(),
+                if (log.isDebugEnabled()) {
+                    log.debug("✅ Subscribed event [partition={}, offset={}]: {}", record.partition(), record.offset(),
                             record.value());
                 }
             }

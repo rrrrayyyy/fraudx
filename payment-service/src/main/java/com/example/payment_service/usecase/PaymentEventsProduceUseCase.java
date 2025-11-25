@@ -15,7 +15,7 @@ public class PaymentEventsProduceUseCase {
 		this.paymentEventProducer = paymentEventProducer;
 	}
 
-	public void run(boolean logging, int n) {
+	public void run(int n) {
 		var startTime = System.nanoTime();
 		for (int i = 0; i < n; i++) {
 			var transactionId = UuidCreator.getTimeOrderedEpoch().toString();
@@ -23,8 +23,8 @@ public class PaymentEventsProduceUseCase {
 			var key = PaymentEventFactory.generateKey(transactionId);
 			var value = PaymentEventFactory.generateValue(userId);
 			paymentEventProducer.publish(key, value);
-			if (logging && log.isInfoEnabled()) {
-				log.info("✅ Published payment event: {}", value);
+			if (log.isDebugEnabled()) {
+				log.debug("✅ Published payment event: {}", value);
 			}
 		}
 		var ns = System.nanoTime() - startTime;
