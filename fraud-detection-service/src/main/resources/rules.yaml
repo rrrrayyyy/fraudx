@@ -1,9 +1,31 @@
 fraud-detection:
   rules:
-    card-frequency:
-      enabled: false
-    device-frequency:
-      enabled: false
+    transaction-frequency:
+      target-attributes:
+        card_id:
+          enabled: false
+          threshold: 5
+          duration: 1
+          time-unit: "minute"
+        device_id:
+          enabled: false
+          threshold: 5
+          duration: 1
+          time-unit: "minute"
     amount-deviation:
       enabled: false
-    
+      sigma-threshold: 3
+      history-duration: 30
+      time-unit: "day"
+      min-transactions: 10
+    user-linkage:
+      target-attributes:
+        card_id:
+          enabled: false
+          linkage-threshold: 2
+        device_id:
+          enabled: false
+          linkage-threshold: 2
+        ip_address:
+          enabled: false
+          linkage-threshold: 2
