@@ -5,6 +5,7 @@ spring:
     bootstrap-servers: localhost:9004,localhost:9005,localhost:9006
     producer:
       compression-type: none
+      buffer-memory: 33554432
       batch-size: 16384
       linger-ms: 5
       acks: all

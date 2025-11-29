@@ -18,6 +18,9 @@ public class KafkaConfig {
 	@Value("${spring.kafka.producer.compression-type}")
 	private String compressionType;
 
+	@Value("${spring.kafka.producer.buffer-memory}")
+	private long bufferMemory;
+
 	@Value("${spring.kafka.producer.batch-size}")
 	private int batchSize;
 
@@ -32,6 +35,7 @@ public class KafkaConfig {
 		var props = new HashMap<String, Object>();
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 		props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, compressionType);
+		props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, bufferMemory);
 		props.put(ProducerConfig.BATCH_SIZE_CONFIG, batchSize);
 		props.put(ProducerConfig.LINGER_MS_CONFIG, lingerMs);
 		props.put(ProducerConfig.ACKS_CONFIG, acks);

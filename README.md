@@ -28,6 +28,7 @@
 -Dkafka.connect=true \
 --args="--logging.level.com.example.payment_service=INFO \
         --spring.kafka.producer.compression-type=lz4 \
+        --spring.kafka.producer.buffer-memory=268435456 \
         --kafka.topics.payment.replication-factor=3 \
         --kafka.topics.payment.partitions=4 \
         --spring.kafka.producer.batch-size=1048576 \
