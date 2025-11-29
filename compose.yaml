@@ -11,18 +11,9 @@ services:
       KAFKA_LISTENERS: CONTROLLER://:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
-      KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m -XX:+UseG1GC"
+      KAFKA_HEAP_OPTS: "-Xms256m -Xmx256m -XX:+UseG1GC"
     mem_limit: 1g
     mem_swappiness: 0
-    sysctls:
-      net.core.somaxconn: 1024
-      net.ipv4.tcp_max_syn_backlog: 1024
-      net.ipv4.tcp_tw_reuse: 1
-      net.ipv4.tcp_fin_timeout: 15
-    ulimits:
-      nofile: 65536
-    logging:
-      driver: none
     volumes:
       - kafka-data-controller-1:/var/lib/kafka
     networks:
@@ -38,18 +29,9 @@ services:
       KAFKA_LISTENERS: CONTROLLER://:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
-      KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m -XX:+UseG1GC"
+      KAFKA_HEAP_OPTS: "-Xms256m -Xmx256m -XX:+UseG1GC"
     mem_limit: 1g
     mem_swappiness: 0
-    sysctls:
-      net.core.somaxconn: 1024
-      net.ipv4.tcp_max_syn_backlog: 1024
-      net.ipv4.tcp_tw_reuse: 1
-      net.ipv4.tcp_fin_timeout: 15
-    ulimits:
-      nofile: 65536
-    logging:
-      driver: none
     volumes:
       - kafka-data-controller-2:/var/lib/kafka
     networks:
@@ -65,18 +47,9 @@ services:
       KAFKA_LISTENERS: CONTROLLER://:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
-      KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m -XX:+UseG1GC"
+      KAFKA_HEAP_OPTS: "-Xms256m -Xmx256m -XX:+UseG1GC"
     mem_limit: 1g
     mem_swappiness: 0
-    sysctls:
-      net.core.somaxconn: 1024
-      net.ipv4.tcp_max_syn_backlog: 1024
-      net.ipv4.tcp_tw_reuse: 1
-      net.ipv4.tcp_fin_timeout: 15
-    ulimits:
-      nofile: 65536
-    logging:
-      driver: none
     volumes:
       - kafka-data-controller-3:/var/lib/kafka
     networks:
@@ -97,7 +70,6 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_HEAP_OPTS: "-Xmx2g -Xms2g -XX:MetaspaceSize=96m -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent -XX:+UseG1GC -XX:G1HeapRegionSize=2M -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
-      KAFKA_LOG_SEGMENT_BYTES: 1073741824 # 1GB
       KAFKA_COMPRESSION_TYPE: lz4
     ports:
       - "9004:9092"
@@ -108,10 +80,6 @@ services:
       net.ipv4.tcp_max_syn_backlog: 65535
       net.ipv4.tcp_tw_reuse: 1
       net.ipv4.tcp_fin_timeout: 15
-    ulimits:
-      nofile: 1000000
-    logging:
-      driver: none
     volumes:
       - kafka-data-broker-1:/var/lib/kafka
     networks:
@@ -136,7 +104,6 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_HEAP_OPTS: "-Xmx2g -Xms2g -XX:MetaspaceSize=96m -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent -XX:+UseG1GC -XX:G1HeapRegionSize=2M -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
-      KAFKA_LOG_SEGMENT_BYTES: 1073741824 # 1GB
       KAFKA_COMPRESSION_TYPE: lz4
     ports:
       - "9005:9092"
@@ -147,10 +114,6 @@ services:
       net.ipv4.tcp_max_syn_backlog: 65535
       net.ipv4.tcp_tw_reuse: 1
       net.ipv4.tcp_fin_timeout: 15
-    ulimits:
-      nofile: 1000000
-    logging:
-      driver: none
     volumes:
       - kafka-data-broker-2:/var/lib/kafka
     networks:
@@ -175,7 +138,6 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_HEAP_OPTS: "-Xmx2g -Xms2g -XX:MetaspaceSize=96m -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent -XX:+UseG1GC -XX:G1HeapRegionSize=2M -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
-      KAFKA_LOG_SEGMENT_BYTES: 1073741824 # 1GB
       KAFKA_COMPRESSION_TYPE: lz4
     ports:
       - "9006:9092"
@@ -186,10 +148,6 @@ services:
       net.ipv4.tcp_max_syn_backlog: 65535
       net.ipv4.tcp_tw_reuse: 1
       net.ipv4.tcp_fin_timeout: 15
-    ulimits:
-      nofile: 1000000
-    logging:
-      driver: none
     volumes:
       - kafka-data-broker-3:/var/lib/kafka
     networks:
@@ -228,4 +186,3 @@ volumes:
 
 networks:
   kafka-net:
-    driver: bridge
