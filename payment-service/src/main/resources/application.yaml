@@ -5,8 +5,8 @@ spring:
     bootstrap-servers: localhost:9004,localhost:9005,localhost:9006
     producer:
       compression-type: lz4
-      batch-size: 1048576      # 1MB
-      linger-ms: 50
+      batch-size: 16384
+      linger-ms: 5
       acks: 1
 
 kafka:
