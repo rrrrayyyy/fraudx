@@ -23,7 +23,7 @@
 ```zsh
 ./gradlew generateProto
 
-./gradlew :payment-service:bootRun -DcomposeUpD=true -Dkafka.connect=true --args="--logging.level.com.example.payment_service=INFO --kafka.topics.payment.partitions=4 --spring.kafka.producer.batch-size=1048576 --spring.kafka.producer.linger-ms=50"
+./gradlew :payment-service:bootRun -DcomposeUpD=true -Dkafka.connect=true --args="--logging.level.com.example.payment_service=INFO  --spring.kafka.producer.compression-type=lz4 --kafka.topics.payment.replication-factor=3 --kafka.topics.payment.partitions=4 --spring.kafka.producer.batch-size=1048576 --spring.kafka.producer.linger-ms=50 --spring.kafka.producer.acks=1"
 
 ./gradlew :fraud-detection-service:bootRun --args="--logging.level.com.example.fraud_detection_service=INFO --spring.kafka.consumer.concurrency=4"
 
