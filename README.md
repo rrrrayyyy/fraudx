@@ -17,7 +17,7 @@
 # Performance optimization
 - producer/consumer
     - 4: (189208, 201249)
-
+    - 4: (410120, 411174) with 50M (m3 pro)
 
 # procedures
 ```zsh
@@ -27,7 +27,7 @@
 
 ./gradlew :fraud-detection-service:bootRun --args="--logging.level.com.example.fraud_detection_service=INFO --spring.kafka.consumer.concurrency=4"
 
-curl -X POST "http://localhost:8080/payment-events?n=1000000"
+curl -X POST "http://localhost:8080/payment-events?n=10000000"
 ```
 
 # development environment setup
