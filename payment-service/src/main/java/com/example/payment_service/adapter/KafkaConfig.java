@@ -15,9 +15,6 @@ public class KafkaConfig {
 	@Value("${spring.kafka.bootstrap-servers}")
 	private String bootstrapServers;
 
-	@Value("${spring.kafka.producer.buffer-memory}")
-	private long bufferMemory;
-
 	@Value("${spring.kafka.producer.compression-type}")
 	private String compressionType;
 
@@ -34,7 +31,6 @@ public class KafkaConfig {
 	public ProducerFactory<byte[], byte[]> protobufProducerFactory() {
 		var props = new HashMap<String, Object>();
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-		props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, bufferMemory);
 		props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, compressionType);
 		props.put(ProducerConfig.BATCH_SIZE_CONFIG, batchSize);
 		props.put(ProducerConfig.LINGER_MS_CONFIG, lingerMs);

@@ -4,7 +4,6 @@ spring:
   kafka:
     bootstrap-servers: localhost:9004,localhost:9005,localhost:9006
     producer:
-      buffer-memory: 134217728 # 128MB
       compression-type: lz4
       batch-size: 1048576      # 1MB
       linger-ms: 50
