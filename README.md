@@ -28,7 +28,7 @@
 -Dkafka.connect=true \
 --args="--logging.level.com.example.payment_service=INFO \
         --spring.kafka.producer.compression-type=lz4 \
-        --spring.kafka.producer.buffer-memory=268435456 \
+        --spring.kafka.producer.buffer-memory=134217728 \
         --kafka.topics.payment.replication-factor=3 \
         --kafka.topics.payment.partitions=4 \
         --spring.kafka.producer.batch-size=1048576 \
@@ -37,7 +37,7 @@
 
 ./gradlew :fraud-detection-service:bootRun \
 --args="--logging.level.com.example.fraud_detection_service=INFO \
-        --spring.kafka.consumer.fetch-min-size=1048576 \
+        --spring.kafka.consumer.fetch-min-size=262144 \
         --spring.kafka.consumer.max-partition-fetch-bytes=10485760 \
         --spring.kafka.consumer.enable-auto-commit=false \
         --spring.kafka.consumer.max-poll-records=50000 \
