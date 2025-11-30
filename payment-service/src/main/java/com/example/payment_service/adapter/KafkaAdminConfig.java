@@ -8,11 +8,8 @@ import org.springframework.context.annotation.*;
 
 @Configuration
 public class KafkaAdminConfig {
-	private final String bootstrapServers;
-
-	public KafkaAdminConfig(@Value("${spring.kafka.bootstrap-servers}") String bootstrapServers) {
-		this.bootstrapServers = bootstrapServers;
-	}
+	@Value("${spring.kafka.bootstrap-servers}")
+	private String bootstrapServers;
 
 	@Bean
 	public AdminClient adminClient() {
