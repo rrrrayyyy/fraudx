@@ -1,0 +1,277 @@
+name: fraudx
+
+services:
+  controller-1:
+    image: apache/kafka:4.1.0
+    hostname: controller-1
+    environment:
+      CLUSTER_ID: local-cluster
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: controller
+      KAFKA_LISTENERS: CONTROLLER://:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
+      KAFKA_HEAP_OPTS: "-Xms256m -Xmx256m -XX:+UseG1GC"
+      KAFKA_OPTS: -javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent.jar=7071:/usr/share/jmx_exporter/kafka-config.yaml
+    mem_limit: 1g
+    mem_swappiness: 0
+    volumes:
+      - kafka-data-controller-1:/var/lib/kafka
+      - ./monitoring/jmx-exporter/jmx_prometheus_javaagent-1.5.0.jar:/usr/share/jmx_exporter/jmx_prometheus_javaagent.jar
+      - ./monitoring/jmx-exporter/kafka-config.yaml:/usr/share/jmx_exporter/kafka-config.yaml
+    networks:
+      - kafka-net
+
+  controller-2:
+    image: apache/kafka:4.1.0
+    hostname: controller-2
+    environment:
+      CLUSTER_ID: local-cluster
+      KAFKA_NODE_ID: 2
+      KAFKA_PROCESS_ROLES: controller
+      KAFKA_LISTENERS: CONTROLLER://:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
+      KAFKA_HEAP_OPTS: "-Xms256m -Xmx256m -XX:+UseG1GC"
+      KAFKA_OPTS: -javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent.jar=7071:/usr/share/jmx_exporter/kafka-config.yaml
+    mem_limit: 1g
+    mem_swappiness: 0
+    volumes:
+      - kafka-data-controller-2:/var/lib/kafka
+      - ./monitoring/jmx-exporter/jmx_prometheus_javaagent-1.5.0.jar:/usr/share/jmx_exporter/jmx_prometheus_javaagent.jar
+      - ./monitoring/jmx-exporter/kafka-config.yaml:/usr/share/jmx_exporter/kafka-config.yaml
+    networks:
+      - kafka-net
+
+  controller-3:
+    image: apache/kafka:4.1.0
+    hostname: controller-3
+    environment:
+      CLUSTER_ID: local-cluster
+      KAFKA_NODE_ID: 3
+      KAFKA_PROCESS_ROLES: controller
+      KAFKA_LISTENERS: CONTROLLER://:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
+      KAFKA_HEAP_OPTS: "-Xms256m -Xmx256m -XX:+UseG1GC"
+      KAFKA_OPTS: -javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent.jar=7071:/usr/share/jmx_exporter/kafka-config.yaml
+    mem_limit: 1g
+    mem_swappiness: 0
+    volumes:
+      - kafka-data-controller-3:/var/lib/kafka
+      - ./monitoring/jmx-exporter/jmx_prometheus_javaagent-1.5.0.jar:/usr/share/jmx_exporter/jmx_prometheus_javaagent.jar
+      - ./monitoring/jmx-exporter/kafka-config.yaml:/usr/share/jmx_exporter/kafka-config.yaml
+    networks:
+      - kafka-net      
+
+  broker-1:
+    image: apache/kafka:4.1.0
+    hostname: broker-1
+    environment:
+      CLUSTER_ID: local-cluster
+      KAFKA_NODE_ID: 4
+      KAFKA_PROCESS_ROLES: broker
+      KAFKA_LISTENERS: BROKER://:19092,HOST://:9092
+      KAFKA_ADVERTISED_LISTENERS: BROKER://broker-1:19092,HOST://localhost:9004
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT,HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
+      KAFKA_HEAP_OPTS: "-Xmx2g -Xms2g -XX:MetaspaceSize=96m -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent -XX:+UseG1GC -XX:G1HeapRegionSize=2M -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35"
+      KAFKA_OPTS: -javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent.jar=7071:/usr/share/jmx_exporter/kafka-config.yaml
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_NUM_NETWORK_THREADS: 5
+    ports:
+      - "9004:9092"
+    mem_limit: 9g
+    mem_swappiness: 0
+    volumes:
+      - kafka-data-broker-1:/var/lib/kafka
+      - ./monitoring/jmx-exporter/jmx_prometheus_javaagent-1.5.0.jar:/usr/share/jmx_exporter/jmx_prometheus_javaagent.jar
+      - ./monitoring/jmx-exporter/kafka-config.yaml:/usr/share/jmx_exporter/kafka-config.yaml
+    networks:
+      - kafka-net
+    depends_on:
+      - controller-1
+      - controller-2
+      - controller-3
+
+  broker-2:
+    image: apache/kafka:4.1.0
+    hostname: broker-2
+    environment:
+      CLUSTER_ID: local-cluster
+      KAFKA_NODE_ID: 5
+      KAFKA_PROCESS_ROLES: broker
+      KAFKA_LISTENERS: BROKER://:19092,HOST://:9092
+      KAFKA_ADVERTISED_LISTENERS: BROKER://broker-2:19092,HOST://localhost:9005
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT,HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
+      KAFKA_HEAP_OPTS: "-Xmx2g -Xms2g -XX:MetaspaceSize=96m -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent -XX:+UseG1GC -XX:G1HeapRegionSize=2M -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35"
+      KAFKA_OPTS: -javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent.jar=7071:/usr/share/jmx_exporter/kafka-config.yaml
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_NUM_NETWORK_THREADS: 5
+    ports:
+      - "9005:9092"
+    mem_limit: 9g
+    mem_swappiness: 0
+    volumes:
+      - kafka-data-broker-2:/var/lib/kafka
+      - ./monitoring/jmx-exporter/jmx_prometheus_javaagent-1.5.0.jar:/usr/share/jmx_exporter/jmx_prometheus_javaagent.jar
+      - ./monitoring/jmx-exporter/kafka-config.yaml:/usr/share/jmx_exporter/kafka-config.yaml
+    networks:
+      - kafka-net
+    depends_on:
+      - controller-1
+      - controller-2
+      - controller-3
+
+  broker-3:
+    image: apache/kafka:4.1.0
+    hostname: broker-3
+    environment:
+      CLUSTER_ID: local-cluster
+      KAFKA_NODE_ID: 6
+      KAFKA_PROCESS_ROLES: broker
+      KAFKA_LISTENERS: BROKER://:19092,HOST://:9092
+      KAFKA_ADVERTISED_LISTENERS: BROKER://broker-3:19092,HOST://localhost:9006
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT,HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
+      KAFKA_HEAP_OPTS: "-Xmx2g -Xms2g -XX:MetaspaceSize=96m -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent -XX:+UseG1GC -XX:G1HeapRegionSize=2M -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35"
+      KAFKA_OPTS: -javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent.jar=7071:/usr/share/jmx_exporter/kafka-config.yaml
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_NUM_NETWORK_THREADS: 5
+    ports:
+      - "9006:9092"
+    mem_limit: 9g
+    mem_swappiness: 0
+    volumes:
+      - kafka-data-broker-3:/var/lib/kafka
+      - ./monitoring/jmx-exporter/jmx_prometheus_javaagent-1.5.0.jar:/usr/share/jmx_exporter/jmx_prometheus_javaagent.jar
+      - ./monitoring/jmx-exporter/kafka-config.yaml:/usr/share/jmx_exporter/kafka-config.yaml
+    networks:
+      - kafka-net
+    depends_on:
+      - controller-1
+      - controller-2
+      - controller-3
+
+  kafka-ui:
+    image: ghcr.io/kafbat/kafka-ui:latest
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: broker-1:19092,broker-2:19092,broker-3:19092
+      DYNAMIC_CONFIG_ENABLED: "true"
+    ports:
+      - 8888:8080
+    networks:
+      - kafka-net
+    depends_on:
+      - broker-1
+      - broker-2
+      - broker-3
+
+  payment-service:
+    build: ./payment-service
+    environment:
+      SPRING_APPLICATION_NAME: payment-service
+      SPRING_APPLICATION_JSON: '{"logging.level.com.example.payment_service":"INFO"}'
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: broker-1:19092,broker-2:19092,broker-3:19092
+      SPRING_KAFKA_PRODUCER_COMPRESSION_TYPE: lz4
+      SPRING_KAFKA_PRODUCER_BUFFER_MEMORY: 134217728
+      SPRING_KAFKA_PRODUCER_BATCH_SIZE: 1048576
+      SPRING_KAFKA_PRODUCER_LINGER_MS: 50
+      SPRING_KAFKA_PRODUCER_ACKS: 1
+      KAFKA_CONNECT: true
+      KAFKA_TOPICS_PAYMENT_NAME: payment-events
+      KAFKA_TOPICS_PAYMENT_PARTITIONS: 4
+      KAFKA_TOPICS_PAYMENT_REPLICATION_FACTOR: 3
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "prometheus,health,info"
+    ports:
+      - 8080:8080
+    networks:
+      - kafka-net
+    depends_on:
+      - broker-1
+      - broker-2
+      - broker-3
+
+  fraud-detection-service:
+    build: ./fraud-detection-service
+    environment:
+      SPRING_APPLICATION_NAME: fraud-detection-service
+      SPRING_APPLICATION_JSON: '{"logging.level.com.example.fraud_detection_service":"INFO"}'
+      SPRING_CONFIG_IMPORT: rules.yaml
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: broker-1:19092,broker-2:19092,broker-3:19092
+      SPRING_KAFKA_CONSUMER_GROUP_ID: fraud-detection
+      SPRING_KAFKA_CONSUMER_FETCH_MIN_SIZE: 262144
+      SPRING_KAFKA_CONSUMER_MAX_PARTITION_FETCH_BYTES: 10485760
+      SPRING_KAFKA_CONSUMER_ENABLE_AUTO_COMMIT: false
+      SPRING_KAFKA_CONSUMER_MAX_POLL_RECORDS: 50000
+      SPRING_KAFKA_CONSUMER_CONCURRENCY: 4
+      KAFKA_TOPICS_PAYMENT_NAME: payment-events
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "prometheus,health,info"
+    ports:
+      - 8081:8080
+    networks:
+      - kafka-net
+    depends_on:
+      - broker-1
+      - broker-2
+      - broker-3
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.52.0
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    ports:
+      - 8085:8080
+    networks:
+      - kafka-net
+    depends_on:
+      - payment-service
+      - fraud-detection-service
+
+  prometheus:
+    image: prom/prometheus:v3.7.3
+    volumes:
+      - ./monitoring/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
+    ports:
+      - 9090:9090
+    networks:
+      - kafka-net
+    depends_on:
+      - cadvisor
+
+  grafana:
+    image: grafana/grafana:12.1
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - 3000:3000
+    networks:
+      - kafka-net
+    depends_on:
+      - prometheus
+
+volumes:
+  kafka-data-controller-1:
+  kafka-data-controller-2:
+  kafka-data-controller-3:
+  kafka-data-broker-1:
+  kafka-data-broker-2:
+  kafka-data-broker-3:
+
+networks:
+  kafka-net:

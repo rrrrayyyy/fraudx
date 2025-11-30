@@ -28,6 +28,9 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic'
     implementation 'com.github.f4b6a3:uuid-creator:6.1.0'
 
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

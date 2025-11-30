@@ -1,0 +1,10 @@
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+
+rules:
+  - pattern: kafka.controller<type=(.+), name=(.+)><>(Value)
+    name: kafka_controller_$1_$2_$3
+  - pattern: kafka.server<type=(.+), name=(.+)><>(Value)
+    name: kafka_server_$1_$2_$3
+  - pattern: java.lang<type=(.+), name=(.+)><>(.+)
+    name: java_lang_$1_$2_$3
