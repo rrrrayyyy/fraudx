@@ -1,33 +1,66 @@
 package com.example.fraud_detection_service.adapter;
 
 import java.util.List;
-import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
+import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.slf4j.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.stereotype.Service;
 
 import com.example.proto.Event.PaymentEventValue;
 
-import jakarta.annotation.PreDestroy;
+import jakarta.annotation.*;
 
 @Service
 public class KafkaClient {
     private static final Logger log = LoggerFactory.getLogger(KafkaClient.class);
     private final Deserializer<PaymentEventValue> deserializer;
+    private final KafkaListenerEndpointRegistry registry;
+    private final AdminClient adminClient;
 
     private final AtomicLong startTime = new AtomicLong(0);
     private final AtomicLong endTime = new AtomicLong(0);
     private final LongAdder counter = new LongAdder();
 
-    public KafkaClient() {
+    @Value("${kafka.topics.payment.name}")
+    private String paymentTopicName;
+
+    public KafkaClient(KafkaListenerEndpointRegistry registry, AdminClient adminClient) {
         deserializer = new KafkaProtobufDeserializer<>(PaymentEventValue.parser());
+        this.registry = registry;
+        this.adminClient = adminClient;
     }
 
-    @KafkaListener(topics = "${kafka.topics.payment.name}", concurrency = "${spring.kafka.consumer.concurrency}", batch = "true", containerFactory = "protobufConcurrentKafkaListenerContainerFactory")
+    @PostConstruct
+    public void startIfTopicExists() {
+        Executors.newSingleThreadExecutor().submit(() -> {
+            try {
+                while (true) {
+                    var topics = adminClient.listTopics().names().get(10, TimeUnit.SECONDS);
+                    if (topics.contains(paymentTopicName)) {
+                        log.info("✅ Topic confirmed: {}", paymentTopicName);
+                        var listener = registry.getListenerContainer("paymentListener");
+                        if (listener != null && !listener.isRunning()) {
+                            listener.start();
+                            log.info("✅ Listener startup succeeded");
+                        }
+                        break;
+                    }
+                    Thread.sleep(1000);
+                }
+            } catch (Exception e) {
+                log.error("❌ Failed to start listener: {}", e.getMessage());
+            }
+        });
+    }
+
+    @KafkaListener(id = "paymentListener", topics = "${kafka.topics.payment.name}", concurrency = "${spring.kafka.consumer.concurrency}", batch = "true", containerFactory = "protobufConcurrentKafkaListenerContainerFactory", autoStartup = "false")
     public void process(List<ConsumerRecord<byte[], byte[]>> records) {
         var now = System.nanoTime();
         startTime.compareAndSet(0, now);

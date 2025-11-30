@@ -70,6 +70,7 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_HEAP_OPTS: "-Xmx2g -Xms2g -XX:MetaspaceSize=96m -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent -XX:+UseG1GC -XX:G1HeapRegionSize=2M -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
       KAFKA_NUM_NETWORK_THREADS: 5
     ports:
       - "9004:9092"
@@ -99,6 +100,7 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_HEAP_OPTS: "-Xmx2g -Xms2g -XX:MetaspaceSize=96m -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent -XX:+UseG1GC -XX:G1HeapRegionSize=2M -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
       KAFKA_NUM_NETWORK_THREADS: 5
     ports:
       - "9005:9092"
@@ -128,6 +130,7 @@ services:
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093,2@controller-2:9093,3@controller-3:9093
       KAFKA_HEAP_OPTS: "-Xmx2g -Xms2g -XX:MetaspaceSize=96m -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent -XX:+UseG1GC -XX:G1HeapRegionSize=2M -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
       KAFKA_NUM_NETWORK_THREADS: 5
     ports:
       - "9006:9092"
