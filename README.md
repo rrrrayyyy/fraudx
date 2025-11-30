@@ -21,17 +21,9 @@
 
 # procedures
 ```zsh
-./gradlew :fraud-detection-service:bootRun \
---args="--logging.level.com.example.fraud_detection_service=INFO \
-        --spring.kafka.consumer.fetch-min-size=262144 \
-        --spring.kafka.consumer.max-partition-fetch-bytes=10485760 \
-        --spring.kafka.consumer.enable-auto-commit=false \
-        --spring.kafka.consumer.max-poll-records=50000 \
-        --spring.kafka.consumer.concurrency=4"
-
-./gradlew clean bootJar
-docker compose down -v --remove-orphans && docker compose up --build -d && docker logs -f fraudx-payment-service-1
+./gradlew clean bootJar && docker compose down -v --remove-orphans && docker compose up --build -d && docker logs -f fraudx-payment-service-1
 curl -X POST "http://localhost:8080/payment-events?n=10000000"
+docker compose stop fraud-detection-service && docker logs fraudx-fraud-detection-service-1
 ```
 
 # development environment setup

@@ -181,6 +181,27 @@ services:
       - broker-2
       - broker-3
 
+  fraud-detection-service:
+    build: ./fraud-detection-service
+    environment:
+      SPRING_APPLICATION_NAME: fraud-detection-service
+      SPRING_APPLICATION_JSON: '{"logging.level.com.example.fraud_detection_service":"INFO"}'
+      SPRING_CONFIG_IMPORT: rules.yaml
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: broker-1:19092,broker-2:19092,broker-3:19092
+      SPRING_KAFKA_CONSUMER_GROUP_ID: fraud-detection
+      SPRING_KAFKA_CONSUMER_FETCH_MIN_SIZE: 262144
+      SPRING_KAFKA_CONSUMER_MAX_PARTITION_FETCH_BYTES: 10485760
+      SPRING_KAFKA_CONSUMER_ENABLE_AUTO_COMMIT: false
+      SPRING_KAFKA_CONSUMER_MAX_POLL_RECORDS: 50000
+      SPRING_KAFKA_CONSUMER_CONCURRENCY: 4
+      KAFKA_TOPICS_PAYMENT_NAME: payment-events
+    networks:
+      - kafka-net
+    depends_on:
+      - broker-1
+      - broker-2
+      - broker-3
+
 volumes:
   kafka-data-controller-1:
   kafka-data-controller-2:
