@@ -153,6 +153,7 @@ services:
       DYNAMIC_CONFIG_ENABLED: "true"
     ports:
       - 8888:8080
+    mem_limit: 1g
     networks:
       - kafka-net
     depends_on:
@@ -177,6 +178,7 @@ services:
       KAFKA_TOPICS_PAYMENT_REPLICATION_FACTOR: 3
     ports:
       - 8080:8080
+    mem_limit: 6g
     networks:
       - kafka-net
     depends_on:
@@ -198,6 +200,9 @@ services:
       SPRING_KAFKA_CONSUMER_MAX_POLL_RECORDS: 50000
       SPRING_KAFKA_CONSUMER_CONCURRENCY: 4
       KAFKA_TOPICS_PAYMENT_NAME: payment-events
+    ports:
+      - 8081:8080
+    mem_limit: 6g
     networks:
       - kafka-net
     depends_on:
