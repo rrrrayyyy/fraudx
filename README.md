@@ -27,6 +27,8 @@
 
 docker logs -f fraudx-fraud-detection-service-1
 
+# docker stats
+
 curl -X POST "http://localhost:8080/payment-events?n=10000000"
 
 docker compose stop fraud-detection-service && docker logs fraudx-fraud-detection-service-1
