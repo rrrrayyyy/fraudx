@@ -18,7 +18,3 @@ scrape_configs:
       - targets:
           - 'payment-service:8080'
           - 'fraud-detection-service:8080'
-
-  - job_name: 'cadvisor'
-    static_configs:
-      - targets: ['cadvisor:8080']
