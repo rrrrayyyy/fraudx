@@ -233,7 +233,7 @@ services:
   prometheus:
     image: prom/prometheus:v3.7.3
     volumes:
-      - ./monitoring/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - 9090:9090
     mem_limit: 1g
