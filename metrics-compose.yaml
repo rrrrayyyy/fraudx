@@ -232,11 +232,11 @@ services:
 
   prometheus:
     image: prom/prometheus:v3.7.3
-    volumes:
-      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - 9090:9090
     mem_limit: 1g
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - kafka-net
     depends_on:
@@ -247,9 +247,13 @@ services:
     image: grafana/grafana:12.1
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
     ports:
       - 3000:3000
     mem_limit: 1g
+    volumes:
+      - grafana-data:/var/lib/grafana
     networks:
       - kafka-net
     depends_on:
@@ -262,6 +266,7 @@ volumes:
   kafka-data-broker-1:
   kafka-data-broker-2:
   kafka-data-broker-3:
+  grafana-data:
 
 networks:
   kafka-net:
