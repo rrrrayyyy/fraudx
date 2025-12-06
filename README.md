@@ -90,9 +90,44 @@ subprojects {
         - KAFKA_LISTENERS: PLAINTEXT://:19092,PLAINTEXT_HOST://:9092
         - KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker-1:19092,PLAINTEXT_HOST://localhost:9004
 
+# Scylladb
+- https://docs.scylladb.com/manual/stable/operating-scylla/procedures/tips/best-practices-scylla-on-docker.html
+- fixed ip address with seeds specification
+- ulimits
+- `--smp` or `--overprovisioned 1`
+
+```zsh
+$ while true; do clear; docker exec scylladb-1 nodetool status; sleep 1; done
+$ docker exec -it scylladb-1 cqlsh -e "CREATE KEYSPACE IF NOT EXISTS example WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor' : 1};"
+
+# ScyllaDBの非同期IO性能を最大化する
+sudo sysctl -w fs.aio-max-nr=1048576
+```
+
+
+# Redis
+- `--cluster-replicas 1 --cluster-node-timeout 5000`
+- `--io-threads-do-reads yes? --no-appendfsync-on-rewrite yes? auto-aof-rewrite-percentage 100? --auto-aof-rewrite-min-size 64mb?`
+- `--maxclients 10000? tcp-keepalive 300?`
+- `--port $port --cluster-enabled yes --cluster-config-file node.conf --replica-serve-stale-data no --apendonly yes`
+- `--save "" --hz 100 --io-threads N`
+- redis.conf
+
+```zsh
+docker exec -it redis-1 redis-cli cluster info
+docker exec -it redis-1 redis-cli cluster nodes
+
+# Redisの警告（overcommit_memory）を消し、BGSAVE失敗を防ぐ
+sudo sysctl -w vm.overcommit_memory=1
+```
+
+
+
 # TODO
-- 動的にmessage内容を変える + subscriber側にそのカウントを伝える(精度計算のため)
-- Redis and/or Scylla と接続する
-- Kafka Stream
+- Redis, Scylla と接続
+- 動的にmessage内容を変える
+- subscriber側に fraudulent event をpublish (精度計算のため)
+- detection logic 実装
+    - Kafka Stream
 
 

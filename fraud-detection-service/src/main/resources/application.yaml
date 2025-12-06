@@ -13,6 +13,10 @@ spring:
       enable-auto-commit: true
       max-poll-records: 500
       concurrency: 4
+  data:
+    redis:
+      cluster:
+        nodes: 192.168.2.201:6379,192.168.2.202:6379,192.168.2.203:6379
 
 kafka:
   topics:

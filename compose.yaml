@@ -17,7 +17,7 @@ services:
     volumes:
       - kafka-data-controller-1:/var/lib/kafka
     networks:
-      - kafka-net
+      - fraudx-net
 
   controller-2:
     image: apache/kafka:4.1.0
@@ -35,7 +35,7 @@ services:
     volumes:
       - kafka-data-controller-2:/var/lib/kafka
     networks:
-      - kafka-net
+      - fraudx-net
 
   controller-3:
     image: apache/kafka:4.1.0
@@ -53,7 +53,7 @@ services:
     volumes:
       - kafka-data-controller-3:/var/lib/kafka
     networks:
-      - kafka-net      
+      - fraudx-net
 
   broker-1:
     image: apache/kafka:4.1.0
@@ -79,7 +79,7 @@ services:
     volumes:
       - kafka-data-broker-1:/var/lib/kafka
     networks:
-      - kafka-net
+      - fraudx-net
     depends_on:
       - controller-1
       - controller-2
@@ -109,7 +109,7 @@ services:
     volumes:
       - kafka-data-broker-2:/var/lib/kafka
     networks:
-      - kafka-net
+      - fraudx-net
     depends_on:
       - controller-1
       - controller-2
@@ -139,7 +139,7 @@ services:
     volumes:
       - kafka-data-broker-3:/var/lib/kafka
     networks:
-      - kafka-net
+      - fraudx-net
     depends_on:
       - controller-1
       - controller-2
@@ -155,7 +155,7 @@ services:
       - 8888:8080
     mem_limit: 1g
     networks:
-      - kafka-net
+      - fraudx-net
     depends_on:
       - broker-1
       - broker-2
@@ -180,7 +180,7 @@ services:
       - 8080:8080
     mem_limit: 6g
     networks:
-      - kafka-net
+      - fraudx-net
     depends_on:
       - broker-1
       - broker-2
@@ -204,11 +204,78 @@ services:
       - 8081:8080
     mem_limit: 6g
     networks:
-      - kafka-net
+      - fraudx-net
     depends_on:
       - broker-1
       - broker-2
       - broker-3
+
+  scylladb-1:
+    image: scylladb/scylla
+    command: --smp 1 --reactor-backend=epoll
+    volumes:
+      - scylladb-data-1:/var/lib/scylla
+    ports:
+      - "9041:9042"
+    networks:
+      fraudx-net:
+        ipv4_address: 192.168.1.201
+
+  scylladb-2:
+    image: scylladb/scylla
+    command: --smp 1 --seeds=192.168.1.201 --reactor-backend=epoll
+    volumes:
+      - scylladb-data-2:/var/lib/scylla
+    ports:
+      - "9042:9042"
+    networks:
+      fraudx-net:
+        ipv4_address: 192.168.1.202
+    depends_on:
+      scylladb-1
+
+  scylladb-3:
+    image: scylladb/scylla
+    command: --smp 1 --seeds=192.168.1.201 --reactor-backend=epoll
+    volumes:
+      - scylladb-data-3:/var/lib/scylla
+    ports:
+      - "9043:9042"
+    networks:
+      fraudx-net:
+        ipv4_address: 192.168.1.203
+    depends_on:
+      scylladb-1
+
+  redis-1:
+    image: redis
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - redis-data-1:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      fraudx-net:
+        ipv4_address: 192.168.2.201
+
+  redis-2:
+    image: redis
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - redis-data-2:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      fraudx-net:
+        ipv4_address: 192.168.2.202
+
+  redis-3:
+    image: redis
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - redis-data-3:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      fraudx-net:
+        ipv4_address: 192.168.2.203
 
 volumes:
   kafka-data-controller-1:
@@ -217,6 +284,15 @@ volumes:
   kafka-data-broker-1:
   kafka-data-broker-2:
   kafka-data-broker-3:
+  scylladb-data-1:
+  scylladb-data-2:
+  scylladb-data-3:
+  redis-data-1:
+  redis-data-2:
+  redis-data-3:
 
 networks:
-  kafka-net:
+  fraudx-net:
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24
