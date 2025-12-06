@@ -13,6 +13,10 @@ spring:
       enable-auto-commit: true
       max-poll-records: 500
       concurrency: 4
+  cassandra:
+    contact-points: 192.168.1.101,192.168.1.102,192.168.1.103
+    compression: NONE
+    local-datacenter: datacenter1
   data:
     redis:
       cluster:
@@ -22,3 +26,8 @@ kafka:
   topics:
     payment:
       name: payment-events
+
+scylladb:
+  connect: false
+  keyspace-name: fraudx
+  replication-factor: 3

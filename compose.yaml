@@ -200,6 +200,8 @@ services:
       SPRING_KAFKA_CONSUMER_MAX_POLL_RECORDS: 50000
       SPRING_KAFKA_CONSUMER_CONCURRENCY: 4
       KAFKA_TOPICS_PAYMENT_NAME: payment-events
+      SCYLLADB_CONNECT: true
+      SPRING_CASSANDRA_COMPRESSION: lz4
     ports:
       - 8081:8080
     mem_limit: 6g
@@ -219,33 +221,33 @@ services:
       - "9041:9042"
     networks:
       fraudx-net:
-        ipv4_address: 192.168.1.201
+        ipv4_address: 192.168.1.101
 
   scylladb-2:
     image: scylladb/scylla
-    command: --smp 1 --seeds=192.168.1.201 --reactor-backend=epoll
+    command: --smp 1 --seeds=192.168.1.101 --reactor-backend=epoll
     volumes:
       - scylladb-data-2:/var/lib/scylla
     ports:
       - "9042:9042"
     networks:
       fraudx-net:
-        ipv4_address: 192.168.1.202
+        ipv4_address: 192.168.1.102
     depends_on:
-      scylladb-1
+      - scylladb-1
 
   scylladb-3:
     image: scylladb/scylla
-    command: --smp 1 --seeds=192.168.1.201 --reactor-backend=epoll
+    command: --smp 1 --seeds=192.168.1.101 --reactor-backend=epoll
     volumes:
       - scylladb-data-3:/var/lib/scylla
     ports:
       - "9043:9042"
     networks:
       fraudx-net:
-        ipv4_address: 192.168.1.203
+        ipv4_address: 192.168.1.103
     depends_on:
-      scylladb-1
+      - scylladb-1
 
   redis-1:
     image: redis
@@ -255,7 +257,7 @@ services:
       - ./redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       fraudx-net:
-        ipv4_address: 192.168.2.201
+        ipv4_address: 192.168.1.201
 
   redis-2:
     image: redis
@@ -265,7 +267,7 @@ services:
       - ./redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       fraudx-net:
-        ipv4_address: 192.168.2.202
+        ipv4_address: 192.168.1.202
 
   redis-3:
     image: redis
@@ -275,7 +277,7 @@ services:
       - ./redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       fraudx-net:
-        ipv4_address: 192.168.2.203
+        ipv4_address: 192.168.1.203
 
 volumes:
   kafka-data-controller-1:
