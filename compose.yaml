@@ -200,7 +200,7 @@ services:
       SPRING_KAFKA_CONSUMER_MAX_POLL_RECORDS: 50000
       SPRING_KAFKA_CONSUMER_CONCURRENCY: 4
       KAFKA_TOPICS_PAYMENT_NAME: payment-events
-      SCYLLADB_CONNECT: true
+      # SCYLLADB_CONNECT: true
       SPRING_CASSANDRA_COMPRESSION: lz4
     ports:
       - 8081:8080
@@ -248,6 +248,22 @@ services:
         ipv4_address: 192.168.1.103
     depends_on:
       - scylladb-1
+
+  scylladb-init:
+    image: scylladb/scylla
+    depends_on:
+      - scylladb-1
+      - scylladb-2
+      - scylladb-3
+    entrypoint: ["/bin/bash", "-c"]
+    command: |
+      "
+        until echo 'exit' | cqlsh 192.168.1.101 9042 >/dev/null 2>&1; do sleep 1; done &&
+        cqlsh 192.168.1.101 9042 -e \"CREATE KEYSPACE IF NOT EXISTS fraudx WITH replication = {'class': 'NetworkTopologyStrategy', 'datacenter1': 3};\" &&
+        echo '✅ Keyspace fraudx created'
+      "
+    networks:
+      - fraudx-net
 
   redis-1:
     image: redis
