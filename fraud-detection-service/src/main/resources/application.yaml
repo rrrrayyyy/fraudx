@@ -15,8 +15,10 @@ spring:
       concurrency: 4
   cassandra:
     contact-points: scylladb-1,scylladb-2,scylladb-3
-    compression: NONE
     local-datacenter: datacenter1
+    keyspace-name: NONE
+    schema-action: NONE
+    compression: NONE
   data:
     redis:
       cluster:
@@ -26,8 +28,3 @@ kafka:
   topics:
     payment:
       name: payment-events
-
-scylladb:
-  connect: false
-  keyspace-name: fraudx
-  replication-factor: 3

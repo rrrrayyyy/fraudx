@@ -13,14 +13,16 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.stereotype.Service;
 
-import com.example.proto.Event.PaymentEventValue;
+import com.example.fraud_detection_service.domain.PaymentEvent;
+import com.example.proto.Event.*;
 
 import jakarta.annotation.*;
 
 @Service
 public class KafkaClient {
     private static final Logger log = LoggerFactory.getLogger(KafkaClient.class);
-    private final Deserializer<PaymentEventValue> deserializer;
+    private final Deserializer<PaymentEventKey> keyDeserializer;
+    private final Deserializer<PaymentEventValue> valueDeserializer;
     private final KafkaListenerEndpointRegistry registry;
     private final AdminClient adminClient;
 
@@ -32,7 +34,8 @@ public class KafkaClient {
     private String paymentTopicName;
 
     public KafkaClient(KafkaListenerEndpointRegistry registry, AdminClient adminClient) {
-        deserializer = new KafkaProtobufDeserializer<>(PaymentEventValue.parser());
+        keyDeserializer = new KafkaProtobufDeserializer<>(PaymentEventKey.parser());
+        valueDeserializer = new KafkaProtobufDeserializer<>(PaymentEventValue.parser());
         this.registry = registry;
         this.adminClient = adminClient;
     }
@@ -70,7 +73,9 @@ public class KafkaClient {
         for (var record : records) {
             try {
                 // execute some logic
-                deserializer.deserialize(null, record.value());
+                var key = keyDeserializer.deserialize(null, record.value());
+                var value = valueDeserializer.deserialize(null, record.value());
+                var event = new PaymentEvent(key.getTransactionId(), value.getAccount().getUserId());
             } catch (RejectedExecutionException e) {
                 log.error("❌ Executor queue full, dropping record: {}", record);
             } catch (Exception e) {

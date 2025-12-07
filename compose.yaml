@@ -200,7 +200,8 @@ services:
       SPRING_KAFKA_CONSUMER_MAX_POLL_RECORDS: 50000
       SPRING_KAFKA_CONSUMER_CONCURRENCY: 4
       KAFKA_TOPICS_PAYMENT_NAME: payment-events
-      # SCYLLADB_CONNECT: true
+      SPRING_CASSANDRA_KEYSPACE_NAME: fraudx
+      SPRING_CASSANDRA_SCHEMA_ACTION: CREATE_IF_NOT_EXISTS
       SPRING_CASSANDRA_COMPRESSION: lz4
     ports:
       - 8081:8080
@@ -211,6 +212,7 @@ services:
       - broker-1
       - broker-2
       - broker-3
+      - scylladb-init
 
   scylladb-1:
     image: scylladb/scylla
