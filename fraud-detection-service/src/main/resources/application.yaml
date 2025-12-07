@@ -5,8 +5,7 @@ spring:
     import:
       - rules.yaml
   kafka:
-    bootstrap-servers: localhost:9004,localhost:9005,localhost:9006
-    # bootstrap-servers: broker-1:19092,broker-2:19092,broker-3:19092
+    bootstrap-servers: broker-1:19092,broker-2:19092,broker-3:19092
     consumer:
       group-id: fraud-detection
       fetch-min-size: 1
