@@ -1,33 +1,39 @@
 package com.example.fraud_detection_service.domain;
 
-import org.springframework.data.cassandra.core.mapping.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
-@Table("payment_events")
+import com.example.proto.Event.*;
+
 public class PaymentEvent {
-    @PrimaryKey("transaction_id")
-    private String transactionId;
+    public static final String TABLE_NAME = "payment_events";
 
-    @Column("user_id")
-    private String userId;
+    public final PrimaryKey<String> transactionId = new PrimaryKey<>("transaction_id", DataType.TEXT, null);
+    public final Column<String> userId = new Column<>("user_id", DataType.TEXT, null);
 
-    public PaymentEvent(String tid, String uid) {
-        transactionId = tid;
-        userId = uid;
+    public final Column<?>[] COLUMNS = new Column[] {
+            transactionId,
+            userId,
+    };
+
+    public String getInsertInto() {
+        var columns = Arrays.stream(COLUMNS).map(Column::getName).collect(Collectors.joining(", "));
+        var questions = String.join(", ", Collections.nCopies(COLUMNS.length, "?"));
+        return String.format("INSERT INTO %s (%s) VALUES (%s)", PaymentEvent.TABLE_NAME, columns, questions);
+
     }
 
-    public String getTransactionId() {
-        return transactionId;
+    public String getCreateTable() {
+        return String.format("CREATE TABLE IF NOT EXISTS %s (%s)",
+                PaymentEvent.TABLE_NAME,
+                Arrays.stream(COLUMNS).map(Column::toDDL).collect(Collectors.joining(", ")));
     }
 
-    public void setTransactionId(String tid) {
-        transactionId = tid;
+    public PaymentEvent() {
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String uid) {
-        userId = uid;
+    public PaymentEvent(PaymentEventKey key, PaymentEventValue val) {
+        transactionId.setValue(key.getTransactionId());
+        userId.setValue(val.getAccount().getUserId());
     }
 }

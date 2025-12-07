@@ -1,6 +1,6 @@
 package com.example.fraud_detection_service.adapter;
 
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
@@ -13,6 +13,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.stereotype.Service;
 
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.cql.*;
 import com.example.fraud_detection_service.domain.PaymentEvent;
 import com.example.proto.Event.*;
 
@@ -25,7 +27,9 @@ public class KafkaClient {
     private final Deserializer<PaymentEventValue> valueDeserializer;
     private final KafkaListenerEndpointRegistry registry;
     private final AdminClient adminClient;
+    private final CqlSession cqlSession;
 
+    private PreparedStatement insertStmt;
     private final AtomicLong startTime = new AtomicLong(0);
     private final AtomicLong endTime = new AtomicLong(0);
     private final LongAdder counter = new LongAdder();
@@ -33,32 +37,45 @@ public class KafkaClient {
     @Value("${kafka.topics.payment.name}")
     private String paymentTopicName;
 
-    public KafkaClient(KafkaListenerEndpointRegistry registry, AdminClient adminClient) {
+    public KafkaClient(KafkaListenerEndpointRegistry registry, AdminClient adminClient, CqlSession session) {
         keyDeserializer = new KafkaProtobufDeserializer<>(PaymentEventKey.parser());
         valueDeserializer = new KafkaProtobufDeserializer<>(PaymentEventValue.parser());
         this.registry = registry;
         this.adminClient = adminClient;
+        cqlSession = session;
+    }
+
+    @PostConstruct
+    public void initializeTablesAndPrepareStatements() {
+        var event = new PaymentEvent();
+        try {
+            cqlSession.execute(event.getCreateTable());
+            log.info("✅ Table {} is created", PaymentEvent.TABLE_NAME);
+        } catch (Exception e) {
+            log.error("❌ Create table failed: {}", e.getMessage());
+        }
+        insertStmt = cqlSession.prepare(event.getInsertInto());
+        log.info("✅ Prepared insert statement successfully");
     }
 
     @PostConstruct
     public void startIfTopicExists() {
         Executors.newSingleThreadExecutor().submit(() -> {
-            try {
-                while (true) {
-                    var topics = adminClient.listTopics().names().get(10, TimeUnit.SECONDS);
+            while (true) {
+                try {
+                    var topics = adminClient.listTopics().names().get(1, TimeUnit.SECONDS);
                     if (topics.contains(paymentTopicName)) {
-                        log.info("✅ Topic confirmed: {}", paymentTopicName);
                         var listener = registry.getListenerContainer("paymentListener");
                         if (listener != null && !listener.isRunning()) {
                             listener.start();
                             log.info("✅ Listener startup succeeded");
+                            break;
                         }
-                        break;
                     }
                     Thread.sleep(1000);
+                } catch (Exception e) {
+                    log.error("❌ Failed to start listener: {}", e.getMessage());
                 }
-            } catch (Exception e) {
-                log.error("❌ Failed to start listener: {}", e.getMessage());
             }
         });
     }
@@ -70,12 +87,14 @@ public class KafkaClient {
         counter.add(records.size());
         var last = endTime.longValue();
         endTime.compareAndSet(last, now);
+        var futures = new ArrayList<CompletableFuture<AsyncResultSet>>(records.size());
         for (var record : records) {
             try {
-                // execute some logic
-                var key = keyDeserializer.deserialize(null, record.value());
+                var key = keyDeserializer.deserialize(null, record.key());
                 var value = valueDeserializer.deserialize(null, record.value());
-                var event = new PaymentEvent(key.getTransactionId(), value.getAccount().getUserId());
+                var event = new PaymentEvent(key, value);
+                var bound = insertStmt.bind(event.transactionId.getValue(), event.userId.getValue());
+                futures.add(cqlSession.executeAsync(bound).toCompletableFuture());
             } catch (RejectedExecutionException e) {
                 log.error("❌ Executor queue full, dropping record: {}", record);
             } catch (Exception e) {
@@ -86,6 +105,13 @@ public class KafkaClient {
                             record.value());
                 }
             }
+        }
+        try {
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+            log.info("✅ Bulk insert succeeded: {}/{}", futures.size(), records.size());
+        } catch (Exception e) {
+            log.error("❌ Inserting records failed: {}", e.getMessage());
+            throw e;
         }
     }
 
