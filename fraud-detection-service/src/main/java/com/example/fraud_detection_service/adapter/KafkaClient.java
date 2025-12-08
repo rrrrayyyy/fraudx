@@ -51,11 +51,11 @@ public class KafkaClient {
         try {
             cqlSession.execute(event.getCreateTable());
             log.info("✅ Table {} is created", PaymentEvent.TABLE_NAME);
+            insertStmt = cqlSession.prepare(event.getInsertInto());
+            log.info("✅ Prepared insert statement successfully");
         } catch (Exception e) {
-            log.error("❌ Create table failed: {}", e.getMessage());
+            log.error("❌ Initializing tables or preparing statements failed: {}", e.getMessage());
         }
-        insertStmt = cqlSession.prepare(event.getInsertInto());
-        log.info("✅ Prepared insert statement successfully");
     }
 
     @PostConstruct

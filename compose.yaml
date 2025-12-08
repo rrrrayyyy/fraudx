@@ -223,6 +223,11 @@ services:
     networks:
       fraudx-net:
         ipv4_address: 192.168.1.101
+    healthcheck:
+      test: ["CMD-SHELL", "nodetool status | grep 192.168.1.101 | grep UN"]
+      interval: 0.5s
+      timeout: 30s
+      retries: 60
 
   scylladb-2:
     image: scylladb/scylla
@@ -236,6 +241,11 @@ services:
         ipv4_address: 192.168.1.102
     depends_on:
       - scylladb-1
+    healthcheck:
+      test: ["CMD-SHELL", "nodetool status | grep 192.168.1.102 | grep UN"]
+      interval: 0.5s
+      timeout: 30s
+      retries: 60
 
   scylladb-3:
     image: scylladb/scylla
@@ -249,17 +259,24 @@ services:
         ipv4_address: 192.168.1.103
     depends_on:
       - scylladb-1
+    healthcheck:
+      test: ["CMD-SHELL", "nodetool status | grep 192.168.1.103 | grep UN"]
+      interval: 0.5s
+      timeout: 30s
+      retries: 60
 
   scylladb-init:
     image: scylladb/scylla
     depends_on:
-      - scylladb-1
-      - scylladb-2
-      - scylladb-3
+      scylladb-1:
+        condition: service_healthy
+      scylladb-2:
+        condition: service_healthy
+      scylladb-3:
+        condition: service_healthy
     entrypoint: ["/bin/bash", "-c"]
     command: |
       "
-        until echo 'exit' | cqlsh 192.168.1.101 9042 >/dev/null 2>&1; do sleep 1; done &&
         cqlsh 192.168.1.101 9042 -e \"CREATE KEYSPACE IF NOT EXISTS fraudx WITH replication = {'class': 'NetworkTopologyStrategy', 'datacenter1': 3};\" &&
         echo '✅ Keyspace fraudx created'
       "
