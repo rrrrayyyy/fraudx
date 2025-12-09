@@ -16,8 +16,7 @@ spring:
   cassandra:
     contact-points: scylladb-1,scylladb-2,scylladb-3
     local-datacenter: datacenter1
-    keyspace-name: NONE
-    compression: NONE
+    keyspace-name: fraudx
   data:
     redis:
       cluster:
