@@ -213,52 +213,58 @@ services:
 
   scylladb-1:
     image: scylladb/scylla
-    command: --smp 1 --reactor-backend=epoll
+    command: --reactor-backend=epoll --cpuset=0,9
     volumes:
       - scylladb-data-1:/var/lib/scylla
+      - ./scylla.yaml:/etc/scylla/scylla.yaml
     ports:
       - "9041:9042"
+    mem_reservation: 2g
     networks:
       fraudx-net:
         ipv4_address: 192.168.1.101
     healthcheck:
-      test: ["CMD-SHELL", "nodetool status | grep 192.168.1.101 | grep UN"]
+      test: ["CMD-SHELL", "nodetool -h 192.168.1.101 status | grep 192.168.1.101 | grep UN"]
       interval: 0.5s
       timeout: 30s
       retries: 60
 
   scylladb-2:
     image: scylladb/scylla
-    command: --smp 1 --seeds=192.168.1.101 --reactor-backend=epoll
+    command: --reactor-backend=epoll --seeds=192.168.1.101 --cpuset=1,10
     volumes:
       - scylladb-data-2:/var/lib/scylla
+      - ./scylla.yaml:/etc/scylla/scylla.yaml
     ports:
       - "9042:9042"
+    mem_reservation: 2g
     networks:
       fraudx-net:
         ipv4_address: 192.168.1.102
     depends_on:
       - scylladb-1
     healthcheck:
-      test: ["CMD-SHELL", "nodetool status | grep 192.168.1.102 | grep UN"]
+      test: ["CMD-SHELL", "nodetool -h 192.168.1.102 status | grep 192.168.1.102 | grep UN"]
       interval: 0.5s
       timeout: 30s
       retries: 60
 
   scylladb-3:
     image: scylladb/scylla
-    command: --smp 1 --seeds=192.168.1.101 --reactor-backend=epoll
+    command: --reactor-backend=epoll --seeds=192.168.1.101 --cpuset=2,11
     volumes:
       - scylladb-data-3:/var/lib/scylla
+      - ./scylla.yaml:/etc/scylla/scylla.yaml
     ports:
       - "9043:9042"
+    mem_reservation: 2g
     networks:
       fraudx-net:
         ipv4_address: 192.168.1.103
     depends_on:
       - scylladb-1
     healthcheck:
-      test: ["CMD-SHELL", "nodetool status | grep 192.168.1.103 | grep UN"]
+      test: ["CMD-SHELL", "nodetool -h 192.168.1.103 status | grep 192.168.1.103 | grep UN"]
       interval: 0.5s
       timeout: 30s
       retries: 60

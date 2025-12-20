@@ -1,6 +1,6 @@
 package com.example.fraud_detection_service.adapter;
 
-import java.util.*;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
@@ -14,7 +14,7 @@ import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.stereotype.Service;
 
 import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.cql.*;
+import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.example.fraud_detection_service.domain.PaymentEvent;
 import com.example.proto.Event.*;
 
@@ -33,6 +33,7 @@ public class KafkaClient {
     private final AtomicLong startTime = new AtomicLong(0);
     private final AtomicLong endTime = new AtomicLong(0);
     private final LongAdder counter = new LongAdder();
+    private final Semaphore inFlight;
 
     @Value("${kafka.topics.payment.name}")
     private String paymentTopicName;
@@ -43,6 +44,9 @@ public class KafkaClient {
         this.registry = registry;
         this.adminClient = adminClient;
         cqlSession = session;
+        inFlight = new Semaphore(256);
+        // inFlight = new Semaphore(1024);
+        // inFlight = new Semaphore(4096);
     }
 
     @PostConstruct
@@ -87,16 +91,35 @@ public class KafkaClient {
         counter.add(records.size());
         var last = endTime.longValue();
         endTime.compareAndSet(last, now);
-        var futures = new ArrayList<CompletableFuture<AsyncResultSet>>(records.size());
+        // var futures = new
+        // ArrayList<CompletableFuture<AsyncResultSet>>(records.size());
         for (var record : records) {
             try {
+                var ok = inFlight.tryAcquire(1, 600, TimeUnit.SECONDS);
+                if (!ok) {
+                    log.error("❌ Couldn't acquire semaphore, dropping record: {}", record);
+                    continue;
+                }
+
                 var key = keyDeserializer.deserialize(null, record.key());
                 var value = valueDeserializer.deserialize(null, record.value());
                 var event = new PaymentEvent(key, value);
                 var bound = insertStmt.bind(event.transactionId.getValue(), event.userId.getValue());
-                futures.add(cqlSession.executeAsync(bound).toCompletableFuture());
+                // futures.add(cqlSession.executeAsync(bound).toCompletableFuture());
+
+                cqlSession.executeAsync(bound).toCompletableFuture().whenComplete((rs, ex) -> {
+                    inFlight.release();
+                    if (ex != null) {
+                        log.error("❌ write failed partition={}, offset={} : {}", record.partition(),
+                                record.offset(),
+                                ex.toString());
+                    }
+                });
             } catch (RejectedExecutionException e) {
                 log.error("❌ Executor queue full, dropping record: {}", record);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.error("❌ Interrupted while waiting for inFlight permit");
             } catch (Exception e) {
                 log.error("❌ Subscription failed: {}", e.getMessage());
             } finally {
@@ -106,13 +129,18 @@ public class KafkaClient {
                 }
             }
         }
-        try {
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-            log.info("✅ Bulk insert succeeded: {}/{}", futures.size(), records.size());
-        } catch (Exception e) {
-            log.error("❌ Inserting records failed: {}", e.getMessage());
-            throw e;
-        }
+        // try {
+        // CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        // log.info("✅ Bulk insert succeeded: {}/{}", futures.size(), records.size());
+        // } catch (Exception e) {
+        // try {
+        // Thread.sleep(5000);
+        // } catch (InterruptedException ie) {
+        // Thread.currentThread().interrupt();
+        // }
+        // log.error("❌ Inserting records failed: {}", e.getMessage());
+        // throw e;
+        // }
     }
 
     @PreDestroy

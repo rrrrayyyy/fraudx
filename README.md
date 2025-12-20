@@ -77,6 +77,7 @@ subprojects {
 - ./gradlew --stop # to stop deamon
 
 # Kafka memo
+- https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-annotation.html
 - broker: message retention + distribution + replication
     - replication.factor=3
 - controller: cluster manager
@@ -91,18 +92,18 @@ subprojects {
         - KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker-1:19092,PLAINTEXT_HOST://localhost:9004
 
 # Scylladb
-- https://docs.scylladb.com/manual/stable/operating-scylla/procedures/tips/best-practices-scylla-on-docker.html
-- fixed ip address with seeds specification
-- ulimits
-- `--smp` or `--overprovisioned 1`
+- https://docs.scylladb.com/manual/stable/reference/configuration-parameters.html
 
-```zsh
-$ while true; do clear; docker exec scylladb-1 nodetool status; sleep 1; done
-$ docker exec -it scylladb-1 cqlsh -e "CREATE KEYSPACE IF NOT EXISTS example WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor' : 1};"
+scylla.yaml
+- sstable_compression_user_table_options: sstable_compression > LZ4Compressor ?
+- internode_compression_algorithms: utils::compression_algorithm::type::LZ4
+- read_request_timeout_in_ms: 60000
+- write_request_timeout_in_ms: 60000
+- request_timeout_in_ms: 60000
+- uninitialized_connections_semaphore_cpu_concurrency: 128
 
-# ScyllaDBの非同期IO性能を最大化する
-sudo sysctl -w fs.aio-max-nr=1048576
-```
+
+- (prometheus_port: 9180 (default))
 
 
 # Redis
@@ -124,7 +125,8 @@ sudo sysctl -w vm.overcommit_memory=1
 
 
 # TODO
-- Redis, Scylla と接続
+- **ScyllaDB OOM problem**
+- Redis と接続
 - 動的にmessage内容を変える
 - subscriber側に fraudulent event をpublish (精度計算のため)
 - detection logic 実装
