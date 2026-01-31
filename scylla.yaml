@@ -9,10 +9,3 @@ read_request_timeout_in_ms: 180000
 write_request_timeout_in_ms: 180000
 request_timeout_in_ms: 180000
 nodeops_watchdog_timeout_seconds: 180000
-
-# uninitialized_connections_semaphore_cpu_concurrency: 73536
-# uninitialized_connections_semaphore_cpu_concurrency: 16384
-# uninitialized_connections_semaphore_cpu_concurrency: 4000
-# uninitialized_connections_semaphore_cpu_concurrency: 800
-# uninitialized_connections_semaphore_cpu_concurrency: 64
-# uninitialized_connections_semaphore_cpu_concurrency: 8

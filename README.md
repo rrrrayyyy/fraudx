@@ -19,6 +19,15 @@
     - 4: (189208, 201249)
     - 4: (410120, 411174) with 50M (m3 pro)
 
+pool.local.size
+- 1 (660426, 90014)
+- 2 ()
+- 4 (xxx, 98377)
+- 4 ()
+- 8 (731666, 100215)
+- 12 (xxx, 92716)
+- 16 (xxx, 85373)
+
 # procedures
 ```zsh
 ./gradlew clean bootJar && docker compose down -v --remove-orphans && docker compose up --build -d && docker logs -f fraudx-payment-service-1
@@ -31,7 +40,7 @@ docker logs -f fraudx-fraud-detection-service-1
 
 curl -X POST "http://localhost:8080/payment-events?n=10000000"
 
-docker compose stop fraud-detection-service && docker logs fraudx-fraud-detection-service-1
+docker compose stop fraud-detection-service && docker logs fraudx-fraud-detection-service-1 | grep RPS
 ```
 
 # development environment setup
