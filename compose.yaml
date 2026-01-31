@@ -74,7 +74,7 @@ services:
       KAFKA_NUM_NETWORK_THREADS: 5
     ports:
       - "9004:9092"
-    mem_limit: 9g
+    mem_limit: 3g
     mem_swappiness: 0
     volumes:
       - kafka-data-broker-1:/var/lib/kafka
@@ -104,7 +104,7 @@ services:
       KAFKA_NUM_NETWORK_THREADS: 5
     ports:
       - "9005:9092"
-    mem_limit: 9g
+    mem_limit: 3g
     mem_swappiness: 0
     volumes:
       - kafka-data-broker-2:/var/lib/kafka
@@ -134,7 +134,7 @@ services:
       KAFKA_NUM_NETWORK_THREADS: 5
     ports:
       - "9006:9092"
-    mem_limit: 9g
+    mem_limit: 3g
     mem_swappiness: 0
     volumes:
       - kafka-data-broker-3:/var/lib/kafka
@@ -197,12 +197,14 @@ services:
       SPRING_KAFKA_CONSUMER_FETCH_MIN_SIZE: 262144
       SPRING_KAFKA_CONSUMER_MAX_PARTITION_FETCH_BYTES: 10485760
       SPRING_KAFKA_CONSUMER_ENABLE_AUTO_COMMIT: false
-      SPRING_KAFKA_CONSUMER_MAX_POLL_RECORDS: 50000
-      SPRING_KAFKA_CONSUMER_CONCURRENCY: 4
+      SPRING_KAFKA_CONSUMER_MAX_POLL_RECORDS: 1000
+      # SPRING_KAFKA_CONSUMER_MAX_POLL_RECORDS: 50000
+      # SPRING_KAFKA_CONSUMER_CONCURRENCY: 4
+      SPRING_KAFKA_CONSUMER_CONCURRENCY: 12
       KAFKA_TOPICS_PAYMENT_NAME: payment-events
     ports:
       - 8081:8080
-    mem_limit: 6g
+    mem_limit: 4g
     networks:
       - fraudx-net
     depends_on:
@@ -213,13 +215,13 @@ services:
 
   scylladb-1:
     image: scylladb/scylla
-    command: --reactor-backend=epoll --cpuset=0,9
+    command: --reactor-backend=epoll --cpuset=0,3,9 --memory 5G
     volumes:
       - scylladb-data-1:/var/lib/scylla
       - ./scylla.yaml:/etc/scylla/scylla.yaml
     ports:
       - "9041:9042"
-    mem_reservation: 2g
+    mem_limit: 7g
     networks:
       fraudx-net:
         ipv4_address: 192.168.1.101
@@ -231,13 +233,13 @@ services:
 
   scylladb-2:
     image: scylladb/scylla
-    command: --reactor-backend=epoll --seeds=192.168.1.101 --cpuset=1,10
+    command: --reactor-backend=epoll --seeds=192.168.1.101 --cpuset=1,4,10  --memory 5G
     volumes:
       - scylladb-data-2:/var/lib/scylla
       - ./scylla.yaml:/etc/scylla/scylla.yaml
     ports:
       - "9042:9042"
-    mem_reservation: 2g
+    mem_limit: 7g
     networks:
       fraudx-net:
         ipv4_address: 192.168.1.102
@@ -251,13 +253,13 @@ services:
 
   scylladb-3:
     image: scylladb/scylla
-    command: --reactor-backend=epoll --seeds=192.168.1.101 --cpuset=2,11
+    command: --reactor-backend=epoll --seeds=192.168.1.101 --cpuset=2,5,11 --memory 5G
     volumes:
       - scylladb-data-3:/var/lib/scylla
       - ./scylla.yaml:/etc/scylla/scylla.yaml
     ports:
       - "9043:9042"
-    mem_reservation: 2g
+    mem_limit: 7g
     networks:
       fraudx-net:
         ipv4_address: 192.168.1.103
