@@ -44,10 +44,7 @@ public class KafkaClient {
         this.registry = registry;
         this.adminClient = adminClient;
         cqlSession = session;
-        // inFlight = new Semaphore(1024);
-        // inFlight = new Semaphore(2048);
-        // inFlight = new Semaphore(4096);
-        inFlight = new Semaphore(8192);
+        inFlight = new Semaphore(32768);
     }
 
     @PostConstruct
