@@ -2,15 +2,6 @@
 ## Project Overview
 This hobby project is fraud detection system with Java, SpringBoot, Kafka, and ScyllaDB
 
-## Requirements
-- this project aims to be production-ready, so
-    - don't local-optimize (like changing replication factor to lower value)
-    - bugs/unexpected behaviors should be identified/fixed
-- no data loss (pubsub messages), no data inconsistency
-    - but you don't have to restrict settings more than current ones
-- executing on local machine
-    - so, while aiming for produciton ready system, since it's on the local machine/docker, some resources conflict but this is expected and we need to overcome it
-
 ## Components
 - payment service
     - publish payment events to Kafka
@@ -18,6 +9,15 @@ This hobby project is fraud detection system with Java, SpringBoot, Kafka, and S
     - subscribe payment events from Kafka
     - (do some fraud detection logic)
     - insert records into ScyllaDB
+
+## Requirements
+- this project aims to be production-ready, so
+    - don't local-optimize (like changing replication factor to lower value)
+    - bugs/unexpected behaviors should be identified/fixed
+- no data loss (pubsub messages), no data inconsistency
+    - **but you don't have to restrict settings more than current ones**
+- executing on local machine
+    - so, while aiming for produciton ready system, since it's on the local machine/docker, some resources conflict but this is expected and we need to overcome it
 
 ## Challenges / Purpose
 - identify/fix unexpected behaviors/bugs
