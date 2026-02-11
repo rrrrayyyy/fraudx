@@ -14,10 +14,8 @@ This hobby project is fraud detection system with Java, SpringBoot, Kafka, and S
 - this project aims to be production-ready, so
     - don't local-optimize (like changing replication factor to lower value)
     - bugs/unexpected behaviors should be identified/fixed
-- no data loss (pubsub messages), no data inconsistency
-    - **but you don't have to restrict settings more than current ones**
 - executing on local machine
-    - so, while aiming for produciton ready system, since it's on the local machine/docker, some resources conflict but this is expected and we need to overcome it
+    - since it's on the local machine/docker, some resources conflict but this is expected and we need to overcome it
 
 ## Challenges / Purpose
 - identify/fix unexpected behaviors/bugs
@@ -27,4 +25,5 @@ This hobby project is fraud detection system with Java, SpringBoot, Kafka, and S
 ## fix/build/test/verification
 - first, please take a note for your all work in .idea as cumulative context file
     - everytime you work, you also refer to the file and learn what you did earlier
-- don't try to test or verify behaviors since there're less tests and executing docker on your sandbox should have different machine resources (meaningless)
+- don't try to test or verify behaviors since there're less tests
+    - executing docker on your sandbox should be meaningless due to different machine resources
