@@ -2,29 +2,14 @@
 
 # Detection rules
 1. velocity/frequency (same card/device_id used M times in N min)
-    - => Sliding window
-        - Redis SortedSets
-        - Redis HyperLogLog
+    - ScyllaDB TTL (Time To live) + Time Window Compaction Strategy (TWCS)
 1. Transactional pattern deviation (amount deviates 3σ from user mean)
-    - => ScyllaDB historical records, Stream aggregation
-1. account/user linkage
-    - same IP address or device_id between multiple accounts/users
-    - same card used by multiple users
-    - => Graph traversal
-1. unusual geo location (transaction interval vs time required to move)
-    - Redis Geohash
+    - ScyllaDB Counter Column
 
-# Performance optimization
-- producer/consumer
-    - 4: (189208, 201249)
-    - 4: (410120, 411174) with 50M (m3 pro)
 
-inFlight, max-requests-per-connection
-- 512, 1024 (674233, 95567)
-- 1024, 2048 (808759, 103964)
-- 2048, 4096 (691084, 106419)
-- 8192 ()
-- 16384 ()
+# Performance on Feb 12, 2026
+- publisher: 0.7 M
+- subscriber: 0.1 M
 
 
 # procedures
@@ -35,109 +20,20 @@ inFlight, max-requests-per-connection
 
 docker logs -f fraudx-fraud-detection-service-1
 
-# docker stats
-
 curl -X POST "http://localhost:8080/payment-events?n=10000000"
 
 docker compose stop fraud-detection-service && docker logs fraudx-fraud-detection-service-1 | grep RPS
 ```
 
-# development environment setup
-- Spring Initializr: Create a Gradle Project
-- `mv fraudx/{*,.*} .`
-- project-root > build.gradle に subprojects を追加
-    - subprojects はsub moduleに共通適用される設定
-    - version はapp versionで、SNAPSHOT == 開発中の最新verを意味する（Release Candidate前）
-```groovy
-subprojects {
-    apply plugin: 'java'
-    apply plugin: 'io.spring.dependency-management'
-
-    group = 'com.example'
-    version = '0.0.1-SNAPSHOT'
-    sourceCompatibility = '25'
-
-    repositories {
-        mavenCentral()
-    }
-}
-```
-- project-root > settings.gradle に追加
-    -  `include 'payment-service', 'fraud-detection-service'`
-    - これらの名前で project-root にdirectoryが作られ、そこにmoduleがinitializeされている必要がある
-- Spring Initializr: Create a Gradle Project x2
-    - sub module で settings.gradle を消す
-        - rootProject 設定がdefaultで入っているが、sub module で指定不要のため
-- payment-service > build.gradle > dependencies に以下を追加
-```groovy
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-```
-- Developer: Reload Window
-    - sub module を spring boot dashboard に反映させるため
-
-
-
-
-# Spring Boot memo
-- build.gradle を変更したら Java: Clean Java Language Server Workspace も必要（classpath 再認識）
-- CommandLineRunner と ApplicationRunner の違い
-    - 後者は起動時の引数を型定義できる（前者は `--key=value` をparse）
-- ./gradlew --stop # to stop deamon
-
-# Kafka memo
-- https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-annotation.html
-- broker: message retention + distribution + replication
-    - replication.factor=3
-- controller: cluster manager
-    - KRaft mode では controller 専用ノードを立てるのが推奨
-- Apache Kafka は「分散メッセージキュー／イベントログシステム」
-    - Kafka Streams は、Kafkaに流れるデータをリアルタイムで加工・集約・結合するためのJavaライブラリ
-- consumer 起動時の CoordinatorNotAvailableException
-    - 結論、KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR 未指定（default: 3) > num of brokers (2) で発生していた...
-        - 1を指定して治った
-    - 結果として broker 設定は以下で良かった
-        - KAFKA_LISTENERS: PLAINTEXT://:19092,PLAINTEXT_HOST://:9092
-        - KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker-1:19092,PLAINTEXT_HOST://localhost:9004
-
-# Scylladb
-- https://docs.scylladb.com/manual/stable/reference/configuration-parameters.html
-
-scylla.yaml
-- sstable_compression_user_table_options: sstable_compression > LZ4Compressor ?
-- internode_compression_algorithms: utils::compression_algorithm::type::LZ4
-- read_request_timeout_in_ms: 60000
-- write_request_timeout_in_ms: 60000
-- request_timeout_in_ms: 60000
-- uninitialized_connections_semaphore_cpu_concurrency: 128
-
-
-- (prometheus_port: 9180 (default))
-
-
-# Redis
-- `--cluster-replicas 1 --cluster-node-timeout 5000`
-- `--io-threads-do-reads yes? --no-appendfsync-on-rewrite yes? auto-aof-rewrite-percentage 100? --auto-aof-rewrite-min-size 64mb?`
-- `--maxclients 10000? tcp-keepalive 300?`
-- `--port $port --cluster-enabled yes --cluster-config-file node.conf --replica-serve-stale-data no --apendonly yes`
-- `--save "" --hz 100 --io-threads N`
-- redis.conf
-
-```zsh
-docker exec -it redis-1 redis-cli cluster info
-docker exec -it redis-1 redis-cli cluster nodes
-
-# Redisの警告（overcommit_memory）を消し、BGSAVE失敗を防ぐ
-sudo sysctl -w vm.overcommit_memory=1
-```
 
 
 
 # TODO
-- **ScyllaDB OOM problem**
-- Redis と接続
-- 動的にmessage内容を変える
-- subscriber側に fraudulent event をpublish (精度計算のため)
-- detection logic 実装
-    - Kafka Stream
+- [ ] [payment service] fraudulent payment event 実装
+    - [ ] 動的にmessage内容を変え、memoryにIDを保持
+    - [ ] 不正決済イベントIDをlistで返すAPI 実装
+- [ ] [fraud detection service] detection logic 実装
+- [ ] [fraud detection service]  payment service に API call (精度計算のため)
+
 
 
