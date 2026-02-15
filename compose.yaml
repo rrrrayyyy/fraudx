@@ -305,36 +305,6 @@ services:
     networks:
       - fraudx-net
 
-  redis-1:
-    image: redis
-    command: redis-server /usr/local/etc/redis/redis.conf
-    volumes:
-      - redis-data-1:/data
-      - ./redis.conf:/usr/local/etc/redis/redis.conf
-    networks:
-      fraudx-net:
-        ipv4_address: 192.168.1.201
-
-  redis-2:
-    image: redis
-    command: redis-server /usr/local/etc/redis/redis.conf
-    volumes:
-      - redis-data-2:/data
-      - ./redis.conf:/usr/local/etc/redis/redis.conf
-    networks:
-      fraudx-net:
-        ipv4_address: 192.168.1.202
-
-  redis-3:
-    image: redis
-    command: redis-server /usr/local/etc/redis/redis.conf
-    volumes:
-      - redis-data-3:/data
-      - ./redis.conf:/usr/local/etc/redis/redis.conf
-    networks:
-      fraudx-net:
-        ipv4_address: 192.168.1.203
-
 volumes:
   kafka-data-controller-1:
   kafka-data-controller-2:
@@ -345,9 +315,6 @@ volumes:
   scylladb-data-1:
   scylladb-data-2:
   scylladb-data-3:
-  redis-data-1:
-  redis-data-2:
-  redis-data-3:
 
 networks:
   fraudx-net:

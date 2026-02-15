@@ -17,10 +17,6 @@ spring:
     contact-points: scylladb-1,scylladb-2,scylladb-3
     local-datacenter: datacenter1
     keyspace-name: fraudx
-  data:
-    redis:
-      cluster:
-        nodes: 192.168.2.201:6379,192.168.2.202:6379,192.168.2.203:6379
 
 kafka:
   topics:
