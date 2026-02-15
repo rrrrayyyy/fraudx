@@ -216,7 +216,7 @@ services:
 
   scylladb-1:
     image: scylladb/scylla
-    command: --reactor-backend=epoll --cpuset=0,3,9 --memory 5G
+    command: --reactor-backend=epoll --cpuset=0,3,9 --memory 5G --smp 3
     volumes:
       - scylladb-data-1:/var/lib/scylla
       - ./scylla.yaml:/etc/scylla/scylla.yaml
@@ -234,7 +234,7 @@ services:
 
   scylladb-2:
     image: scylladb/scylla
-    command: --reactor-backend=epoll --seeds=192.168.1.101 --cpuset=1,4,10  --memory 5G
+    command: --reactor-backend=epoll --seeds=192.168.1.101 --cpuset=1,4,10  --memory 5G --smp 3
     volumes:
       - scylladb-data-2:/var/lib/scylla
       - ./scylla.yaml:/etc/scylla/scylla.yaml
@@ -254,7 +254,7 @@ services:
 
   scylladb-3:
     image: scylladb/scylla
-    command: --reactor-backend=epoll --seeds=192.168.1.101 --cpuset=2,5,11 --memory 5G
+    command: --reactor-backend=epoll --seeds=192.168.1.101 --cpuset=2,5,11 --memory 5G --smp 3
     volumes:
       - scylladb-data-3:/var/lib/scylla
       - ./scylla.yaml:/etc/scylla/scylla.yaml
