@@ -1,11 +1,2 @@
-# sstable_compression_user_table_options:
-#   sstable_compression: LZ4Compressor
-
-# internode_compression: all
-# internode_compression_algorithms:
-#   - lz4
-
 read_request_timeout_in_ms: 180000
 write_request_timeout_in_ms: 180000
-request_timeout_in_ms: 180000
-nodeops_watchdog_timeout_seconds: 180000
