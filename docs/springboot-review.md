@@ -11,64 +11,6 @@
 
 現在の実装には、Spring Boot の標準機能を使わずに手動で実装されている「ワークアラウンド」的な箇所が見受けられます。これらを Spring Boot の標準的な方法に置き換えることで、コード量を削減し、保守性を向上させることができます。
 
-### 2.2 Kafka メッセージの手動シリアライズ/デシリアライズ
-
-**対象ファイル:**
-- [KafkaClient.java (Fraud Detection)](file:///Users/ray/code/g4/fraudx/fraud-detection-service/src/main/java/com/example/fraud_detection_service/adapter/KafkaClient.java)
-- [KafkaClient.java (Payment)](file:///Users/ray/code/g4/fraudx/payment-service/src/main/java/com/example/payment_service/adapter/KafkaClient.java)
-
-**現状:**
-Kafka のメッセージを `byte[]` (バイト配列) として送受信し、アプリケーションコード内で手動で `KafkaProtobufDeserializer` や `KafkaProtobufSerializer` を `new` して変換しています。
-
-**検証済みの修正手順:**
-
-1.  **KafkaProtobufDeserializer の改修:**
-    Spring Boot のプロパティから型情報を読み込めるように、`KafkaProtobufDeserializer` に `configure` メソッドを実装します。
-
-    ```java
-    @Override
-    public void configure(Map<String, ?> configs, boolean isKey) {
-        String typeProp = isKey ? "protobuf.key.type" : "protobuf.value.type";
-        Object typeName = configs.get(typeProp);
-        if (typeName == null) typeName = configs.get("spring.kafka.properties." + typeProp);
-        // ... (ReflectionでParserを取得)
-    }
-    ```
-
-2.  **application.yaml の更新:**
-    `key-deserializer`, `value-deserializer` を指定し、`properties` セクションで具体的な型を指定します。
-
-    ```yaml
-    spring:
-      kafka:
-        consumer:
-          key-deserializer: com.example.fraud_detection_service.adapter.KafkaProtobufDeserializer
-          value-deserializer: com.example.fraud_detection_service.adapter.KafkaProtobufDeserializer
-          properties:
-            protobuf.key.type: com.example.proto.Event$PaymentEventKey
-            protobuf.value.type: com.example.proto.Event$PaymentEventValue
-    ```
-
-3.  **KafkaClient の修正:**
-    `@KafkaListener` や `KafkaTemplate` のジェネリクス型を `byte[]` からドメインオブジェクトに変更します。
-
-    **Consumer:**
-    ```java
-    @KafkaListener(topics = "${kafka.topics.payment.name}", batch = "true")
-    public void process(List<ConsumerRecord<PaymentEventKey, PaymentEventValue>> records) {
-        // ...
-    }
-    ```
-
-    **Producer:**
-    ```java
-    private final KafkaTemplate<PaymentEventKey, PaymentEventValue> protoTemplate;
-    // ...
-    protoTemplate.send(topic, key, value);
-    ```
-
-**検証結果:**
-上記の手順に従ってコードを変更し、`./gradlew build` が正常に成功することを確認しました。
 
 ### 2.3 トピック存在確認のポーリング (Polling for Topic Existence)
 

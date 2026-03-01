@@ -5,7 +5,6 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.serialization.Deserializer;
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -21,8 +20,6 @@ import jakarta.annotation.*;
 @Service
 public class KafkaClient {
     private static final Logger log = LoggerFactory.getLogger(KafkaClient.class);
-    private final Deserializer<PaymentEventKey> keyDeserializer;
-    private final Deserializer<PaymentEventValue> valueDeserializer;
     private final CqlSession cqlSession;
 
     private PreparedStatement insertStmt;
@@ -35,8 +32,6 @@ public class KafkaClient {
     private String paymentTopicName;
 
     public KafkaClient(CqlSession session) {
-        keyDeserializer = new KafkaProtobufDeserializer<>(PaymentEventKey.parser());
-        valueDeserializer = new KafkaProtobufDeserializer<>(PaymentEventValue.parser());
         cqlSession = session;
         inFlight = new Semaphore(32768);
     }
@@ -55,7 +50,7 @@ public class KafkaClient {
     }
 
     @KafkaListener(id = "paymentListener", topics = "${kafka.topics.payment.name}", concurrency = "${spring.kafka.consumer.concurrency}", batch = "true")
-    public void process(List<ConsumerRecord<byte[], byte[]>> records) {
+    public void process(List<ConsumerRecord<PaymentEventKey, PaymentEventValue>> records) {
         var now = System.nanoTime();
         startTime.compareAndSet(0, now);
         counter.add(records.size());
@@ -71,9 +66,7 @@ public class KafkaClient {
                     continue;
                 }
 
-                var key = keyDeserializer.deserialize(null, record.key());
-                var value = valueDeserializer.deserialize(null, record.value());
-                var event = new PaymentEvent(key, value);
+                var event = new PaymentEvent(record.key(), record.value());
                 var bound = insertStmt.bind(event.transactionId.getValue(), event.userId.getValue());
                 // futures.add(cqlSession.executeAsync(bound).toCompletableFuture());
 
