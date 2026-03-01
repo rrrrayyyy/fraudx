@@ -35,15 +35,3 @@ public NewTopic paymentTopic() {
             .build();
 }
 ```
-
-### 2.4 Semaphore による手動スロットリング
-
-**対象ファイル:**
-- [KafkaClient.java (Fraud Detection)](file:///Users/ray/code/g4/fraudx/fraud-detection-service/src/main/java/com/example/fraud_detection_service/adapter/KafkaClient.java#L36)
-
-**現状:**
-`Semaphore` を使って同時実行数を制限しようとしていますが、Kafka Consumer は基本的にシングルスレッド（パーティション単位）で動作するため、コンシューマ内でのブロッキング処理に対する並行数制御としては不完全または不適切です。
-
-**推奨される修正:**
-Spring Kafka の `ConcurrentKafkaListenerContainerFactory` の `concurrency` 設定（`spring.kafka.listener.concurrency`）を使用してください。これにより、指定した数のコンシューマスレッドが起動し、パーティションを分散して処理することで、安全かつ効率的に並行処理を行えます。
-

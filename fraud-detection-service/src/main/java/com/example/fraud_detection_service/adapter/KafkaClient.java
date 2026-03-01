@@ -1,7 +1,7 @@
 package com.example.fraud_detection_service.adapter;
 
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.*;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -26,14 +26,12 @@ public class KafkaClient {
     private final AtomicLong startTime = new AtomicLong(0);
     private final AtomicLong endTime = new AtomicLong(0);
     private final LongAdder counter = new LongAdder();
-    private final Semaphore inFlight;
 
     @Value("${kafka.topics.payment.name}")
     private String paymentTopicName;
 
     public KafkaClient(CqlSession session) {
         cqlSession = session;
-        inFlight = new Semaphore(32768);
     }
 
     @PostConstruct
@@ -54,56 +52,29 @@ public class KafkaClient {
         var now = System.nanoTime();
         startTime.compareAndSet(0, now);
         counter.add(records.size());
-        var last = endTime.longValue();
-        endTime.compareAndSet(last, now);
-        // var futures = new
-        // ArrayList<CompletableFuture<AsyncResultSet>>(records.size());
-        for (var record : records) {
-            try {
-                var ok = inFlight.tryAcquire(1, 600, TimeUnit.SECONDS);
-                if (!ok) {
-                    log.error("❌ Couldn't acquire semaphore, dropping record: {}", record);
-                    continue;
-                }
+        endTime.set(now);
 
-                var event = new PaymentEvent(record.key(), record.value());
-                var bound = insertStmt.bind(event.transactionId.getValue(), event.userId.getValue());
-                // futures.add(cqlSession.executeAsync(bound).toCompletableFuture());
+        var futures = records.stream().map(record -> {
+            var event = new PaymentEvent(record.key(), record.value());
+            var bound = insertStmt.bind(event.transactionId.getValue(), event.userId.getValue());
 
-                cqlSession.executeAsync(bound).toCompletableFuture().whenComplete((rs, ex) -> {
-                    inFlight.release();
-                    if (ex != null) {
-                        log.error("❌ write failed partition={}, offset={} : {}", record.partition(),
-                                record.offset(),
-                                ex.toString());
-                    }
-                });
-            } catch (RejectedExecutionException e) {
-                log.error("❌ Executor queue full, dropping record: {}", record);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                log.error("❌ Interrupted while waiting for inFlight permit");
-            } catch (Exception e) {
-                log.error("❌ Subscription failed: {}", e.getMessage());
-            } finally {
-                if (log.isDebugEnabled()) {
-                    log.debug("✅ Subscribed event [partition={}, offset={}]: {}", record.partition(), record.offset(),
-                            record.value());
+            return cqlSession.executeAsync(bound).toCompletableFuture().whenComplete((rs, ex) -> {
+                if (ex != null) {
+                    log.error("❌ Write failed partition={}, offset={}: {}",
+                            record.partition(), record.offset(), ex.toString());
                 }
+            });
+        }).toArray(CompletableFuture[]::new);
+
+        try {
+            CompletableFuture.allOf(futures).join();
+            if (log.isDebugEnabled()) {
+                log.debug("✅ Bulk insert succeeded for batch size: {}", records.size());
             }
+        } catch (Exception e) {
+            log.error("❌ Batch processing failed: {}", e.getMessage());
+            throw e;
         }
-        // try {
-        // CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        // log.info("✅ Bulk insert succeeded: {}/{}", futures.size(), records.size());
-        // } catch (Exception e) {
-        // try {
-        // Thread.sleep(5000);
-        // } catch (InterruptedException ie) {
-        // Thread.currentThread().interrupt();
-        // }
-        // log.error("❌ Inserting records failed: {}", e.getMessage());
-        // throw e;
-        // }
     }
 
     @PreDestroy
