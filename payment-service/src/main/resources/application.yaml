@@ -4,11 +4,9 @@ spring:
   kafka:
     bootstrap-servers: broker-1:19092,broker-2:19092,broker-3:19092
     producer:
-      compression-type: none
-      buffer-memory: 33554432
-      batch-size: 16384
+      key-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
       linger-ms: 5
-      acks: all
 
 kafka:
   connect: false

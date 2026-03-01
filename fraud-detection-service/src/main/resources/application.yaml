@@ -8,10 +8,9 @@ spring:
     bootstrap-servers: broker-1:19092,broker-2:19092,broker-3:19092
     consumer:
       group-id: fraud-detection
-      fetch-min-size: 1
+      key-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
       max-partition-fetch-bytes: 1048576
-      enable-auto-commit: true
-      max-poll-records: 500
       concurrency: 4
   cassandra:
     contact-points: scylladb-1,scylladb-2,scylladb-3

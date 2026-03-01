@@ -3,67 +3,13 @@
 このドキュメントは、現在のコードベースにおける Spring Boot の設定および実装パターンに関するレビュー結果をまとめたものです。
 特に、以下の2点に焦点を当てています。
 
-1.  **デフォルト値で動作するため明示的な指定が不要な設定 (Redundant Configuration)**
 2.  **より自然な Spring Boot の実装パターンが存在する箇所 (Workarounds & Anti-patterns)**
-
----
-
-## 1. 冗長な設定 (Redundant Configuration)
-
-以下の設定は Spring Boot や依存ライブラリのデフォルト値と同じであるため、削除しても動作に影響しません。設定ファイルを簡潔に保つために削除を推奨します。
-
-### `fraud-detection-service/src/main/resources/application.yaml`
-
-| プロパティ | 現在の値 | デフォルト値 | 説明 |
-| :--- | :--- | :--- | :--- |
-| `spring.kafka.consumer.fetch-min-size` | `1` | `1` | サーバーからフェッチする最小バイト数。デフォルトで1バイトです。 |
-| `spring.kafka.consumer.enable-auto-commit` | `true` | `true` | コンシューマのオフセットを自動コミットするかどうか。デフォルトはtrueです。 |
-| `spring.kafka.consumer.max-poll-records` | `500` | `500` | 1回のpoll()呼び出しで返される最大レコード数。 |
-
-### `payment-service/src/main/resources/application.yaml`
-
-| プロパティ | 現在の値 | デフォルト値 | 説明 |
-| :--- | :--- | :--- | :--- |
-| `spring.kafka.producer.compression-type` | `none` | `none` | プロデューサの圧縮タイプ。デフォルトは圧縮なしです。 |
-| `spring.kafka.producer.buffer-memory` | `33554432` | `33554432` | プロデューサがバッファリングに使用できるメモリの合計バイト数 (32MB)。 |
-| `spring.kafka.producer.batch-size` | `16384` | `16384` | 同じパーティションへのレコードをバッチ処理する際の最大サイズ (16KB)。 |
-| `spring.kafka.producer.acks` | `all` | `all` | リーダーが受信確認を待つレプリカの数。Kafka 3.0以降、デフォルトは `all` (-1) です。 |
 
 ---
 
 ## 2. 実装の改善点 (Workarounds & Anti-patterns)
 
 現在の実装には、Spring Boot の標準機能を使わずに手動で実装されている「ワークアラウンド」的な箇所が見受けられます。これらを Spring Boot の標準的な方法に置き換えることで、コード量を削減し、保守性を向上させることができます。
-
-### 2.1 Kafka 設定の手動 Bean 定義 (Manual Bean Definition)
-
-**対象ファイル:**
-- [KafkaConsumerConfig.java](file:///Users/ray/code/g4/fraudx/fraud-detection-service/src/main/java/com/example/fraud_detection_service/adapter/KafkaConsumerConfig.java)
-- [KafkaConfig.java](file:///Users/ray/code/g4/fraudx/payment-service/src/main/java/com/example/payment_service/adapter/KafkaConfig.java)
-
-**現状:**
-`@Value` アノテーションを使ってプロパティ値を一つずつ読み込み、`HashMap` に詰めて `DefaultKafkaConsumerFactory` や `DefaultKafkaProducerFactory` を手動で生成しています。
-
-**推奨される修正:**
-Spring Boot の `KafkaAutoConfiguration` (spring-kafka) は、`application.yaml` に記述された `spring.kafka.*` プロパティを自動的に読み込み、適切な `ConsumerFactory` や `ProducerFactory` を構成します。
-手動での Bean 定義を削除し、必要であれば `application.yaml` の設定のみで完結させるべきです。
-
-**Before:**
-```java
-@Value("${spring.kafka.bootstrap-servers}")
-private String bootstrapServers;
-
-@Bean
-public ConsumerFactory<byte[], byte[]> consumerFactory() {
-    var props = new HashMap<String, Object>();
-    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-    // ... 手動でプロパティを設定
-    return new DefaultKafkaConsumerFactory<>(props);
-}
-```
-
-**After:**
-(コード削除のみ。`application.yaml` に設定があれば自動構成されます)
 
 ### 2.2 Kafka メッセージの手動シリアライズ/デシリアライズ
 
