@@ -19,6 +19,7 @@ spring:
     contact-points: scylladb-1,scylladb-2,scylladb-3
     local-datacenter: datacenter1
     keyspace-name: fraudx
+    config: classpath:application.conf
 
 kafka:
   topics:

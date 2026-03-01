@@ -47,13 +47,3 @@ public NewTopic paymentTopic() {
 **推奨される修正:**
 Spring Kafka の `ConcurrentKafkaListenerContainerFactory` の `concurrency` 設定（`spring.kafka.listener.concurrency`）を使用してください。これにより、指定した数のコンシューマスレッドが起動し、パーティションを分散して処理することで、安全かつ効率的に並行処理を行えます。
 
-### 2.5 Cassandra Session の手動生成
-
-**対象ファイル:**
-- [ScyllaConfiguration.java](file:///Users/ray/code/g4/fraudx/fraud-detection-service/src/main/java/com/example/fraud_detection_service/adapter/ScyllaConfiguration.java)
-
-**現状:**
-`CqlSession` を手動でビルドしています。
-
-**推奨される修正:**
-`spring-boot-starter-data-cassandra` を使用している場合、`spring.cassandra.*` プロパティを設定するだけで `CqlSession` は自動構成されます。特別なドライバ設定が必要な場合も、`AbstractCassandraConfiguration` を継承するか、`DriverConfigLoaderBuilderCustomizer` Bean を定義する方が Spring Boot の作法に沿っています。
