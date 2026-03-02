@@ -2,8 +2,10 @@ package com.example.payment_service.adapter;
 
 import java.util.*;
 
+import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.*;
+import org.springframework.kafka.config.TopicBuilder;
 
 enum TopicKey {
 	PAYMENT;
@@ -13,7 +15,7 @@ enum TopicKey {
 	}
 }
 
-@Component
+@Configuration
 @ConfigurationProperties(prefix = "kafka")
 public class KafkaTopicConfig {
 	private Map<String, Topic> topics = new HashMap<>();
@@ -28,6 +30,15 @@ public class KafkaTopicConfig {
 
 	public Topic getPaymentTopic() {
 		return topics.get(TopicKey.PAYMENT.getKey());
+	}
+
+	@Bean
+	public NewTopic paymentTopic() {
+		var t = getPaymentTopic();
+		return TopicBuilder.name(t.getName())
+				.partitions(t.getPartitions())
+				.replicas(t.getReplicationFactor())
+				.build();
 	}
 }
 

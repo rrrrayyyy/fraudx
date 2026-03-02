@@ -7,6 +7,9 @@ spring:
       key-serializer: com.example.payment_service.adapter.KafkaProtobufSerializer
       value-serializer: com.example.payment_service.adapter.KafkaProtobufSerializer
       linger-ms: 5
+    admin:
+      auto-create: true
+      fail-fast: false
 
 kafka:
   connect: false
