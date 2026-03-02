@@ -24,7 +24,8 @@ public class PaymentEvent {
     }
 
     public String getCreateTable() {
-        return String.format("CREATE TABLE IF NOT EXISTS %s (%s)",
+        return String.format("CREATE TABLE IF NOT EXISTS %s (%s) " +
+                "WITH compaction = { 'class': 'TimeWindowCompactionStrategy', 'compaction_window_size': '1', 'compaction_window_unit': 'DAYS' }",
                 PaymentEvent.TABLE_NAME,
                 Arrays.stream(COLUMNS).map(Column::toDDL).collect(Collectors.joining(", ")));
     }
