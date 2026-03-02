@@ -15,13 +15,13 @@ spring:
         protobuf.value.type: com.example.proto.Event$PaymentEventValue
       max-partition-fetch-bytes: 1048576
       concurrency: 4
-  cassandra:
-    contact-points: scylladb-1,scylladb-2,scylladb-3
-    local-datacenter: datacenter1
-    keyspace-name: fraudx
-    config: classpath:application.conf
 
 kafka:
   topics:
     payment:
       name: payment-events
+
+scylla:
+  contact-points: scylladb-1:9042,scylladb-2:9042,scylladb-3:9042
+  local-datacenter: datacenter1
+  keyspace: fraudx
