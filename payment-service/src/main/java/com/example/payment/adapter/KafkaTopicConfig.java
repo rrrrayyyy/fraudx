@@ -32,7 +32,8 @@ public class KafkaTopicConfig {
 	}
 
 	public Topic getTopic(TopicKey key) {
-		return topics.get(key.getKey());
+		return Optional.ofNullable(topics.get(key.getKey()))
+				.orElseThrow(() -> new IllegalStateException("❌ Topic config missing for: " + key));
 	}
 
 	@Bean

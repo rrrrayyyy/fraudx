@@ -10,14 +10,13 @@ public enum DataType {
     TIMESTAMP("timestamp"),
     DATE("date");
 
-    private final String type;
+    private final String value;
 
-    DataType(String type) {
-        this.type = type;
+    DataType(String value) {
+        this.value = value;
     }
 
-    @Override
-    public String toString() {
-        return type;
+    public String getValue() {
+        return value;
     }
 }
