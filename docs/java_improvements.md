@@ -1,9 +1,3 @@
-## 3. パフォーマンスと並行処理
-
-### 文字列生成の最適化
-`PaymentEvent.java` 内の `getInsertInto()` や `getCreateTable()` は、呼び出しごとに `StringBuilder` や `String.format` を使用してSQLを生成しています。
-- **改善案:** これらは定数（`static final`）として定義するか、一度だけ生成してキャッシュするように変更すべきです。高負荷時にはGCのオーバーヘッドになります。
-
 ## 4. 具体的なリファクタリング候補
 
 ### `fraud-detection-service`
