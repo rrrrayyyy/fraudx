@@ -1,44 +1,10 @@
-# Java Codebase Review & Improvement Plan
-
-このドキュメントでは、`fraudx` リポジトリ内のJavaコードベースをレビューし、可読性、保守性、パフォーマンスを向上させるための改善案をまとめます。
-
 ## 1. 全体的なアーキテクチャとデザイン
-
 
 ### ドメインモデルとインフラストラクチャの分離
 `fraud-detection-service` 内の `PaymentEvent` クラスは、ドメインデータとCQL生成ロジック（`getInsertInto`, `getCreateTable`）が混在しています。これは責務の分離（Separation of Concerns）に反しています。
 - **改善案:** データ保持用のクラス（Entity/Record）と、データベース操作用のRepository/DAOクラスに分離することを推奨します。
 
 ## 2. コードスタイルと可読性 (Java 25 Features)
-
-プロジェクトは Java 25 を使用しているため、最新の言語機能（Preview含む）を積極的に活用すべきです。
-
-### Java Records の活用
-不変なデータキャリアクラス（DTO, Config Properties）には `record` を使用することで、ボイラープレートコード（Getter/Setter/Constructor）を削減できます。
-
-- **対象:**
-  - `AmountDeviationProperties`, `TransactionFrequencyProperties`, `UserLinkageProperties` 内の内部クラス
-  - `PaymentEvent` (もし不変として扱えるなら)
-  - `Topic`, `TopicKey` (KafkaTopicConfig内)
-
-**Example:**
-```java
-// Before
-public class AmountDeviationRule {
-    private boolean enabled;
-    private int sigmaThreshold;
-    // getters/setters...
-}
-
-// After
-public record AmountDeviationRule(
-    boolean enabled,
-    int sigmaThreshold,
-    int historyDuration,
-    TimeUnit timeUnit,
-    int minTransactions
-) {}
-```
 
 ### Lombok の導入
 `record` にできない可変なクラスや、Builderパターンが必要なクラスには Project Lombok の導入を推奨します。

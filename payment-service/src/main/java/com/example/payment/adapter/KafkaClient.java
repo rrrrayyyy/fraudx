@@ -18,6 +18,6 @@ public class KafkaClient implements PaymentEventProducer {
 
 	@Override
 	public void publish(PaymentEventKey key, PaymentEventValue value) {
-		protoTemplate.send(paymentTopic.getName(), key, value);
+		protoTemplate.send(paymentTopic.name(), key, value);
 	}
 }

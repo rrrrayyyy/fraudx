@@ -15,6 +15,9 @@ enum TopicKey {
 	}
 }
 
+record Topic(String name, int partitions, short replicationFactor) {
+}
+
 @Configuration
 @ConfigurationProperties(prefix = "kafka")
 public class KafkaTopicConfig {
@@ -35,39 +38,9 @@ public class KafkaTopicConfig {
 	@Bean
 	public NewTopic paymentTopic() {
 		var t = getPaymentTopic();
-		return TopicBuilder.name(t.getName())
-				.partitions(t.getPartitions())
-				.replicas(t.getReplicationFactor())
+		return TopicBuilder.name(t.name())
+				.partitions(t.partitions())
+				.replicas(t.replicationFactor())
 				.build();
-	}
-}
-
-class Topic {
-	private String name;
-	private int partitions;
-	private short replicationFactor;
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public int getPartitions() {
-		return partitions;
-	}
-
-	public void setPartitions(int partitions) {
-		this.partitions = partitions;
-	}
-
-	public short getReplicationFactor() {
-		return replicationFactor;
-	}
-
-	public void setReplicationFactor(short replicationFactor) {
-		this.replicationFactor = replicationFactor;
 	}
 }
