@@ -32,17 +32,21 @@ public class KafkaProtobufDeserializer<T extends Message> implements Deserialize
     @SuppressWarnings("unchecked")
     public void configure(Map<String, ?> configs, boolean isKey) {
         var typeProp = isKey ? "protobuf.key.type" : "protobuf.value.type";
-        var typeName = configs.get(typeProp);
-        if (typeName == null) {
-            typeName = configs.get("spring.kafka.properties." + typeProp);
+        var rawValue = configs.get(typeProp) != null ? configs.get(typeProp)
+                : configs.get("spring.kafka.properties." + typeProp);
+        if (rawValue == null) {
+            throw new RuntimeException("❌ Failed to find Protobuf type property: " + typeProp);
         }
         try {
-            var className = typeName.toString();
+            var className = switch (rawValue) {
+                case String s -> s;
+                case Object o -> o.toString();
+            };
             Class<?> clazz = Class.forName(className);
             java.lang.reflect.Method parserMethod = clazz.getMethod("parser");
             this.parser = (Parser<T>) parserMethod.invoke(null);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize Protobuf parser for: " + typeName, e);
+            throw new RuntimeException("❌ Failed to initialize Protobuf parser for: " + rawValue, e);
         }
     }
 }

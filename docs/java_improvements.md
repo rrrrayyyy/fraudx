@@ -1,8 +1,3 @@
-## 2. コードスタイルと可読性 (Java 25 Features)
-
-### Switch Expressions / Pattern Matching
-Enumの分岐や型チェックには、新しい Switch 式やパターンマッチングを活用することで、より安全で簡潔なコードになります。
-
 ## 3. パフォーマンスと並行処理
 
 ### Virtual Threads (Project Loom) の活用

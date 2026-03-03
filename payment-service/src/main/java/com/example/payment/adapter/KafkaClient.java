@@ -13,7 +13,7 @@ public class KafkaClient implements PaymentEventProducer {
 
 	public KafkaClient(KafkaTemplate<PaymentEventKey, PaymentEventValue> protoTemplate, KafkaTopicConfig topicConfig) {
 		this.protoTemplate = protoTemplate;
-		paymentTopic = topicConfig.getPaymentTopic();
+		paymentTopic = topicConfig.getTopic(TopicKey.PAYMENT);
 	}
 
 	@Override

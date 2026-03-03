@@ -31,13 +31,13 @@ public class KafkaTopicConfig {
 		this.topics = topics;
 	}
 
-	public Topic getPaymentTopic() {
-		return topics.get(TopicKey.PAYMENT.getKey());
+	public Topic getTopic(TopicKey key) {
+		return topics.get(key.getKey());
 	}
 
 	@Bean
 	public NewTopic paymentTopic() {
-		var t = getPaymentTopic();
+		var t = getTopic(TopicKey.PAYMENT);
 		return TopicBuilder.name(t.name())
 				.partitions(t.partitions())
 				.replicas(t.replicationFactor())
