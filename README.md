@@ -23,6 +23,8 @@ docker logs -f fraudx-fraud-detection-service-1
 curl -X POST "http://localhost:8080/payment-events?n=10000000"
 
 docker compose stop fraud-detection-service && docker logs fraudx-fraud-detection-service-1 | grep RPS
+
+docker exec -it fraudx-scylladb-1-1 cqlsh 192.168.1.101 9042 -e "SELECT count(*) FROM fraudx.payment_events;"
 ```
 
 

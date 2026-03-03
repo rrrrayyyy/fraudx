@@ -1,14 +1,4 @@
-## 1. 全体的なアーキテクチャとデザイン
-
-### ドメインモデルとインフラストラクチャの分離
-`fraud-detection-service` 内の `PaymentEvent` クラスは、ドメインデータとCQL生成ロジック（`getInsertInto`, `getCreateTable`）が混在しています。これは責務の分離（Separation of Concerns）に反しています。
-- **改善案:** データ保持用のクラス（Entity/Record）と、データベース操作用のRepository/DAOクラスに分離することを推奨します。
-
 ## 2. コードスタイルと可読性 (Java 25 Features)
-
-### Lombok の導入
-`record` にできない可変なクラスや、Builderパターンが必要なクラスには Project Lombok の導入を推奨します。
-- `@Data`, `@Builder`, `@Slf4j`, `@RequiredArgsConstructor` などを使用することでコード量を大幅に削減できます。
 
 ### Switch Expressions / Pattern Matching
 Enumの分岐や型チェックには、新しい Switch 式やパターンマッチングを活用することで、より安全で簡潔なコードになります。
