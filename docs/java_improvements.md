@@ -1,31 +1,5 @@
 ## 3. パフォーマンスと並行処理
 
-### Virtual Threads (Project Loom) の活用
-Java 21以降で正式採用された Virtual Threads を活用することで、I/Oブロッキングが発生する処理（Kafka消費、DB書き込み）のスループットを向上させることができます。
-
-- **現状:** `KafkaClient.java` (Fraud Detection) では `Semaphore` を使用して並行数を制御していますが、メインの処理ループはシーケンシャルに見えます（`batch="true"` ですが、ループ内で `inFlight.tryAcquire` しています）。
-- **改善案:** `Executors.newVirtualThreadPerTaskExecutor()` を使用して、各レコードの処理（CassandraへのInsert）を並行化することを検討してください。これにより、ブロッキングコストを最小限に抑えつつ、高スループットを実現できます。
-
-**Example (KafkaClient.java):**
-```java
-// Executor using Virtual Threads
-private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
-
-// ... inside process method
-for (var record : records) {
-    executor.submit(() -> {
-        try {
-            // Process record and insert to Cassandra
-        } catch (Exception e) {
-            log.error("Failed to process", e);
-        }
-    });
-}
-```
-
-### Kafka Consumer の最適化
-`fraud-detection-service` の `KafkaClient.java` において、`inFlight.tryAcquire` がコンシューマースレッドをブロックする可能性があります。バッチ処理全体が遅延するため、非同期処理（`CompletableFuture` や Virtual Threads）と組み合わせ、バックプレッシャーを適切に管理する設計が必要です。
-
 ### 文字列生成の最適化
 `PaymentEvent.java` 内の `getInsertInto()` や `getCreateTable()` は、呼び出しごとに `StringBuilder` や `String.format` を使用してSQLを生成しています。
 - **改善案:** これらは定数（`static final`）として定義するか、一度だけ生成してキャッシュするように変更すべきです。高負荷時にはGCのオーバーヘッドになります。

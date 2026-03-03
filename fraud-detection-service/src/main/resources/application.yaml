@@ -15,6 +15,9 @@ spring:
         protobuf.value.type: com.example.proto.Event$PaymentEventValue
       max-partition-fetch-bytes: 1048576
       concurrency: 4
+  threads:
+    virtual:
+      enabled: true
 
 kafka:
   topics:
