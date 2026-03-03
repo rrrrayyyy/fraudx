@@ -165,7 +165,7 @@ services:
     build: ./payment-service
     environment:
       SPRING_APPLICATION_NAME: payment-service
-      SPRING_APPLICATION_JSON: '{"logging.level.com.example.payment_service":"INFO"}'
+      SPRING_APPLICATION_JSON: '{"logging.level.com.example.payment":"INFO"}'
       SPRING_KAFKA_BOOTSTRAP_SERVERS: broker-1:19092,broker-2:19092,broker-3:19092
       SPRING_KAFKA_PRODUCER_COMPRESSION_TYPE: lz4
       SPRING_KAFKA_PRODUCER_BUFFER_MEMORY: 134217728
@@ -190,7 +190,7 @@ services:
     build: ./fraud-detection-service
     environment:
       SPRING_APPLICATION_NAME: fraud-detection-service
-      SPRING_APPLICATION_JSON: '{"logging.level.com.example.fraud_detection_service":"INFO"}'
+      SPRING_APPLICATION_JSON: '{"logging.level.com.example.frauddetection":"INFO"}'
       SPRING_CONFIG_IMPORT: rules.yaml
       SPRING_KAFKA_BOOTSTRAP_SERVERS: broker-1:19092,broker-2:19092,broker-3:19092
       SPRING_KAFKA_CONSUMER_GROUP_ID: fraud-detection

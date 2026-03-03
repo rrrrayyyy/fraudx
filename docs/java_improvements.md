@@ -4,11 +4,6 @@
 
 ## 1. 全体的なアーキテクチャとデザイン
 
-### パッケージ命名規則の改善
-現在のパッケージ名にはアンダースコアが含まれています（例: `com.example.fraud_detection_service`）。Javaの標準的な命名規則に従い、すべて小文字で区切り文字なし、またはドメイン名を逆順にした形式を推奨します。
-
-- **Current:** `com.example.fraud_detection_service`, `com.example.payment_service`
-- **Proposed:** `com.example.fraud`, `com.example.payment`
 
 ### ドメインモデルとインフラストラクチャの分離
 `fraud-detection-service` 内の `PaymentEvent` クラスは、ドメインデータとCQL生成ロジック（`getInsertInto`, `getCreateTable`）が混在しています。これは責務の分離（Separation of Concerns）に反しています。

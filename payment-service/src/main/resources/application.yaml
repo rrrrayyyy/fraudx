@@ -4,8 +4,8 @@ spring:
   kafka:
     bootstrap-servers: broker-1:19092,broker-2:19092,broker-3:19092
     producer:
-      key-serializer: com.example.payment_service.adapter.KafkaProtobufSerializer
-      value-serializer: com.example.payment_service.adapter.KafkaProtobufSerializer
+      key-serializer: com.example.payment.adapter.KafkaProtobufSerializer
+      value-serializer: com.example.payment.adapter.KafkaProtobufSerializer
       linger-ms: 5
     admin:
       auto-create: true
