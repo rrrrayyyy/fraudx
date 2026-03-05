@@ -14,18 +14,16 @@
 
 # procedures
 ```zsh
-./gradlew clean bootJar && docker compose down -v --remove-orphans && docker compose up --build -d && docker logs -f fraudx-payment-service-1
+make up
+# make up-metrics
 
-# ./gradlew clean bootJar && docker compose -f compose.yaml -f metrics-compose.yaml down -v --remove-orphans && docker compose -f compose.yaml -f metrics-compose.yaml up --build -d && docker logs -f fraudx-payment-service-1
+make logs-fraud
 
+make post-event n=10000000
 
-docker logs -f fraudx-fraud-detection-service-1
+make fraud-rps
 
-curl -X POST "http://localhost:8080/payment-events?n=10000000"
-
-docker compose stop fraud-detection-service && docker logs fraudx-fraud-detection-service-1 | grep RPS
-
-docker exec -it fraudx-scylladb-1-1 cqlsh 192.168.1.101 9042 -e "SELECT count(*) FROM fraudx.payment_events;"
+make cql
 ```
 
 

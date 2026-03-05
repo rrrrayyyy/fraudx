@@ -1,0 +1,58 @@
+DC_BASE := docker compose
+DC_METRICS := docker compose -f compose.yaml -f metrics-compose.yaml
+PAYMENT_LOG := fraudx-payment-service-1
+FRAUD_LOG := fraudx-fraud-detection-service-1
+SCYLLA_NODE := fraudx-scylladb-1-1
+
+n ?= 10000000
+
+CQL_COUNT := "SELECT count(*) FROM fraudx.payment_events;"
+CQL_SCHEMA := "DESCRIBE KEYSPACE fraudx;"
+CQL_TOP10 := "SELECT * FROM fraudx.payment_events LIMIT 10;"
+
+.PHONY: build up up-metrics down down-remove logs-payment logs-fraud post-event fraud-rps cql help
+
+up:
+	./gradlew clean bootJar
+	$(DC_BASE) down -v --remove-orphans
+	$(DC_BASE) up --build -d
+	docker logs -f $(PAYMENT_LOG)
+
+up-metrics:
+	./gradlew clean bootJar
+	$(DC_METRICS) down -v --remove-orphans
+	$(DC_METRICS) up --build -d
+	docker logs -f $(PAYMENT_LOG)
+
+down:
+	$(DC_BASE) down
+
+down-remove:
+	$(DC_BASE) down -v --remove-orphans
+
+logs-payment:
+	docker logs -f $(PAYMENT_LOG)
+
+logs-fraud:
+	docker logs -f $(FRAUD_LOG)
+
+post-event:
+	curl -X POST "http://localhost:8080/payment-events?n=$(n)"
+
+fraud-rps:
+	$(DC_BASE) stop fraud-detection-service
+	docker logs $(FRAUD_LOG) | grep RPS
+
+cql:
+	@echo "--- Execution CQL Stat ---"
+	docker exec -it $(SCYLLA_NODE) cqlsh 192.168.1.101 9042 -e $(CQL_COUNT)
+	@echo "--- Execution CQL Sample ---"
+	docker exec -it $(SCYLLA_NODE) cqlsh 192.168.1.101 9042 -e $(CQL_TOP10)
+
+help:
+	@echo "Usage: make [command] [n=count]"
+	@echo "  up           : Normal build & up"
+	@echo "  up-metrics   : Build & up with Metrics"
+	@echo "  post-event   : POST events (Default n=10000000. Use: make post-event n=500)"
+	@echo "  fraud-rps    : Stop fraud-service & check RPS"
+	@echo "  cql          : Run pre-defined CQL commands (Count, Top10...)"

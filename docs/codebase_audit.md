@@ -1,30 +1,5 @@
 # Codebase Audit Report
 
-## 3. ビルドプロセスとCI/CD (Build Process)
-
-### 3.1. タスクランナーの導入
-*   **現状:** `README.md` に長いコマンドライン（`./gradlew clean bootJar && docker compose ...`）が記載されています。
-*   **改善案:** `Makefile` または `Taskfile` (Task) を導入し、よく使うコマンドをエイリアス化することで、開発体験（DX）を向上させます。
-
-**Makefile例:**
-```makefile
-.PHONY: up down logs
-
-up:
-	./gradlew bootJar
-	docker compose up -d --build
-
-down:
-	docker compose down -v
-
-logs:
-	docker compose logs -f
-```
-
-### 3.2. Protoファイルの管理
-*   **現状:** `.proto` ファイルがリポジトリ内にありますが、Lintingや破壊的変更（Breaking Change）のチェックが行われていません。
-*   **改善案:** **Buf** (https://buf.build/) を導入し、CIパイプラインでProtoファイルの品質を管理することを推奨します。
-
 ## 4. 可観測性 (Observability)
 
 ### 4.1. Prometheus Service Discovery
