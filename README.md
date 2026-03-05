@@ -16,7 +16,8 @@
 ```zsh
 ./gradlew clean bootJar && docker compose down -v --remove-orphans && docker compose up --build -d && docker logs -f fraudx-payment-service-1
 
-# ./gradlew clean bootJar && docker compose down -v --remove-orphans && docker compose -f metrics-compose.yaml up --build -d && docker logs -f fraudx-payment-service-1
+# ./gradlew clean bootJar && docker compose -f compose.yaml -f metrics-compose.yaml down -v --remove-orphans && docker compose -f compose.yaml -f metrics-compose.yaml up --build -d && docker logs -f fraudx-payment-service-1
+
 
 docker logs -f fraudx-fraud-detection-service-1
 
