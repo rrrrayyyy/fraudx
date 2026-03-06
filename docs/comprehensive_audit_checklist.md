@@ -1,16 +1,4 @@
 
-## 2. Infrastructure & Environment
-- [ ] **Docker & Compose**
-    - [ ] Review `compose.yaml` for service dependencies, networks, and volumes.
-    - [ ] Review `metrics-compose.yaml` for monitoring stack configuration.
-    - [ ] Check `Dockerfile` optimization (layering, multi-stage builds, user permissions).
-- [ ] **ScyllaDB Configuration**
-    - [ ] Analyze `scylla.yaml` for performance tuning and cluster settings.
-    - [ ] Review `fraud-detection-service/src/main/resources/application.conf` (Java Driver settings).
-- [ ] **Kafka Configuration**
-    - [ ] Verify Broker settings in `compose.yaml`.
-    - [ ] Review Topic configuration (partitions, replication) in application code/config.
-
 ## 3. Microservices Configuration (Resources)
 - [ ] **Fraud Detection Service**
     - [ ] `application.yaml`: Check Spring Boot, Kafka, Cassandra, and Actuator settings.
