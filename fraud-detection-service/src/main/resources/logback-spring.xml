@@ -27,7 +27,7 @@
         <queueSize>50000</queueSize>
         <discardingThreshold>0</discardingThreshold>
         <includeCallerData>false</includeCallerData>
-        <neverBlock>true</neverBlock>
+        <neverBlock>false</neverBlock>
         <maxFlushTime>1000</maxFlushTime>
     </appender>
 
@@ -36,7 +36,7 @@
         <queueSize>50000</queueSize>
         <discardingThreshold>0</discardingThreshold>
         <includeCallerData>false</includeCallerData>
-        <neverBlock>true</neverBlock>
+        <neverBlock>false</neverBlock>
         <maxFlushTime>1000</maxFlushTime>
     </appender>
 

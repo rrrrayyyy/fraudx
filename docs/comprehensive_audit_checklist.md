@@ -1,13 +1,3 @@
-
-## 3. Microservices Configuration (Resources)
-- [ ] **Fraud Detection Service**
-    - [ ] `application.yaml`: Check Spring Boot, Kafka, Cassandra, and Actuator settings.
-    - [ ] `rules.yaml`: Validate structure and parsing logic.
-    - [ ] `logback-spring.xml`: Review logging strategy (async, appenders, levels).
-- [ ] **Payment Service**
-    - [ ] `application.yaml`: Check Producer settings and server configuration.
-    - [ ] `logback-spring.xml`: Review logging consistency.
-
 ## 4. Java Codebase Deep Dive
 - [ ] **Error Handling**
     - [ ] Check for Global Exception Handlers (`@ControllerAdvice`).

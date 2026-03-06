@@ -5,18 +5,15 @@ fraud-detection:
         card-id:
           enabled: false
           threshold: 5
-          duration: 1
-          time-unit: "MINUTE"
+          duration: 1m
         device-id:
           enabled: false
           threshold: 5
-          duration: 1
-          time-unit: "MINUTE"
+          duration: 1m
     amount-deviation:
       enabled: false
       sigma-threshold: 3
-      history-duration: 30
-      time-unit: "DAY"
+      history-duration: 30d
       min-transactions: 10
     user-linkage:
       target-attributes:
