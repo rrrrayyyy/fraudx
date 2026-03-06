@@ -1,13 +1,3 @@
-# Comprehensive Codebase Audit Checklist
-
-This checklist is designed to perform a thorough audit of the `fraudx` repository, covering configuration, infrastructure, code quality, and testing.
-
-## 1. Project Configuration & Build System
-- [ ] **Gradle Configuration**
-    - [ ] Review `settings.gradle` for module inclusion logic.
-    - [ ] Analyze `build.gradle` (root & subprojects) for dependency management, version conflicts, and plugin usage.
-    - [ ] Check Java compiler options and toolchain configuration (Java 25).
-    - [ ] Verify `gradlew` wrapper version and execution permissions.
 
 ## 2. Infrastructure & Environment
 - [ ] **Docker & Compose**

@@ -23,9 +23,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.apache.kafka:kafka-clients:4.1.0'
-	implementation "com.google.protobuf:protobuf-java:4.33.0"
 	implementation project(":proto")
-    implementation 'ch.qos.logback:logback-classic'
     implementation 'com.github.f4b6a3:uuid-creator:6.1.0'
 
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'

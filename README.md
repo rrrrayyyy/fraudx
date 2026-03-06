@@ -15,7 +15,6 @@
 | Apache Kafka (KRaft Mode)             |<--------| Kafka UI (8888)   |
 |                                       | Monitor +-------------------+
 |      (( Topic: payment-events ))      |
-|      (( Partitions: 9, RF: 3  ))      |
 |                   |                   |
 |                   v                   |
 |     [ 3x Brokers (broker-1,2,3) ]     |
