@@ -1,5 +1,45 @@
 # fraudx
 
+[ Client / curl ]
+                |
+                | 1. POST /payment-events
+                v
+      +-------------------------+
+      | payment-service         |
+      | (REST API / Producer)   |
+      +---------+---------------+
+                |
+                | 2. Publish (Protobuf)
+                v
++---------------------------------------+         +-------------------+
+| Apache Kafka (KRaft Mode)             |<--------| Kafka UI (8888)   |
+|                                       | Monitor +-------------------+
+|      (( Topic: payment-events ))      |
+|      (( Partitions: 9, RF: 3  ))      |
+|                   |                   |
+|                   v                   |
+|     [ 3x Brokers (broker-1,2,3) ]     |
+|                   |                   |
+|                   v                   |
+|  [ 3x Controllers (controller-1,2,3)] |
++-------------------+-------------------+
+                |
+                | 3. Subscribe (Batch)
+                v
+      +-------------------------+
+      | fraud-detection-service |
+      | (Consumer / DB Client)  |
+      +---------+---------------+
+                |
+                | 4. Async Bulk Insert (CQL)
+                v
+      +-------------------------+
+      | ScyllaDB Cluster        |
+      | - 3x Nodes              |
+      | - Keyspace: fraudx      |
+      | - Table: payment_events |
+      +-------------------------+
+
 # Detection rules
 1. velocity/frequency (same card/device_id used M times in N min)
     - ScyllaDB TTL (Time To live) + Time Window Compaction Strategy (TWCS)

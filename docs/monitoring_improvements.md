@@ -125,3 +125,11 @@ Once metrics are flowing, create a dashboard with:
 1.  **System Throughput:** Sum of `kafka_messages_in_per_sec`.
 2.  **E2E Latency:** `scylla_cql_latency` + `fraud_processing_time`.
 3.  **Backpressure:** Semaphore available permits vs. max permits.
+
+### 4.1. Prometheus Service Discovery
+*   **現状:** `prometheus.yml` に `controller-1`, `broker-1` などのホスト名が静的に記述されています。
+*   **改善案:** Dockerのスケーリングに対応するため、Prometheusの `dns_sd_configs`（DNS Service Discovery）を使用するか、Docker Composeのサービス名解決に依存しない動的な検出設定を検討します。
+
+### 4.2. Grafana Provisioning
+*   **現状:** Grafanaの設定が含まれていません（`metrics-compose.yaml` にも見当たりません）。
+*   **改善案:** Grafanaコンテナを追加し、ダッシュボードとデータソースをコード管理（Provisioning）することで、可視化環境を即座に立ち上げられるようにします。
