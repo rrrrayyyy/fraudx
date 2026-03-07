@@ -1,12 +1,5 @@
 # Deep Dive Codebase Audit Report
 
-## 4. Code Quality & Best Practices
-
-### 4.3. Hardcoded Values
-*   **Location:** `ScyllaConfiguration.java`
-*   **Issue:** Port `9042` is hardcoded.
-*   **Recommendation:** Externalize the port to `application.yaml`.
-
 ## 5. Testing & Observability
 
 ### 5.1. Testing Gaps

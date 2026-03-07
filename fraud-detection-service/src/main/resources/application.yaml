@@ -25,6 +25,9 @@ kafka:
       name: payment-events
 
 scylla:
-  contact-points: scylladb-1:9042,scylladb-2:9042,scylladb-3:9042
+  contact-points:
+    - "scylladb-1"
+    - "scylladb-2"
+    - "scylladb-3"
   local-datacenter: datacenter1
   keyspace: fraudx
