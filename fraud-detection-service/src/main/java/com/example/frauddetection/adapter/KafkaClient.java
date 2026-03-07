@@ -39,7 +39,6 @@ public class KafkaClient {
         var now = System.nanoTime();
         startTime.compareAndSet(0, now);
         counter.add(records.size());
-        endTime.set(now);
 
         var futures = records.stream().map(record -> {
             var event = new PaymentEvent(record.key(), record.value());
@@ -48,7 +47,7 @@ public class KafkaClient {
             return cqlSession.executeAsync(bound).toCompletableFuture().whenComplete((rs, ex) -> {
                 if (ex != null) {
                     log.error("❌ Write failed partition={}, offset={}: {}",
-                            record.partition(), record.offset(), ex.toString());
+                            record.partition(), record.offset(), ex.toString(), ex);
                 }
             });
         }).toArray(CompletableFuture[]::new);
@@ -59,9 +58,10 @@ public class KafkaClient {
                 log.debug("✅ Bulk insert succeeded for batch size: {}", records.size());
             }
         } catch (Exception e) {
-            log.error("❌ Batch processing failed: {}", e.getMessage());
+            log.error("❌ Batch processing failed: {}", e.getMessage(), e);
             throw e;
         }
+        endTime.accumulateAndGet(System.nanoTime(), Math::max);
     }
 
     @PreDestroy

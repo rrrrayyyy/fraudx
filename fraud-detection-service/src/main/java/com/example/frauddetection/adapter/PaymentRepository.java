@@ -30,7 +30,7 @@ public class PaymentRepository {
             this.insertStmt = session.prepare(insertCql);
             log.info("✅ Prepared insert statement successfully");
         } catch (Exception e) {
-            log.error("❌ Initializing tables or preparing statements failed: {}", e.getMessage());
+            log.error("❌ Initializing tables or preparing statements failed: {}", e.getMessage(), e);
             throw e;
         }
     }
