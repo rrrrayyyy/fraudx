@@ -1,27 +1,5 @@
 # Deep Dive Codebase Audit Report
 
-## 2. Critical Findings (Priority: High)
-
-### 2.3. Excessive Database Timeouts
-*   **Location:** `fraud-detection-service/src/main/resources/application.conf` & `scylla.yaml`
-*   **Issue:** Timeouts are set to **1800 seconds (30 minutes)**.
-    *   `request.timeout`, `connection.connect-timeout`, `read_request_timeout_in_ms` etc.
-*   **Impact:** In case of network partitions or DB overload, the application threads will hang for 30 minutes, likely causing a cascading failure.
-*   **Recommendation:** Reduce timeouts to reasonable values (e.g., 5-10 seconds for queries, 30 seconds for connections).
-
-## 3. Infrastructure & Configuration
-
-### 3.1. Docker Compose Inconsistency
-*   **Issue:** `compose.yaml` and `metrics-compose.yaml` have divergent configurations (different network names, different memory limits for brokers).
-*   **Recommendation:** Consolidate into a single `compose.yaml` with profiles (e.g., `docker compose --profile monitoring up`) or use `include`.
-
-### 3.2. Logging Strategy
-*   **Location:** `logback-spring.xml` (both services)
-*   **Issue:**
-    *   Logs are written to both Console and File. In containerized environments, writing to local files is often unnecessary and consumes ephemeral storage.
-    *   `scan="true"` is enabled, which causes periodic I/O to check for config changes.
-*   **Recommendation:** Disable file appenders and config scanning for production profiles.
-
 ## 4. Code Quality & Best Practices
 
 ### 4.1. Thread Management

@@ -1,4 +1,4 @@
-<configuration scan="true" scanPeriod="30 seconds">
+<configuration scan="false">
 
     <property name="LOG_PATTERN"
               value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
@@ -27,7 +27,7 @@
         <queueSize>50000</queueSize>
         <discardingThreshold>0</discardingThreshold>
         <includeCallerData>false</includeCallerData>
-        <neverBlock>false</neverBlock>
+        <neverBlock>true</neverBlock>
         <maxFlushTime>1000</maxFlushTime>
     </appender>
 
@@ -36,7 +36,7 @@
         <queueSize>50000</queueSize>
         <discardingThreshold>0</discardingThreshold>
         <includeCallerData>false</includeCallerData>
-        <neverBlock>false</neverBlock>
+        <neverBlock>true</neverBlock>
         <maxFlushTime>1000</maxFlushTime>
     </appender>
 
