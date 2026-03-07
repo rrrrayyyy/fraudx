@@ -6,7 +6,7 @@ SCYLLA_NODE := fraudx-scylladb-1-1
 
 n ?= 10000000
 
-CQL_COUNT := "SELECT count(*) FROM fraudx.payment_events;"
+CQL_STATS := tablestats fraudx.payment_events
 CQL_SCHEMA := "DESCRIBE KEYSPACE fraudx;"
 CQL_TOP10 := "SELECT * FROM fraudx.payment_events LIMIT 10;"
 
@@ -44,9 +44,8 @@ fraud-rps:
 	docker logs $(FRAUD_LOG) | grep RPS
 
 cql:
-	@echo "--- Execution CQL Stat ---"
-	docker exec -it $(SCYLLA_NODE) cqlsh 192.168.1.101 9042 -e $(CQL_COUNT)
-	@echo "--- Execution CQL Sample ---"
+	docker exec -it $(SCYLLA_NODE) nodetool -h 192.168.1.101 $(CQL_STATS)
+	docker exec -it $(SCYLLA_NODE) cqlsh 192.168.1.101 9042 -e $(CQL_SCHEMA)
 	docker exec -it $(SCYLLA_NODE) cqlsh 192.168.1.101 9042 -e $(CQL_TOP10)
 
 help:

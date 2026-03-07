@@ -1,29 +1,24 @@
 package com.example.frauddetection.domain;
 
-public class Column<T> {
+public class Column {
     protected final String name;
-    protected final DataType type;
-    protected T value;
+    protected final String type;
 
-    public Column(String name, DataType type, T value) {
+    public Column(String name, String type) {
         this.name = name;
         this.type = type;
-        this.value = value;
     }
 
     public String getName() {
         return name;
     }
 
+    public String getType() {
+        return type;
+    }
+
     public String toDDL() {
-        return name + " " + type.toString();
+        return name + " " + type;
     }
 
-    public T getValue() {
-        return value;
-    }
-
-    public void setValue(T value) {
-        this.value = value;
-    }
 }

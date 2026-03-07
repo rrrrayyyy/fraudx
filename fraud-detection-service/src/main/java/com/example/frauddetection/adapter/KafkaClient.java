@@ -42,7 +42,7 @@ public class KafkaClient {
 
         var futures = records.stream().map(record -> {
             var event = new PaymentEvent(record.key(), record.value());
-            var bound = repository.getInsertStmt().bind(event.transactionId(), event.userId()).setIdempotent(true);
+            var bound = repository.getInsertStmt().bind(event.userId(), event.transactionId()).setIdempotent(true);
 
             return cqlSession.executeAsync(bound).toCompletableFuture().whenComplete((rs, ex) -> {
                 if (ex != null) {
