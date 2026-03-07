@@ -2,9 +2,8 @@ lowercaseOutputName: true
 lowercaseOutputLabelNames: true
 
 rules:
-  - pattern: kafka.controller<type=(.+), name=(.+)><>(Value)
-    name: kafka_controller_$1_$2_$3
-  - pattern: kafka.server<type=(.+), name=(.+)><>(Value)
-    name: kafka_server_$1_$2_$3
+  - pattern: kafka.(\w+)<type=(.+), name=(.+)><>(Count|Value|OneMinuteRate|75thPercentile|99thPercentile)
+    name: kafka_$1_$2_$3_$4
+    type: GAUGE
   - pattern: java.lang<type=(.+), name=(.+)><>(.+)
     name: java_lang_$1_$2_$3
