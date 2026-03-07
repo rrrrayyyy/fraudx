@@ -14,6 +14,7 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import com.example.frauddetection.domain.PaymentEvent;
 import com.example.proto.*;
 
+import io.micrometer.core.instrument.*;
 import jakarta.annotation.PreDestroy;
 
 @Service
@@ -26,16 +27,33 @@ public class KafkaClient {
     private final AtomicLong endTime = new AtomicLong(0);
     private final LongAdder counter = new LongAdder();
 
+    private final MeterRegistry meterRegistry;
+    private final Timer processingTimer;
+    private final Counter eventCounter;
+
     @Value("${kafka.topics.payment.name}")
     private String paymentTopicName;
 
-    public KafkaClient(CqlSession session, PaymentRepository repository) {
+    public KafkaClient(CqlSession session, PaymentRepository repository, MeterRegistry meterRegistry) {
         cqlSession = session;
         this.repository = repository;
+        this.meterRegistry = meterRegistry;
+
+        this.processingTimer = Timer.builder("fraud.detection.processing.time")
+                .description("Time taken to process a batch of payment events")
+                .tag("service", "fraud-detection")
+                .register(meterRegistry);
+
+        this.eventCounter = Counter.builder("fraud.detection.events.total")
+                .description("Total number of processed payment events")
+                .tag("service", "fraud-detection")
+                .register(meterRegistry);
     }
 
     @KafkaListener(id = "paymentListener", topics = "${kafka.topics.payment.name}", concurrency = "${spring.kafka.consumer.concurrency}", batch = "true")
     public void process(List<ConsumerRecord<PaymentEventKey, PaymentEventValue>> records) {
+        var sample = Timer.start(meterRegistry);
+
         var now = System.nanoTime();
         startTime.compareAndSet(0, now);
         counter.add(records.size());
@@ -59,11 +77,14 @@ public class KafkaClient {
             if (log.isDebugEnabled()) {
                 log.debug("✅ Bulk insert succeeded for batch size: {}", records.size());
             }
+            eventCounter.increment(records.size());
         } catch (Exception e) {
             log.error("❌ Batch processing failed: {}", e.getMessage(), e);
             throw e;
+        } finally {
+            sample.stop(processingTimer);
+            endTime.accumulateAndGet(System.nanoTime(), Math::max);
         }
-        endTime.accumulateAndGet(System.nanoTime(), Math::max);
     }
 
     @PreDestroy

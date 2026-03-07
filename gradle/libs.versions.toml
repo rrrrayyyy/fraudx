@@ -11,6 +11,8 @@ scylla-driver = "4.19.0.5"
 commons-lang3 = "3.17.0"
 uuid-creator = "6.1.0"
 
+micrometer-tracing = "1.4.3"
+
 [plugins]
 springboot = { id = "org.springframework.boot", version.ref = "springboot" }
 spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
@@ -32,7 +34,10 @@ spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-
 spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
 
 spring-kafka = { module = "org.springframework.kafka:spring-kafka" }
+
 micrometer-prometheus = { module = "io.micrometer:micrometer-registry-prometheus" }
+micrometer-tracing-bridge-otel = { module = "io.micrometer:micrometer-tracing-bridge-otel" }
+opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp" }
 
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
