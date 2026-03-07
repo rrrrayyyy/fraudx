@@ -12,7 +12,6 @@ spring:
       fail-fast: false
 
 kafka:
-  connect: false
   topics:
     payment:
       name: payment-events

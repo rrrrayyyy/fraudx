@@ -1,31 +1,6 @@
 # Deep Dive Codebase Audit Report
 
-## 1. Executive Summary
-This report outlines critical findings and improvement recommendations based on a comprehensive audit of the `fraudx` repository. The audit covered infrastructure configuration, build systems, and Java implementation details.
-
-**Key Critical Issues:**
-1.  **Potential Data Loss:** The Fraud Detection Service drops Kafka records if the internal semaphore cannot be acquired.
-2.  **Configuration Defaults:** Payment Service disables Kafka connection by default, preventing message production without explicit overrides.
-3.  **Database Timeouts:** ScyllaDB timeout settings are dangerously high (30 minutes), risking system unresponsiveness.
-
 ## 2. Critical Findings (Priority: High)
-
-### 2.1. Data Loss Risk in Fraud Detection
-*   **Location:** `fraud-detection-service/.../adapter/KafkaClient.java`
-*   **Issue:** When the `inFlight` semaphore cannot be acquired (timeout 600s), the code logs an error and **drops the record** (`continue;`).
-    ```java
-    if (!ok) {
-        log.error("❌ Couldn't acquire semaphore, dropping record: {}", record);
-        continue; // DATA LOSS
-    }
-    ```
-*   **Recommendation:** Implement a retry mechanism or throw an exception to trigger the Kafka Consumer's error handling (seeking back/dead letter queue). Do not silently drop financial data.
-
-### 2.2. Disabled Kafka Producer
-*   **Location:** `payment-service/.../adapter/KafkaConfig.java` & `application.yaml`
-*   **Issue:** `application.yaml` sets `kafka.connect: false`. The `KafkaConfig` bean is conditional on this property being `true`.
-*   **Impact:** The service will start but will not publish any events to Kafka unless `KAFKA_CONNECT=true` is passed as an environment variable.
-*   **Recommendation:** Change the default to `true` or document this requirement clearly in the README.
 
 ### 2.3. Excessive Database Timeouts
 *   **Location:** `fraud-detection-service/src/main/resources/application.conf` & `scylla.yaml`

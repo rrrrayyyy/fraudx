@@ -44,11 +44,13 @@ public class KafkaClient {
             var event = new PaymentEvent(record.key(), record.value());
             var bound = repository.getInsertStmt().bind(event.userId(), event.transactionId()).setIdempotent(true);
 
-            return cqlSession.executeAsync(bound).toCompletableFuture().whenComplete((rs, ex) -> {
+            return cqlSession.executeAsync(bound).toCompletableFuture().handle((rs, ex) -> {
                 if (ex != null) {
                     log.error("❌ Write failed partition={}, offset={}: {}",
                             record.partition(), record.offset(), ex.toString(), ex);
+                    throw new RuntimeException("ScyllaDB write error", ex);
                 }
+                return rs;
             });
         }).toArray(CompletableFuture[]::new);
 
