@@ -3,7 +3,7 @@ package com.example.frauddetection.domain;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.example.proto.Event.*;
+import com.example.proto.*;
 
 public record PaymentEvent(String transactionId, String userId) {
     public static final String TABLE_NAME = "payment_events";

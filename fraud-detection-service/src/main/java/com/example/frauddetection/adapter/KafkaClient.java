@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.example.frauddetection.domain.PaymentEvent;
-import com.example.proto.Event.*;
+import com.example.proto.*;
 
 import jakarta.annotation.PreDestroy;
 

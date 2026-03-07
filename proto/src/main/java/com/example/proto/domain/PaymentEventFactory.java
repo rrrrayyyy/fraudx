@@ -1,7 +1,6 @@
 package com.example.proto.domain;
 
-import com.example.proto.Entity.Account;
-import com.example.proto.Event.*;
+import com.example.proto.*;
 
 public class PaymentEventFactory {
     public static PaymentEventKey generateKey(String transactionId) {

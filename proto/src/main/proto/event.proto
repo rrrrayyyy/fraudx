@@ -5,6 +5,8 @@ import "google/protobuf/timestamp.proto";
 
 package com.example.proto;
 
+option java_multiple_files = true;
+
 message PaymentEventKey {
     string transaction_id = 1;
 }

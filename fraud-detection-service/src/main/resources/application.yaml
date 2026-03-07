@@ -11,8 +11,8 @@ spring:
       key-deserializer: com.example.frauddetection.adapter.KafkaProtobufDeserializer
       value-deserializer: com.example.frauddetection.adapter.KafkaProtobufDeserializer
       properties:
-        protobuf.key.type: com.example.proto.Event$PaymentEventKey
-        protobuf.value.type: com.example.proto.Event$PaymentEventValue
+        protobuf.key.type: com.example.proto.PaymentEventKey
+        protobuf.value.type: com.example.proto.PaymentEventValue
       max-partition-fetch-bytes: 1048576
       concurrency: 4
   threads:

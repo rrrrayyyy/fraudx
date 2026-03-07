@@ -4,7 +4,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import com.example.payment.usecase.PaymentEventProducer;
-import com.example.proto.Event.*;
+import com.example.proto.*;
 
 @Service
 public class KafkaClient implements PaymentEventProducer {
