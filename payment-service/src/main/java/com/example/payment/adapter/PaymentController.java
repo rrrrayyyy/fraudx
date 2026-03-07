@@ -4,6 +4,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.payment.usecase.PaymentEventsProduceUseCase;
 
+import jakarta.validation.constraints.*;
+
 @RestController
 public class PaymentController {
 	private final PaymentEventsProduceUseCase paymentEventsProduceUseCase;
@@ -13,7 +15,8 @@ public class PaymentController {
 	}
 
 	@PostMapping("payment-events")
-	public void publishPaymentEvents(@RequestParam(defaultValue = "10000") int n) {
+	public void publishPaymentEvents(
+			@RequestParam(defaultValue = "10000") @Min(1) @Max(2147483647) int n) {
 		paymentEventsProduceUseCase.run(n);
 	}
 }
