@@ -1,7 +1,7 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.5.11'
-	id 'io.spring.dependency-management' version '1.1.7'
+	alias(libs.plugins.springboot)
+	alias(libs.plugins.spring.dependency.management)
 }
 
 group = 'com.example'
@@ -19,19 +19,21 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter'
-	implementation 'org.springframework.kafka:spring-kafka'
-    implementation 'org.apache.kafka:kafka-clients:4.1.0'
 	implementation project(":proto")
-	implementation 'com.scylladb:java-driver-core:4.19.0.5'
-	implementation 'org.apache.commons:commons-lang3:3.17.0'
 
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'io.micrometer:micrometer-registry-prometheus'
+	implementation libs.spring.boot.starter
+	implementation libs.spring.boot.starter.web
+	implementation libs.spring.boot.starter.actuator
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation libs.spring.kafka
+	implementation libs.kafka.clients
+	implementation libs.scylla.driver
+
+	implementation libs.commons.lang3
+	implementation libs.micrometer.prometheus
+
+	testImplementation libs.spring.boot.starter.test
+	testRuntimeOnly libs.junit.platform.launcher
 }
 
 tasks.named('test') {

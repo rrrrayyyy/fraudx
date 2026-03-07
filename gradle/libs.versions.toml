@@ -1,0 +1,38 @@
+[versions]
+springboot = "3.5.11"
+spring-dependency-management = "1.1.7"
+
+protobuf = "0.9.5"
+protobuf-java = "4.33.0"
+protoc = "4.33.0"
+
+kafka-clients = "4.1.0"
+scylla-driver = "4.19.0.5"
+commons-lang3 = "3.17.0"
+uuid-creator = "6.1.0"
+
+[plugins]
+springboot = { id = "org.springframework.boot", version.ref = "springboot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
+
+protobuf = { id = "com.google.protobuf", version.ref = "protobuf" }
+
+[libraries]
+protobuf-java = { group = "com.google.protobuf", name = "protobuf-java", version.ref = "protobuf-java" }
+protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "protoc" }
+
+kafka-clients = { group = "org.apache.kafka", name = "kafka-clients", version.ref = "kafka-clients" }
+scylla-driver = { group = "com.scylladb", name = "java-driver-core", version.ref = "scylla-driver" }
+commons-lang3 = { group = "org.apache.commons", name = "commons-lang3", version.ref = "commons-lang3" }
+uuid-creator = { group = "com.github.f4b6a3", name = "uuid-creator", version.ref = "uuid-creator" }
+
+spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
+spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
+
+spring-kafka = { module = "org.springframework.kafka:spring-kafka" }
+micrometer-prometheus = { module = "io.micrometer:micrometer-registry-prometheus" }
+
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }

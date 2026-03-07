@@ -2,16 +2,6 @@
 
 ## 4. Code Quality & Best Practices
 
-### 4.1. Thread Management
-*   **Location:** `fraud-detection-service/.../adapter/KafkaClient.java`
-*   **Issue:** An unmanaged thread is created using `Executors.newSingleThreadExecutor()` to poll for topic existence in an infinite loop (`while (true)`).
-*   **Recommendation:** Use `ScheduledExecutorService` or Spring's `SmartLifecycle` / `ApplicationRunner` to manage the lifecycle of this task gracefully.
-
-### 4.2. Dependency Management
-*   **Location:** `build.gradle` (subprojects)
-*   **Issue:** Versions for `kafka-clients` and `protobuf-java` are hardcoded in multiple files.
-*   **Recommendation:** Use a Gradle Version Catalog (`libs.versions.toml`) to centralize dependency versions.
-
 ### 4.3. Hardcoded Values
 *   **Location:** `ScyllaConfiguration.java`
 *   **Issue:** Port `9042` is hardcoded.
