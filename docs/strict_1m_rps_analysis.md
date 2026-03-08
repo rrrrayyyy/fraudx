@@ -2,14 +2,6 @@
 
 ## 2. Low-Level System Tuning
 
-### 2.2. Logging Bottlenecks (`logback-spring.xml`)
-**Finding:** `AsyncAppender` wrapping `ConsoleAppender` is used.
-**Impact:** `ConsoleAppender` writes to `System.out` (Docker pipe). High volume logging blocks the application when the pipe buffer fills.
-**Correction:**
-*   Disable Console logging or set root level to `WARN` for performance tests.
-*   Remove `FILE` appender in Docker (slow overlayfs writes).
-*   Disable `scan="true"` to stop background config monitoring threads.
-
 ### 2.3. JVM & Garbage Collection
 **Finding:**
 *   Kafka Brokers: Heap limited to 2GB (`-Xmx2g`). Too small for 1M RPS.
