@@ -76,6 +76,15 @@ services:
       - "9004:9092"
     mem_limit: 3g
     mem_swappiness: 0
+    sysctls:
+      - net.core.somaxconn=65535
+      - net.ipv4.tcp_tw_reuse=1
+      - net.ipv4.ip_local_port_range=1024 65535
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 1048576
+        hard: 1048576
     volumes:
       - kafka-data-broker-1:/var/lib/kafka
     networks:
@@ -106,6 +115,15 @@ services:
       - "9005:9092"
     mem_limit: 3g
     mem_swappiness: 0
+    sysctls:
+      - net.core.somaxconn=65535
+      - net.ipv4.tcp_tw_reuse=1
+      - net.ipv4.ip_local_port_range=1024 65535
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 1048576
+        hard: 1048576
     volumes:
       - kafka-data-broker-2:/var/lib/kafka
     networks:
@@ -136,6 +154,15 @@ services:
       - "9006:9092"
     mem_limit: 3g
     mem_swappiness: 0
+    sysctls:
+      - net.core.somaxconn=65535
+      - net.ipv4.tcp_tw_reuse=1
+      - net.ipv4.ip_local_port_range=1024 65535
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 1048576
+        hard: 1048576
     volumes:
       - kafka-data-broker-3:/var/lib/kafka
     networks:
@@ -178,6 +205,15 @@ services:
     ports:
       - 8080:8080
     mem_limit: 3g
+    sysctls:
+      - net.core.somaxconn=65535
+      - net.ipv4.tcp_tw_reuse=1
+      - net.ipv4.ip_local_port_range=1024 65535
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 1048576
+        hard: 1048576
     networks:
       - fraudx-net
     depends_on:
@@ -202,6 +238,15 @@ services:
     ports:
       - 8081:8080
     mem_limit: 4g
+    sysctls:
+      - net.core.somaxconn=65535
+      - net.ipv4.tcp_tw_reuse=1
+      - net.ipv4.ip_local_port_range=1024 65535
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 1048576
+        hard: 1048576
     networks:
       - fraudx-net
     depends_on:
@@ -212,7 +257,12 @@ services:
 
   scylladb-1:
     image: scylladb/scylla
+    sysctls:
+      - net.core.somaxconn=65535
+      - net.ipv4.tcp_tw_reuse=1
+      - net.ipv4.ip_local_port_range=1024 65535
     ulimits:
+      nproc: 65535
       memlock: -1
       nofile:
         soft: 1048576
@@ -235,7 +285,12 @@ services:
 
   scylladb-2:
     image: scylladb/scylla
+    sysctls:
+      - net.core.somaxconn=65535
+      - net.ipv4.tcp_tw_reuse=1
+      - net.ipv4.ip_local_port_range=1024 65535
     ulimits:
+      nproc: 65535
       memlock: -1
       nofile:
         soft: 1048576
@@ -260,7 +315,12 @@ services:
 
   scylladb-3:
     image: scylladb/scylla
+    sysctls:
+      - net.core.somaxconn=65535
+      - net.ipv4.tcp_tw_reuse=1
+      - net.ipv4.ip_local_port_range=1024 65535
     ulimits:
+      nproc: 65535
       memlock: -1
       nofile:
         soft: 1048576

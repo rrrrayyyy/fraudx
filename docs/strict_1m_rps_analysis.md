@@ -1,67 +1,6 @@
 # Strict 1M RPS Optimization Plan: Comprehensive Analysis
 
-This document provides a rigorous, deep-dive analysis of all bottlenecks preventing the system from achieving 1M RPS, covering application logic, database routing, and low-level system tuning.
-
-## 1. Application-Level Bottlenecks
-
-### 1.1. Producer Parallelism (`payment-service`)
-**Finding:** `PaymentEventsProduceUseCase.java` uses a simple `for` loop on a single thread.
-```java
-public void run(int n) {
-    for (int i = 0; i < n; i++) {
-        // ... key/value generation ...
-        paymentEventProducer.publish(key, value);
-    }
-}
-```
-**Impact:** A single Java thread cannot generate and serialize 1M complex objects per second due to CPU saturation (Protobuf serialization, object allocation).
-**Correction:** **MANDATORY** parallelization using Virtual Threads is required to saturate the CPU and Kafka Producer buffer.
-
-### 1.2. Consumer Sequential Processing (`fraud-detection-service`)
-**Finding:** The `process` loop in `KafkaClient` is sequential.
-```java
-for (var record : records) {
-    // deserialize (CPU heavy)
-    // bind (CPU light)
-    // executeAsync (IO)
-}
-```
-**Impact:** The total batch processing time is `Sum(Deserialize + Bind) + Max(AsyncWait)`. At 1M RPS, deserialization of 5000 records sequentially adds significant latency.
-**Correction:** Use Virtual Threads for parallel deserialization and processing within the batch.
-
-### 1.3. ScyllaDB Token-Aware Routing Failure (CRITICAL)
-**Finding:** `KafkaClient.java` creates a `SimpleStatement` (via `insertStmt.bind(...)`) but **does NOT set the Routing Key**.
-```java
-var bound = insertStmt.bind(event.transactionId.getValue(), event.userId.getValue());
-// Missing: bound.setRoutingKey(...) or setRoutingToken(...)
-```
-**Impact:** The DataStax driver cannot determine which ScyllaDB node holds the data. Requests are sent to random coordinator nodes, doubling network hops and increasing CPU load on ScyllaDB.
-**Correction:** Explicitly set the routing key or use a TokenAware-compatible prepared statement binding. Ensure `basic.load-balancing-policy.class = DefaultLoadBalancingPolicy` is active in `application.conf`.
-
-### 1.4. Inefficient Flow Control & Reliability
-**Finding:**
-*   `inFlight` Semaphore drops records on timeout (Data Loss).
-*   `cqlSession.executeAsync` is not properly joined (Offset commit race condition).
-**Correction:**
-*   Remove Semaphore dropping logic.
-*   Use `CompletableFuture.allOf(...).join()` at the end of the batch for natural backpressure and zero data loss.
-
 ## 2. Low-Level System Tuning
-
-### 2.1. Kernel & Network Tuning (Docker Compose)
-**Finding:** `compose.yaml` does not define any kernel parameters (`sysctls`).
-**Impact:** At 1M RPS, default Linux network limits will be hit immediately:
-*   `net.core.somaxconn`: Connection backlog overflow.
-*   `net.ipv4.tcp_tw_reuse`: Ephemeral port exhaustion.
-*   `vm.max_map_count`: Critical for Kafka/Scylla stability.
-
-**Recommendation:** Add `sysctls` to `compose.yaml`:
-```yaml
-    sysctls:
-      - net.core.somaxconn=65535
-      - net.ipv4.tcp_tw_reuse=1
-      - net.ipv4.ip_local_port_range=1024 65535
-```
 
 ### 2.2. Logging Bottlenecks (`logback-spring.xml`)
 **Finding:** `AsyncAppender` wrapping `ConsoleAppender` is used.
