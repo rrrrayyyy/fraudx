@@ -71,8 +71,7 @@ services:
       KAFKA_HEAP_OPTS: "-Xmx2g -Xms2g -XX:MetaspaceSize=96m -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent -XX:+UseG1GC -XX:G1HeapRegionSize=2M -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
-      KAFKA_NUM_NETWORK_THREADS: 12
-      KAFKA_NUM_IO_THREADS: 24
+      KAFKA_NUM_NETWORK_THREADS: 5
       KAFKA_SOCKET_SEND_BUFFER_BYTES: 1048576
       KAFKA_SOCKET_RECEIVE_BUFFER_BYTES: 1048576
       KAFKA_SOCKET_LISTEN_BACKLOG: 65535
@@ -80,15 +79,6 @@ services:
       - "9004:9092"
     mem_limit: 3g
     mem_swappiness: 0
-    sysctls:
-      - net.core.somaxconn=65535
-      - net.ipv4.tcp_tw_reuse=1
-      - net.ipv4.ip_local_port_range=1024 65535
-    ulimits:
-      nproc: 65535
-      nofile:
-        soft: 1048576
-        hard: 1048576
     volumes:
       - kafka-data-broker-1:/var/lib/kafka
     networks:
@@ -114,8 +104,7 @@ services:
       KAFKA_HEAP_OPTS: "-Xmx2g -Xms2g -XX:MetaspaceSize=96m -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent -XX:+UseG1GC -XX:G1HeapRegionSize=2M -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
-      KAFKA_NUM_NETWORK_THREADS: 12
-      KAFKA_NUM_IO_THREADS: 24
+      KAFKA_NUM_NETWORK_THREADS: 5
       KAFKA_SOCKET_SEND_BUFFER_BYTES: 1048576
       KAFKA_SOCKET_RECEIVE_BUFFER_BYTES: 1048576
       KAFKA_SOCKET_LISTEN_BACKLOG: 65535
@@ -123,15 +112,6 @@ services:
       - "9005:9092"
     mem_limit: 3g
     mem_swappiness: 0
-    sysctls:
-      - net.core.somaxconn=65535
-      - net.ipv4.tcp_tw_reuse=1
-      - net.ipv4.ip_local_port_range=1024 65535
-    ulimits:
-      nproc: 65535
-      nofile:
-        soft: 1048576
-        hard: 1048576
     volumes:
       - kafka-data-broker-2:/var/lib/kafka
     networks:
@@ -157,8 +137,7 @@ services:
       KAFKA_HEAP_OPTS: "-Xmx2g -Xms2g -XX:MetaspaceSize=96m -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+ExplicitGCInvokesConcurrent -XX:+UseG1GC -XX:G1HeapRegionSize=2M -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
-      KAFKA_NUM_NETWORK_THREADS: 12
-      KAFKA_NUM_IO_THREADS: 24
+      KAFKA_NUM_NETWORK_THREADS: 5
       KAFKA_SOCKET_SEND_BUFFER_BYTES: 1048576
       KAFKA_SOCKET_RECEIVE_BUFFER_BYTES: 1048576
       KAFKA_SOCKET_LISTEN_BACKLOG: 65535
@@ -166,15 +145,6 @@ services:
       - "9006:9092"
     mem_limit: 3g
     mem_swappiness: 0
-    sysctls:
-      - net.core.somaxconn=65535
-      - net.ipv4.tcp_tw_reuse=1
-      - net.ipv4.ip_local_port_range=1024 65535
-    ulimits:
-      nproc: 65535
-      nofile:
-        soft: 1048576
-        hard: 1048576
     volumes:
       - kafka-data-broker-3:/var/lib/kafka
     networks:
@@ -217,15 +187,6 @@ services:
     ports:
       - 8080:8080
     mem_limit: 3g
-    sysctls:
-      - net.core.somaxconn=65535
-      - net.ipv4.tcp_tw_reuse=1
-      - net.ipv4.ip_local_port_range=1024 65535
-    ulimits:
-      nproc: 65535
-      nofile:
-        soft: 1048576
-        hard: 1048576
     networks:
       - fraudx-net
     depends_on:
@@ -250,15 +211,6 @@ services:
     ports:
       - 8081:8080
     mem_limit: 4g
-    sysctls:
-      - net.core.somaxconn=65535
-      - net.ipv4.tcp_tw_reuse=1
-      - net.ipv4.ip_local_port_range=1024 65535
-    ulimits:
-      nproc: 65535
-      nofile:
-        soft: 1048576
-        hard: 1048576
     networks:
       - fraudx-net
     depends_on:
@@ -269,12 +221,7 @@ services:
 
   scylladb-1:
     image: scylladb/scylla
-    sysctls:
-      - net.core.somaxconn=65535
-      - net.ipv4.tcp_tw_reuse=1
-      - net.ipv4.ip_local_port_range=1024 65535
     ulimits:
-      nproc: 65535
       memlock: -1
       nofile:
         soft: 1048576
@@ -297,12 +244,7 @@ services:
 
   scylladb-2:
     image: scylladb/scylla
-    sysctls:
-      - net.core.somaxconn=65535
-      - net.ipv4.tcp_tw_reuse=1
-      - net.ipv4.ip_local_port_range=1024 65535
     ulimits:
-      nproc: 65535
       memlock: -1
       nofile:
         soft: 1048576
@@ -327,12 +269,7 @@ services:
 
   scylladb-3:
     image: scylladb/scylla
-    sysctls:
-      - net.core.somaxconn=65535
-      - net.ipv4.tcp_tw_reuse=1
-      - net.ipv4.ip_local_port_range=1024 65535
     ulimits:
-      nproc: 65535
       memlock: -1
       nofile:
         soft: 1048576
