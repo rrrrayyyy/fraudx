@@ -1,55 +1,43 @@
-# fraudx
+# fraudx architecture
 
 [ Client / curl ]
-                |
-                | 1. POST /payment-events
-                v
-      +-------------------------+
-      | payment-service         |
-      | (REST API / Producer)   |
-      +---------+---------------+
-                |
-                | 2. Publish (Protobuf)
-                v
-+---------------------------------------+         +-------------------+
-| Apache Kafka (KRaft Mode)             |<--------| Kafka UI (8888)   |
-|                                       | Monitor +-------------------+
-|      (( Topic: payment-events ))      |
-|                   |                   |
-|                   v                   |
-|     [ 3x Brokers (broker-1,2,3) ]     |
-|                   |                   |
-|                   v                   |
-|  [ 3x Controllers (controller-1,2,3)] |
-+-------------------+-------------------+
-                |
-                | 3. Subscribe (Batch)
-                v
-      +-------------------------+
-      | fraud-detection-service |
-      | (Consumer / DB Client)  |
-      +---------+---------------+
-                |
-                | 4. Async Bulk Insert (CQL)
-                v
-      +-------------------------+
-      | ScyllaDB Cluster        |
-      | - 3x Nodes              |
-      | - Keyspace: fraudx      |
-      | - Table: payment_events |
-      +-------------------------+
+        |
+        | 1. POST /payment-events (Request)
+        v
++-----------------------------------------------------+
+| [ PAYMENT-SERVICE ]                                 |
+| (2) Labeling: Store "Ground Truth" (Mock vs Normal) |
+| (10) Action: Live Blocking & Shutdown Stats Summary | <---+
++-------+---------------------------------------------+     |
+        |                                                   |
+        | 3. Publish (Topic: payment-events)                | 9. Subscribe (Topic: fraud-alerts)
+        v                                                   |
++-----------------------------------------------------------+-----+
+| [ APACHE KAFKA ]                                                |
+| - payment-events (All transaction traffic)                      |
+| - fraud-alerts (Detected malicious user IDs)                    |
++-------+---------------------------------------------------+-----+
+        |                                                   ^
+        | 4. Subscribe (Ingest all events)                  | 8. Publish (Alert)
+        v                                                   |
++-----------------------------------------------------------+-----+
+| [ FRAUD-DETECTION-SERVICE ]                                     |
+| (7) Detection: Calculate Fraud Score via Logic                  |
++-------+---------------------------------------------------+-----+
+        |                                                   ^
+        | 5. Write (Bulk Persist)                           | 6. Read (History Fetch)
+        v                                                   |
++-----------------------------------------------------------+-----+
+| [ SCYLLADB ]                                                    |
+| - Tables: payment_events (Historical Time-series Data)          |
++-----------------------------------------------------------------+
+
 
 # Detection rules
 1. velocity/frequency (same card/device_id used M times in N min)
     - ScyllaDB TTL (Time To live) + Time Window Compaction Strategy (TWCS)
 1. Transactional pattern deviation (amount deviates 3σ from user mean)
     - ScyllaDB Counter Column
-
-
-# Performance on Feb 12, 2026
-- publisher: 0.7 M
-- subscriber: 0.1 M
-
 
 # procedures
 ```zsh
@@ -66,14 +54,11 @@ make cql
 ```
 
 
-
-
 # TODO
 - [ ] [payment service] fraudulent payment event 実装
-    - [ ] 動的にmessage内容を変え、memoryにIDを保持
-    - [ ] 不正決済イベントIDをlistで返すAPI 実装
+    - 動的にmessage内容を変え、memoryにIDを保持
 - [ ] [fraud detection service] detection logic 実装
-- [ ] [fraud detection service]  payment service に API call (精度計算のため)
+- [ ] [payment service + fraud detection service] payment service に API call (精度計算のため)
 
 
 
