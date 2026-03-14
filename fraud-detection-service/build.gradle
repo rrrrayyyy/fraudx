@@ -32,8 +32,6 @@ dependencies {
 	implementation libs.commons.lang3
 
 	implementation libs.micrometer.prometheus
-	implementation libs.micrometer.tracing.bridge.otel
-	implementation libs.opentelemetry.exporter.otlp
 
 	testImplementation libs.spring.boot.starter.test
 	testRuntimeOnly libs.junit.platform.launcher

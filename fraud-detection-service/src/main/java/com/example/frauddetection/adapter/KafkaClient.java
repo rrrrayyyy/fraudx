@@ -22,7 +22,6 @@ public class KafkaClient {
     private static final Logger log = LoggerFactory.getLogger(KafkaClient.class);
     private final CqlSession cqlSession;
     private final PaymentRepository repository;
-
     private final AtomicLong startTime = new AtomicLong(0);
     private final AtomicLong endTime = new AtomicLong(0);
     private final LongAdder counter = new LongAdder();
@@ -53,31 +52,24 @@ public class KafkaClient {
     @KafkaListener(id = "paymentListener", topics = "${kafka.topics.payment.name}", concurrency = "${spring.kafka.consumer.concurrency}", batch = "true")
     public void process(List<ConsumerRecord<PaymentEventKey, PaymentEventValue>> records) {
         var sample = Timer.start(meterRegistry);
-
-        var now = System.nanoTime();
-        startTime.compareAndSet(0, now);
+        startTime.compareAndSet(0, System.nanoTime());
         counter.add(records.size());
 
-        var futures = records.stream().map(record -> {
+        int size = records.size();
+        var futures = new CompletableFuture[size];
+        for (int i = 0; i < size; i++) {
+            var record = records.get(i);
             var event = new PaymentEvent(record.key(), record.value());
-            var bound = repository.getInsertStmt().bind(event.userId(), event.transactionId()).setIdempotent(true);
-
-            return cqlSession.executeAsync(bound).toCompletableFuture().handle((rs, ex) -> {
-                if (ex != null) {
-                    log.error("❌ Write failed partition={}, offset={}: {}",
-                            record.partition(), record.offset(), ex.toString(), ex);
-                    throw new RuntimeException("ScyllaDB write error", ex);
-                }
-                return rs;
-            });
-        }).toArray(CompletableFuture[]::new);
+            var bound = repository.getInsertStmt().bind(event.userId(), event.transactionId());
+            futures[i] = cqlSession.executeAsync(bound).toCompletableFuture();
+        }
 
         try {
             CompletableFuture.allOf(futures).join();
             if (log.isDebugEnabled()) {
-                log.debug("✅ Bulk insert succeeded for batch size: {}", records.size());
+                log.debug("✅ Bulk insert succeeded for batch size: {}", size);
             }
-            eventCounter.increment(records.size());
+            eventCounter.increment(size);
         } catch (Exception e) {
             log.error("❌ Batch processing failed: {}", e.getMessage(), e);
             throw e;

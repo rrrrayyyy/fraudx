@@ -37,9 +37,3 @@ management:
     web:
       exposure:
         include: prometheus,health,info,metrics
-  tracing:
-    sampling:
-      probability: 1.0
-  otlp:
-    tracing:
-      endpoint: http://tempo:4317

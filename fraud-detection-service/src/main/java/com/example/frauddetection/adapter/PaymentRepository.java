@@ -4,7 +4,7 @@ import org.slf4j.*;
 import org.springframework.stereotype.Repository;
 
 import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.cql.PreparedStatement;
+import com.datastax.oss.driver.api.core.cql.*;
 import com.example.frauddetection.domain.PaymentEvent;
 
 import jakarta.annotation.PostConstruct;
@@ -27,7 +27,8 @@ public class PaymentRepository {
             var insertCql = PaymentEvent.getInsertInto();
             session.execute(createTableCql);
             log.info("✅ Table {} is created", PaymentEvent.TABLE_NAME);
-            this.insertStmt = session.prepare(insertCql);
+            this.insertStmt = session.prepare(
+                    SimpleStatement.newInstance(insertCql).setIdempotent(true));
             log.info("✅ Prepared insert statement successfully");
         } catch (Exception e) {
             log.error("❌ Initializing tables or preparing statements failed: {}", e.getMessage(), e);
