@@ -42,8 +42,6 @@
 # procedures
 ```zsh
 make up
-# make up-metrics
-
 make logs-fraud
 
 make post-event n=10000000

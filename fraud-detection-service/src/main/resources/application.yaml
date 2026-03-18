@@ -31,9 +31,3 @@ scylla:
     - "scylladb-3"
   local-datacenter: datacenter1
   keyspace: fraudx
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: prometheus,health,info,metrics

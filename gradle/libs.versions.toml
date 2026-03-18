@@ -29,7 +29,6 @@ uuid-creator = { group = "com.github.f4b6a3", name = "uuid-creator", version.ref
 
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
-spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
 spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
 
 spring-kafka = { module = "org.springframework.kafka:spring-kafka" }

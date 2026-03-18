@@ -1,5 +1,4 @@
 DC_BASE := docker compose
-DC_METRICS := docker compose -f compose.yaml -f metrics-compose.yaml
 PAYMENT_LOG := fraudx-payment-service-1
 FRAUD_LOG := fraudx-fraud-detection-service-1
 SCYLLA_NODE := fraudx-scylladb-1-1
@@ -10,18 +9,12 @@ CQL_STATS := tablestats fraudx.payment_events
 CQL_SCHEMA := "DESCRIBE KEYSPACE fraudx;"
 CQL_TOP10 := "SELECT * FROM fraudx.payment_events LIMIT 10;"
 
-.PHONY: build up up-metrics down down-remove logs-payment logs-fraud post-event fraud-rps cql help
+.PHONY: build up down down-remove logs-payment logs-fraud post-event fraud-rps cql help
 
 up:
 	./gradlew clean bootJar
 	$(DC_BASE) down -v --remove-orphans
 	$(DC_BASE) up --build -d
-	docker logs -f $(PAYMENT_LOG)
-
-up-metrics:
-	./gradlew clean bootJar
-	$(DC_METRICS) down -v --remove-orphans
-	$(DC_METRICS) up --build -d
 	docker logs -f $(PAYMENT_LOG)
 
 down:
@@ -51,7 +44,6 @@ cql:
 help:
 	@echo "Usage: make [command] [n=count]"
 	@echo "  up           : Normal build & up"
-	@echo "  up-metrics   : Build & up with Metrics"
 	@echo "  post-event   : POST events (Default n=10000000. Use: make post-event n=500)"
 	@echo "  fraud-rps    : Stop fraud-service & check RPS"
 	@echo "  cql          : Run pre-defined CQL commands (Count, Top10...)"
