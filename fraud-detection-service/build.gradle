@@ -31,8 +31,6 @@ dependencies {
 
 	implementation libs.commons.lang3
 
-	implementation libs.micrometer.prometheus
-
 	testImplementation libs.spring.boot.starter.test
 	testRuntimeOnly libs.junit.platform.launcher
 }

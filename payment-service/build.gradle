@@ -30,7 +30,6 @@ dependencies {
 	implementation libs.kafka.clients
 
 	implementation libs.uuid.creator
-	implementation libs.micrometer.prometheus
 
 	testImplementation libs.spring.boot.starter.test
 	testRuntimeOnly libs.junit.platform.launcher
