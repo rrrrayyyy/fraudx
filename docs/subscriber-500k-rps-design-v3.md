@@ -1,5 +1,37 @@
 # Kafka Subscriber 500K RPS Design v3: Origin Main ベースの段階的最適化
 
+[ Client / curl ]
+        |
+        | 1. POST /payment-events (Request)
+        v
++-----------------------------------------------------+
+| [ PAYMENT-SERVICE ]                                 |
+| (2) Labeling: Store "Ground Truth" (Mock vs Normal) |
+| (10) Action: Live Blocking & Shutdown Stats Summary | <---+
++-------+---------------------------------------------+     |
+        |                                                   |
+        | 3. Publish (Topic: payment-events)                | 9. Subscribe (Topic: fraud-alerts)
+        v                                                   |
++-----------------------------------------------------------+-----+
+| [ APACHE KAFKA ]                                                |
+| - payment-events (All transaction traffic)                      |
+| - fraud-alerts (Detected malicious user IDs)                    |
++-------+---------------------------------------------------+-----+
+        |                                                   ^
+        | 4. Subscribe (Ingest all events)                  | 8. Publish (Alert)
+        v                                                   |
++-----------------------------------------------------------+-----+
+| [ FRAUD-DETECTION-SERVICE ]                                     |
+| (7) Detection: Calculate Fraud Score via Logic                  |
++-------+---------------------------------------------------+-----+
+        |                                                   ^
+        | 5. Write (Bulk Persist)                           | 6. Read (History Fetch)
+        v                                                   |
++-----------------------------------------------------------+-----+
+| [ SCYLLADB ]                                                    |
+| - Tables: payment_events (Historical Time-series Data)          |
++-----------------------------------------------------------------+
+
 ## 1. Facts
 
 ### 1.1 Origin Main Configuration（唯一の安定実績あり設定）
