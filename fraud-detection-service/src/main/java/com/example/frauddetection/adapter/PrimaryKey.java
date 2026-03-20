@@ -1,4 +1,4 @@
-package com.example.frauddetection.domain;
+package com.example.frauddetection.adapter;
 
 public class PrimaryKey extends Column {
     private final boolean isClustering;

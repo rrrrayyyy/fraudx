@@ -4,9 +4,11 @@ import java.util.HashMap;
 
 import org.apache.kafka.clients.admin.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.*;
 
 @Configuration
+@EnableConfigurationProperties(KafkaConsumerProperties.class)
 public class KafkaAdminConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;

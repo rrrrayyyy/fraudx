@@ -1,4 +1,4 @@
-package com.example.frauddetection.domain;
+package com.example.frauddetection.adapter;
 
 import java.util.*;
 
