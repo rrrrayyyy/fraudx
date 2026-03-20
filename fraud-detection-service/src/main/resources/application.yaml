@@ -20,6 +20,9 @@ spring:
       enabled: true
 
 kafka:
+  consumer:
+    max-retries: 5
+    max-backoff-ms: 5000
   topics:
     payment:
       name: payment-events
