@@ -8,7 +8,7 @@ import com.example.frauddetection.domain.TransactionFrequencyRule;
 
 @ConfigurationProperties(prefix = "fraud-detection.rules")
 public record FraudRulesProperties(
-                TargetAttributesWrapper<TransactionFrequencyRule> transactonFrequency) {
+                TargetAttributesWrapper<TransactionFrequencyRule> transactionFrequency) {
         public record TargetAttributesWrapper<T>(
                         Map<String, T> targetAttributes) {
         }

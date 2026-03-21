@@ -3,9 +3,11 @@ package com.example.frauddetection.usecase;
 import java.util.List;
 
 import org.slf4j.*;
+import org.springframework.stereotype.Service;
 
 import com.example.frauddetection.domain.*;
 
+@Service
 public class PaymentEventConsumeUseCase {
     private static final Logger log = LoggerFactory.getLogger(PaymentEventConsumeUseCase.class);
     private final PaymentEventRepository repository;

@@ -24,7 +24,7 @@ public class KafkaProtobufDeserializer<T extends Message> implements Deserialize
         try {
             return parser.parseFrom(data);
         } catch (Exception e) {
-            throw new RuntimeException("❌ Failed to deserialize Protobuf message", e);
+            return null;
         }
     }
 

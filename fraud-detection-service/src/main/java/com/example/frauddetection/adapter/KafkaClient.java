@@ -8,8 +8,8 @@ import org.slf4j.*;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import com.example.frauddetection.domain.*;
-import com.example.frauddetection.usecase.*;
+import com.example.frauddetection.domain.PaymentEvent;
+import com.example.frauddetection.usecase.PaymentEventConsumeUseCase;
 import com.example.proto.*;
 
 import jakarta.annotation.PreDestroy;
@@ -22,9 +22,8 @@ public class KafkaClient {
     private final AtomicLong endTime = new AtomicLong(0);
     private final LongAdder counter = new LongAdder();
 
-    public KafkaClient(PaymentEventRepository repository, KafkaConsumerProperties properties) {
-        this.consumeUseCase = new PaymentEventConsumeUseCase(
-                repository, new RetryPolicy(properties.maxRetries(), properties.maxBackoffMs()));
+    public KafkaClient(PaymentEventConsumeUseCase consumeUseCase) {
+        this.consumeUseCase = consumeUseCase;
     }
 
     @KafkaListener(id = "paymentListener", topics = "${kafka.topics.payment.name}", concurrency = "${spring.kafka.consumer.concurrency}", batch = "true")
@@ -34,6 +33,11 @@ public class KafkaClient {
 
         var events = new ArrayList<PaymentEvent>(records.size());
         for (var record : records) {
+            if (record.key() == null || record.value() == null) {
+                log.warn("⚠️ Skipping record with null key or value at offset={}, partition={}",
+                        record.offset(), record.partition());
+                continue;
+            }
             events.add(new PaymentEvent(record.key(), record.value()));
         }
         consumeUseCase.execute(events);
