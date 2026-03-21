@@ -22,7 +22,8 @@
         v                                                   |
 +-----------------------------------------------------------+-----+
 | [ FRAUD-DETECTION-SERVICE ]                                     |
-| (7) Detection: Calculate Fraud Score via Logic                  |
+| (7) Detection: Transaction Frequency                            |
+| (same card/device_id used M times in N min)                     |
 +-------+---------------------------------------------------+-----+
         |                                                   ^
         | 5. Write (Bulk Persist)                           | 6. Read (History Fetch)

@@ -15,14 +15,14 @@ subgraph Kafka ["APACHE KAFKA"]
 end
 
 subgraph FD ["FRAUD-DETECTION-SERVICE"]
-  FD1["(7) Detection:\nCalculate Fraud Score via Logic"]
+  FD1["(7) Detection:\nTransaction Frequency\n(same card/device_id used M times in N min)"]
 end
 
 subgraph DB ["SCYLLADB"]
   DB1[("Table: payment_events\n(Historical Time-series Data)")]
 end
 
-Stats["(11) Shutdown Stats Summary"]
+Stats["(12) Shutdown Stats Summary"]
 
 Client -- "1. POST /payment-events" --> PS1
 PS1 -- "3. Publish" --> T1
@@ -36,12 +36,6 @@ PS2 -- "11. Output" --> Stats
 ```
 
 
-
-# Detection rules
-1. velocity/frequency (same card/device_id used M times in N min)
-    - ScyllaDB TTL (Time To live) + Time Window Compaction Strategy (TWCS)
-1. Transactional pattern deviation (amount deviates 3σ from user mean)
-    - ScyllaDB Counter Column
 
 # procedures
 ```zsh
@@ -57,10 +51,14 @@ make cql
 
 
 # TODO
-- [ ] [payment service] fraudulent payment event 実装
-    - 動的にmessage内容を変え、memoryにIDを保持
-- [ ] [fraud detection service] detection logic 実装
-- [ ] [payment service + fraud detection service] payment service に API call (精度計算のため)
-
-
-
+- [ ] [payment service] generating fraudulent event logic
+  - 2. Labeling (Store ground truth, mock vs normal)
+- [ ] [fraud detection service] detection logic
+  - 6. Read (History Fetch) from ScyllaDB
+  - 8. Publish (Alert)
+- [ ] [payment service] alert handling logic
+  - 9. Subsribe (fraud-alerts)
+  - 10. Action (Live Blocking)
+- [ ] [payment service] analysis logic
+  - 11. Output
+  - 12. Shutdown stats summary
