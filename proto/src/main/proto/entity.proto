@@ -19,6 +19,7 @@ message PaymentMethod {
         TYPE_BANK_TRANSFER = 3;
     }
     Type type = 2;
+    string card_id = 3;
 }
 
 enum Currency {

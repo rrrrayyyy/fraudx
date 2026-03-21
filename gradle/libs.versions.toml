@@ -24,6 +24,7 @@ protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "protoc
 
 kafka-clients = { group = "org.apache.kafka", name = "kafka-clients", version.ref = "kafka-clients" }
 scylla-driver = { group = "com.scylladb", name = "java-driver-core", version.ref = "scylla-driver" }
+scylla-driver-query-builder = { group = "com.scylladb", name = "java-driver-query-builder", version.ref = "scylla-driver" }
 commons-lang3 = { group = "org.apache.commons", name = "commons-lang3", version.ref = "commons-lang3" }
 uuid-creator = { group = "com.github.f4b6a3", name = "uuid-creator", version.ref = "uuid-creator" }
 

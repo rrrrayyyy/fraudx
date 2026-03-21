@@ -5,9 +5,9 @@ SCYLLA_NODE := fraudx-scylladb-1-1
 
 n ?= 10000000
 
-CQL_STATS := tablestats fraudx.payment_events
+CQL_STATS := tablestats fraudx.payment_events_by_card
 CQL_SCHEMA := "DESCRIBE KEYSPACE fraudx;"
-CQL_TOP10 := "SELECT * FROM fraudx.payment_events LIMIT 10;"
+CQL_TOP10 := "SELECT * FROM fraudx.payment_events_by_card LIMIT 10;"
 
 .PHONY: build up down down-remove logs-payment logs-fraud post-event fraud-rps cql help
 

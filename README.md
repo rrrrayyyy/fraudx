@@ -15,11 +15,11 @@ subgraph Kafka ["APACHE KAFKA"]
 end
 
 subgraph FD ["FRAUD-DETECTION-SERVICE"]
-  FD1["(7) Detection:\nTransaction Frequency\n(same card/device_id used M times in N min)"]
+  FD1["(7) Detection:\nTransaction Frequency\n(same card_id used M times in N min)"]
 end
 
 subgraph DB ["SCYLLADB"]
-  DB1[("Table: payment_events\n(Historical Time-series Data)")]
+  DB1[("Table: payment_events_by_card\n(Historical Time-series Data)")]
 end
 
 Stats["(12) Shutdown Stats Summary"]

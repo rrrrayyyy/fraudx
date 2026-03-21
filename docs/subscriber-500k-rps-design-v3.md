@@ -23,14 +23,14 @@
 +-----------------------------------------------------------+-----+
 | [ FRAUD-DETECTION-SERVICE ]                                     |
 | (7) Detection: Transaction Frequency                            |
-| (same card/device_id used M times in N min)                     |
+| (same card_id used M times in N min)                            |
 +-------+---------------------------------------------------+-----+
         |                                                   ^
         | 5. Write (Bulk Persist)                           | 6. Read (History Fetch)
         v                                                   |
 +-----------------------------------------------------------+-----+
 | [ SCYLLADB ]                                                    |
-| - Tables: payment_events (Historical Time-series Data)          |
+| - Tables: payment_events_by_card (Historical Time-series Data)  |
 +-----------------------------------------------------------------+
 
 ## 1. Facts

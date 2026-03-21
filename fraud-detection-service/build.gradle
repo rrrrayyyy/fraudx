@@ -27,6 +27,7 @@ dependencies {
 	implementation libs.spring.kafka
 	implementation libs.kafka.clients
 	implementation libs.scylla.driver
+	implementation libs.scylla.driver.query.builder
 
 	implementation libs.commons.lang3
 

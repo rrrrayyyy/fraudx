@@ -6,7 +6,3 @@ fraud-detection:
           enabled: false
           threshold: 5
           duration: 1m
-        device-id:
-          enabled: false
-          threshold: 5
-          duration: 1m

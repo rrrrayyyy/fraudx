@@ -19,7 +19,6 @@ message PaymentEventValue {
     PaymentMethod payment_method = 5;
     google.protobuf.Timestamp processed_at = 6;
     google.protobuf.Timestamp created_at = 7;
-    string device_id = 10;
     string ip_address = 11;
     string trace_id = 12;
 }
