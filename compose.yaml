@@ -87,6 +87,11 @@ services:
       - controller-1
       - controller-2
       - controller-3
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:19092"]
+      interval: 2s
+      timeout: 10s
+      retries: 15
 
   broker-2:
     image: apache/kafka:4.1.0
@@ -120,6 +125,11 @@ services:
       - controller-1
       - controller-2
       - controller-3
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:19092"]
+      interval: 2s
+      timeout: 10s
+      retries: 15
 
   broker-3:
     image: apache/kafka:4.1.0
@@ -153,6 +163,11 @@ services:
       - controller-1
       - controller-2
       - controller-3
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:19092"]
+      interval: 2s
+      timeout: 10s
+      retries: 15
 
   kafka-ui:
     image: ghcr.io/kafbat/kafka-ui:latest
@@ -190,9 +205,12 @@ services:
     networks:
       - fraudx-net
     depends_on:
-      - broker-1
-      - broker-2
-      - broker-3
+      broker-1:
+        condition: service_healthy
+      broker-2:
+        condition: service_healthy
+      broker-3:
+        condition: service_healthy
 
   fraud-detection-service:
     build: ./fraud-detection-service
@@ -216,10 +234,14 @@ services:
     networks:
       - fraudx-net
     depends_on:
-      - broker-1
-      - broker-2
-      - broker-3
-      - scylladb-init
+      broker-1:
+        condition: service_healthy
+      broker-2:
+        condition: service_healthy
+      broker-3:
+        condition: service_healthy
+      scylladb-init:
+        condition: service_completed_successfully
 
   scylladb-1:
     image: scylladb/scylla
