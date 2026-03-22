@@ -1,2 +1,2 @@
 rootProject.name = 'fraudx'
-include 'proto', 'common', 'payment-service', 'fraud-detection-service'
+include 'proto', 'kafka', 'common', 'payment-service', 'fraud-detection-service'

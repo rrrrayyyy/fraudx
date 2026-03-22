@@ -87,7 +87,7 @@ matching ground truth to alerts in stats computation. It is NOT part of fraud de
 
 Existing flow unchanged:
 1. Kafka consumer receives batch of payment events (mixed cards, mixed mini-batches)
-2. `PaymentEventConsumeUseCase.execute()` calls `insertAll()` to ScyllaDB with retry
+2. `PaymentEventsConsumeUseCase.execute()` calls `insertAll()` to ScyllaDB with retry
 
 ### Detection query
 
@@ -128,11 +128,29 @@ message FraudAlertKey {
     string card_id = 1;
 }
 message FraudAlertValue {
-    string card_id = 1;
+    reserved 1;
     string batch_id = 2;  // test instrumentation: for ground truth matching only
     google.protobuf.Timestamp detected_at = 3;
 }
 ```
+
+`detected_at` is a record timestamp for when the fraud was detected. It is NOT used for
+detection latency calculation. Detection latency = alert arrival time (`Instant.now()` at
+payment-service consumer) - mini-batch completion time (from GroundTruth). This measures
+end-to-end latency including Kafka transit, not just fraud-detection-service processing time.
+
+### Consistency level
+
+Insert and detection queries use the driver default (`LOCAL_ONE`). With multiple consumer
+threads writing to different replicas, a detection query may read from a replica that has
+not yet received all events from other threads. This can cause false negatives (missed
+detections) when the threshold-completing event is written to replica A but the query
+reads from replica B.
+
+To improve detection accuracy, set consistency level to `LOCAL_QUORUM` on both insert
+and detection queries. This ensures writes are acknowledged by a majority of replicas
+and reads see the latest majority-acknowledged data. The tradeoff is higher per-query
+latency and reduced availability under node failures.
 
 ### Alert deduplication
 
@@ -167,7 +185,7 @@ No ScyllaDB or external storage needed.
 
 ```
 FraudGroundTruth: ConcurrentHashMap<String, Instant>        // batch_id -> mini-batch completion time
-AlertStore:       ConcurrentHashMap<String, Instant>        // batch_id -> alert arrival time
+AlertStore:       ConcurrentHashMap<String, Instant>        // batch_id -> alert arrival time (Instant.now())
 BlockedCards:     ConcurrentHashMap.newKeySet<String>()     // card_id set
 ```
 
@@ -257,7 +275,7 @@ as a pure protobuf module with no Kafka dependency.
 ### Fraud detection service additions
 
 - Kafka producer config for fraud-alerts (using shared serializer from kafka module)
-- Detection logic in PaymentEventConsumeUseCase (after insertAll)
+- Detection logic in PaymentEventsConsumeUseCase (after insertAll)
 - FraudRulesProperties wiring (EnableConfigurationProperties already done)
 
 ## Procedures

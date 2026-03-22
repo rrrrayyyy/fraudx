@@ -8,6 +8,7 @@ protoc = "4.33.0"
 
 kafka-clients = "4.1.0"
 scylla-driver = "4.19.0.5"
+slf4j = "2.0.16"
 commons-lang3 = "3.17.0"
 uuid-creator = "6.1.0"
 
@@ -27,6 +28,8 @@ scylla-driver = { group = "com.scylladb", name = "java-driver-core", version.ref
 scylla-driver-query-builder = { group = "com.scylladb", name = "java-driver-query-builder", version.ref = "scylla-driver" }
 commons-lang3 = { group = "org.apache.commons", name = "commons-lang3", version.ref = "commons-lang3" }
 uuid-creator = { group = "com.github.f4b6a3", name = "uuid-creator", version.ref = "uuid-creator" }
+
+slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }

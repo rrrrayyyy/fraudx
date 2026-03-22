@@ -1,4 +1,4 @@
-package com.example.frauddetection.adapter;
+package com.example.kafka;
 
 import java.util.Map;
 
@@ -49,7 +49,7 @@ public class KafkaProtobufDeserializer<T extends Message> implements Deserialize
             java.lang.reflect.Method parserMethod = clazz.getMethod("parser");
             this.parser = (Parser<T>) parserMethod.invoke(null);
         } catch (Exception e) {
-            throw new RuntimeException("❌ Failed to initialize Protobuf parser for: " + rawValue, e);
+            throw new RuntimeException("Failed to initialize Protobuf parser for: " + rawValue, e);
         }
     }
 }

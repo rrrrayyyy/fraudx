@@ -45,20 +45,5 @@ make logs-fraud
 make post-event n=10000000
 
 make fraud-rps
-
-make cql
+make payment-stats
 ```
-
-
-# TODO
-- [ ] [payment service] generating fraudulent event logic
-  - 2. Labeling (Store ground truth, mock vs normal)
-- [ ] [fraud detection service] detection logic
-  - 6. Read (History Fetch) from ScyllaDB
-  - 8. Publish (Alert)
-- [ ] [payment service] alert handling logic
-  - 9. Subsribe (fraud-alerts)
-  - 10. Action (Live Blocking)
-- [ ] [payment service] analysis logic
-  - 11. Output
-  - 12. Shutdown stats summary

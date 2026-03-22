@@ -19,4 +19,5 @@ message PaymentEventValue {
     PaymentMethod payment_method = 5;
     google.protobuf.Timestamp processed_at = 6;
     google.protobuf.Timestamp created_at = 7;
+    string batch_id = 8; // test instrumentation: for ground truth matching only
 }

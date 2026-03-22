@@ -9,7 +9,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import com.example.frauddetection.domain.PaymentEvent;
-import com.example.frauddetection.usecase.PaymentEventConsumeUseCase;
+import com.example.frauddetection.usecase.PaymentEventsConsumeUseCase;
 import com.example.proto.*;
 
 import jakarta.annotation.PreDestroy;
@@ -17,16 +17,16 @@ import jakarta.annotation.PreDestroy;
 @Service
 public class KafkaClient {
     private static final Logger log = LoggerFactory.getLogger(KafkaClient.class);
-    private final PaymentEventConsumeUseCase consumeUseCase;
+    private final PaymentEventsConsumeUseCase consumeUseCase;
     private final AtomicLong startTime = new AtomicLong(0);
     private final AtomicLong endTime = new AtomicLong(0);
     private final LongAdder counter = new LongAdder();
 
-    public KafkaClient(PaymentEventConsumeUseCase consumeUseCase) {
+    public KafkaClient(PaymentEventsConsumeUseCase consumeUseCase) {
         this.consumeUseCase = consumeUseCase;
     }
 
-    @KafkaListener(id = "paymentListener", topics = "${kafka.topics.payment.name}", concurrency = "${spring.kafka.consumer.concurrency}", batch = "true")
+    @KafkaListener(id = "fraud-detection-payment-events-handler", topics = "${kafka.topics.payment.name}", concurrency = "${spring.kafka.consumer.concurrency}", batch = "true")
     public void process(List<ConsumerRecord<PaymentEventKey, PaymentEventValue>> records) {
         startTime.compareAndSet(0, System.nanoTime());
         counter.add(records.size());

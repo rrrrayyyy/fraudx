@@ -3,6 +3,6 @@ fraud-detection:
     transaction-frequency:
       target-attributes:
         card-id:
-          enabled: false
+          enabled: true
           threshold: 5
           duration: 1m

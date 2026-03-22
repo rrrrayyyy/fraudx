@@ -9,7 +9,7 @@ CQL_STATS := tablestats fraudx.payment_events_by_card
 CQL_SCHEMA := "DESCRIBE KEYSPACE fraudx;"
 CQL_TOP10 := "SELECT * FROM fraudx.payment_events_by_card LIMIT 10;"
 
-.PHONY: build up down down-remove logs-payment logs-fraud post-event fraud-rps cql help
+.PHONY: build up down down-remove logs-payment logs-fraud post-event fraud-rps payment-stats cql help
 
 up:
 	./gradlew clean bootJar
@@ -36,6 +36,10 @@ fraud-rps:
 	$(DC_BASE) stop fraud-detection-service
 	docker logs $(FRAUD_LOG) | grep RPS
 
+payment-stats:
+	$(DC_BASE) stop payment-service
+	docker logs $(PAYMENT_LOG) | tail -50
+
 cql:
 	docker exec -it $(SCYLLA_NODE) nodetool -h 192.168.1.101 $(CQL_STATS)
 	docker exec -it $(SCYLLA_NODE) cqlsh 192.168.1.101 9042 -e $(CQL_SCHEMA)
@@ -46,4 +50,5 @@ help:
 	@echo "  up           : Normal build & up"
 	@echo "  post-event   : POST events (Default n=10000000. Use: make post-event n=500)"
 	@echo "  fraud-rps    : Stop fraud-service & check RPS"
+	@echo "  payment-stats: Stop payment-service & show shutdown stats"
 	@echo "  cql          : Run pre-defined CQL commands (Count, Top10...)"

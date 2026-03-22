@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package com.example.proto;
+
+option java_multiple_files = true;
+
+message FraudAlertKey {
+    string card_id = 1;
+}
+
+message FraudAlertValue {
+    reserved 1;
+    string batch_id = 2; // test instrumentation: for ground truth matching only
+    google.protobuf.Timestamp detected_at = 3;
+}

@@ -1,4 +1,4 @@
-package com.example.payment.adapter;
+package com.example.kafka;
 
 import org.apache.kafka.common.serialization.Serializer;
 

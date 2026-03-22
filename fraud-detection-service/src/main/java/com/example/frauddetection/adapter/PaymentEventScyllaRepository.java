@@ -26,6 +26,7 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
     private final CqlSession session;
     private final RetryPolicy retryPolicy;
     private PreparedStatement insertStmt;
+    private PreparedStatement detectStmt;
 
     public PaymentEventScyllaRepository(CqlSession session, RetryPolicy retryPolicy) {
         this.session = session;
@@ -47,7 +48,10 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
                 log.info("✅ Table {} is created", TABLE_NAME);
                 this.insertStmt = session.prepare(
                         SimpleStatement.newInstance(generateInsertCql()).setIdempotent(true));
-                log.info("✅ Prepared insert statement successfully");
+                this.detectStmt = session.prepare(
+                        "SELECT processed_at, batch_id FROM " + TABLE_NAME
+                                + " WHERE card_id = ? ORDER BY processed_at DESC LIMIT ?");
+                log.info("✅ Prepared statements successfully");
                 return;
             } catch (Exception e) {
                 lastException = e;
@@ -64,7 +68,7 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
         for (int i = 0; i < events.size(); i++) {
             var event = events.get(i);
             futures[i] = session.executeAsync(insertStmt.bind(
-                    event.cardId(), event.processedAt(), event.transactionId()))
+                    event.cardId(), event.processedAt(), event.transactionId(), event.batchId()))
                     .toCompletableFuture()
                     .handle((result, ex) -> ex);
         }
@@ -77,11 +81,41 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
         return failed;
     }
 
+    @Override
+    public List<DetectionResult> detectFraud(Set<String> cardIds, int threshold, Duration duration) {
+        var futures = new HashMap<String, CompletableFuture<com.datastax.oss.driver.api.core.cql.AsyncResultSet>>();
+        for (var cardId : cardIds) {
+            futures.put(cardId, session.executeAsync(detectStmt.bind(cardId, threshold))
+                    .toCompletableFuture());
+        }
+        var results = new ArrayList<DetectionResult>();
+        for (var entry : futures.entrySet()) {
+            try {
+                var rs = entry.getValue().join();
+                var rows = new ArrayList<Row>();
+                for (var row : rs.currentPage()) {
+                    rows.add(row);
+                }
+                if (rows.size() == threshold) {
+                    var newest = rows.getFirst().getInstant("processed_at");
+                    var oldest = rows.getLast().getInstant("processed_at");
+                    if (Duration.between(oldest, newest).compareTo(duration) <= 0) {
+                        results.add(new DetectionResult(entry.getKey(), rows.getFirst().getString("batch_id")));
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("Detection query failed for card {}: {}", entry.getKey(), e.getMessage());
+            }
+        }
+        return results;
+    }
+
     private static String generateInsertCql() {
         return QueryBuilder.insertInto(TABLE_NAME)
                 .value("card_id", QueryBuilder.bindMarker())
                 .value("processed_at", QueryBuilder.bindMarker())
                 .value("transaction_id", QueryBuilder.bindMarker())
+                .value("batch_id", QueryBuilder.bindMarker())
                 .asCql();
     }
 
@@ -91,6 +125,7 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
                 .withPartitionKey("card_id", DataTypes.TEXT)
                 .withClusteringColumn("processed_at", DataTypes.TIMESTAMP)
                 .withClusteringColumn("transaction_id", DataTypes.TEXT)
+                .withColumn("batch_id", DataTypes.TEXT)
                 .withClusteringOrder("processed_at", ClusteringOrder.DESC)
                 .withCompaction(SchemaBuilder.timeWindowCompactionStrategy())
                 .asCql();
