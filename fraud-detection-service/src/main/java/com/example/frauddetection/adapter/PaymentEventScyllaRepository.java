@@ -64,7 +64,7 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
         for (int i = 0; i < events.size(); i++) {
             var event = events.get(i);
             futures[i] = session.executeAsync(insertStmt.bind(
-                    event.cardId(), event.createdAt(), event.transactionId()))
+                    event.cardId(), event.processedAt(), event.transactionId()))
                     .toCompletableFuture()
                     .handle((result, ex) -> ex);
         }
@@ -80,7 +80,7 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
     private static String generateInsertCql() {
         return QueryBuilder.insertInto(TABLE_NAME)
                 .value("card_id", QueryBuilder.bindMarker())
-                .value("created_at", QueryBuilder.bindMarker())
+                .value("processed_at", QueryBuilder.bindMarker())
                 .value("transaction_id", QueryBuilder.bindMarker())
                 .asCql();
     }
@@ -89,9 +89,9 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
         return SchemaBuilder.createTable(TABLE_NAME)
                 .ifNotExists()
                 .withPartitionKey("card_id", DataTypes.TEXT)
-                .withClusteringColumn("created_at", DataTypes.TIMESTAMP)
+                .withClusteringColumn("processed_at", DataTypes.TIMESTAMP)
                 .withClusteringColumn("transaction_id", DataTypes.TEXT)
-                .withClusteringOrder("created_at", ClusteringOrder.DESC)
+                .withClusteringOrder("processed_at", ClusteringOrder.DESC)
                 .withCompaction(SchemaBuilder.timeWindowCompactionStrategy())
                 .asCql();
     }

@@ -3,6 +3,8 @@ package com.example.payment.usecase;
 import org.slf4j.*;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+
 import com.example.proto.domain.PaymentEventFactory;
 import com.github.f4b6a3.uuid.alt.GUID;
 
@@ -23,7 +25,7 @@ public class PaymentEventsProduceUseCase {
 			var paymentMethodId = GUID.v4().toString();
 			var cardId = GUID.v4().toString();
 			var key = PaymentEventFactory.generateKey(transactionId);
-			var value = PaymentEventFactory.generateValue(userId, paymentMethodId, cardId);
+			var value = PaymentEventFactory.generateValue(userId, paymentMethodId, cardId, Instant.now());
 			paymentEventProducer.publish(key, value);
 			if (log.isDebugEnabled()) {
 				log.debug("✅ Published payment event: {}", value);

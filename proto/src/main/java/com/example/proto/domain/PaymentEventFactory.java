@@ -12,7 +12,8 @@ public class PaymentEventFactory {
 				.build();
 	}
 
-	public static PaymentEventValue generateValue(String userId, String paymentMethodId, String cardId) {
+	public static PaymentEventValue generateValue(String userId, String paymentMethodId, String cardId,
+			Instant processedAt) {
 		var now = Instant.now();
 		var account = Account.newBuilder()
 				.setUserId(userId)
@@ -21,13 +22,19 @@ public class PaymentEventFactory {
 				.setId(paymentMethodId)
 				.setCardId(cardId)
 				.build();
+		var processedAtTs = Timestamp.newBuilder()
+				.setSeconds(processedAt.getEpochSecond())
+				.setNanos(processedAt.getNano())
+				.build();
+		var createdAtTs = Timestamp.newBuilder()
+				.setSeconds(now.getEpochSecond())
+				.setNanos(now.getNano())
+				.build();
 		return PaymentEventValue.newBuilder()
 				.setAccount(account)
 				.setPaymentMethod(paymentMethod)
-				.setCreatedAt(Timestamp.newBuilder()
-						.setSeconds(now.getEpochSecond())
-						.setNanos(now.getNano())
-						.build())
+				.setProcessedAt(processedAtTs)
+				.setCreatedAt(createdAtTs)
 				.build();
 	}
 }
