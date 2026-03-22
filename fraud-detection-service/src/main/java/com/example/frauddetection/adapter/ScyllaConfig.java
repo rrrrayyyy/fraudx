@@ -28,6 +28,15 @@ public class ScyllaConfig {
                     return new InetSocketAddress(host, port);
                 }).collect(Collectors.toList());
 
+        try (var initSession = CqlSession.builder()
+                .addContactPoints(endpoints)
+                .withLocalDatacenter(properties.localDatacenter())
+                .build()) {
+            initSession.execute(
+                    "CREATE KEYSPACE IF NOT EXISTS " + properties.keyspace()
+                            + " WITH replication = {'class': 'NetworkTopologyStrategy', 'datacenter1': 3}");
+        }
+
         return CqlSession.builder()
                 .addContactPoints(endpoints)
                 .withLocalDatacenter(properties.localDatacenter())
