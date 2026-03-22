@@ -12,13 +12,11 @@ message PaymentEventKey {
 }
 
 message PaymentEventValue {
+    reserved 2, 10, 11, 12;
     Account account = 1;
-    string merchant_id = 2;
     int64 amount = 3;
     Currency currency = 4;
     PaymentMethod payment_method = 5;
     google.protobuf.Timestamp processed_at = 6;
     google.protobuf.Timestamp created_at = 7;
-    string ip_address = 11;
-    string trace_id = 12;
 }

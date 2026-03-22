@@ -3,10 +3,12 @@ package com.example.frauddetection.adapter;
 import java.util.Map;
 
 import org.apache.kafka.common.serialization.Deserializer;
+import org.slf4j.*;
 
 import com.google.protobuf.*;
 
 public class KafkaProtobufDeserializer<T extends Message> implements Deserializer<T> {
+    private static final Logger log = LoggerFactory.getLogger(KafkaProtobufDeserializer.class);
     private Parser<T> parser;
 
     public KafkaProtobufDeserializer() {
@@ -24,6 +26,7 @@ public class KafkaProtobufDeserializer<T extends Message> implements Deserialize
         try {
             return parser.parseFrom(data);
         } catch (Exception e) {
+            log.error("⚠️ Failed to deserialize protobuf message from topic {}: {}", topic, e.getMessage());
             return null;
         }
     }

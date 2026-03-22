@@ -20,6 +20,7 @@ public class PaymentEventFactory {
 				.build();
 		var paymentMethod = PaymentMethod.newBuilder()
 				.setId(paymentMethodId)
+				.setType(PaymentMethod.Type.TYPE_CARD)
 				.setCardId(cardId)
 				.build();
 		var processedAtTs = Timestamp.newBuilder()
@@ -32,6 +33,8 @@ public class PaymentEventFactory {
 				.build();
 		return PaymentEventValue.newBuilder()
 				.setAccount(account)
+				.setAmount(100)
+				.setCurrency(Currency.CURRENCY_USD)
 				.setPaymentMethod(paymentMethod)
 				.setProcessedAt(processedAtTs)
 				.setCreatedAt(createdAtTs)
