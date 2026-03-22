@@ -12,16 +12,11 @@ public class PaymentEventFactory {
 				.build();
 	}
 
-	public static PaymentEventValue generateValue(String userId, String paymentMethodId, String cardId,
+	public static PaymentEventValue generateValue(String userId, PaymentMethod paymentMethod,
 			Instant processedAt) {
 		var now = Instant.now();
 		var account = Account.newBuilder()
 				.setUserId(userId)
-				.build();
-		var paymentMethod = PaymentMethod.newBuilder()
-				.setId(paymentMethodId)
-				.setType(PaymentMethod.Type.TYPE_CARD)
-				.setCardId(cardId)
 				.build();
 		var processedAtTs = Timestamp.newBuilder()
 				.setSeconds(processedAt.getEpochSecond())

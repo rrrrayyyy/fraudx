@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
+import com.example.proto.*;
 import com.example.proto.domain.PaymentEventFactory;
 import com.github.f4b6a3.uuid.alt.GUID;
 
@@ -22,10 +23,13 @@ public class PaymentEventsProduceUseCase {
 		for (int i = 0; i < n; i++) {
 			var transactionId = GUID.v4().toString();
 			var userId = GUID.v4().toString();
-			var paymentMethodId = GUID.v4().toString();
-			var cardId = GUID.v4().toString();
+			var paymentMethod = PaymentMethod.newBuilder()
+					.setId(GUID.v4().toString())
+					.setType(PaymentMethod.Type.TYPE_CARD)
+					.setCardId(GUID.v4().toString())
+					.build();
 			var key = PaymentEventFactory.generateKey(transactionId);
-			var value = PaymentEventFactory.generateValue(userId, paymentMethodId, cardId, Instant.now());
+			var value = PaymentEventFactory.generateValue(userId, paymentMethod, Instant.now());
 			paymentEventProducer.publish(key, value);
 			if (log.isDebugEnabled()) {
 				log.debug("✅ Published payment event: {}", value);
