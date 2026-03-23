@@ -25,12 +25,15 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
 
     private final CqlSession session;
     private final RetryPolicy retryPolicy;
+    private final ScyllaProperties scyllaProperties;
     private PreparedStatement insertStmt;
     private PreparedStatement detectStmt;
 
-    public PaymentEventScyllaRepository(CqlSession session, RetryPolicy retryPolicy) {
+    public PaymentEventScyllaRepository(CqlSession session, RetryPolicy retryPolicy,
+            ScyllaProperties scyllaProperties) {
         this.session = session;
         this.retryPolicy = retryPolicy;
+        this.scyllaProperties = scyllaProperties;
     }
 
     @PostConstruct
@@ -54,6 +57,7 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
                         SimpleStatement.newInstance(
                                 "SELECT processed_at, batch_id FROM " + TABLE_NAME
                                         + " WHERE card_id = ? ORDER BY processed_at DESC LIMIT ?")
+                                .setPageSize(scyllaProperties.lookback())
                                 .setConsistencyLevel(DefaultConsistencyLevel.LOCAL_QUORUM));
                 log.info("✅ Prepared statements successfully");
                 return;

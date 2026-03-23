@@ -124,12 +124,16 @@ for i in 0..rows.size()-threshold:
 
 `lookback` is a tuning parameter controlling how many recent events per card are
 examined. Events per card range from threshold to ~10,080 (avg ~5,043 for
-duration=1min). `lookback=1000` covers ~20% of a typical card's events. Higher
-lookback improves recall at the cost of increased ScyllaDB read I/O per detection
-query.
+duration=1min). Higher lookback improves recall at the cost of increased ScyllaDB
+read I/O per detection query. Expected recall ≈ (L + L·ln(10080/L)) / 10075
+where L = lookback (derived from Uniform[threshold, 10080] distribution).
 
 False positives are structurally impossible: normal mini-batches have events spaced by
-`duration`, so any 5 consecutive normal events span ≥ 4×duration >> duration.
+`duration`, so any `threshold` consecutive normal events span ≥ (threshold-1)×duration
+\>> duration. This is a consequence of deterministic test data generation (required
+for verifiable ground truth without post-hoc scan of all N events). As a result,
+precision is always 100% and threshold does not affect benchmark results. The only
+variable under test is `lookback`.
 
 ### Why parallel executeAsync, not IN clause
 

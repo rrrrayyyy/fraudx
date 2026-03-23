@@ -73,23 +73,24 @@ make payment-stats
 
 ## benchmark results (N=10M)
 
-Fraud rules are configured in `common/src/main/resources/rules.yaml`.
-Duration is fixed at 1m across all runs. Duration defines the ground truth:
-fraud events are clustered within `duration`, normal events are spaced by `duration`.
-Changing duration does not affect results because it is used to construct the correct
-answers, not as a variable under test. Recall varies with threshold because higher
-threshold increases events per card, reducing lookback coverage.
+Fraud rules are configured in `common/src/main/resources/rules.yaml`
+(threshold=5, duration=1m). `lookback` is configured per environment
+in `compose.yaml` (`SCYLLA_LOOKBACK`).
 
 Each card simulates up to 7 days of activity (max events per card = 7 days / duration).
 This bounds per-card event count to a realistic range derived from the rule's time
 resolution, not an arbitrary constant.
 
 Ground truth is recorded at generation time (batch_id + timestamp only), not by
-post-hoc scan of all events. This keeps memory proportional to fraud count (~1000),
-not to N.
+post-hoc scan of all events. Post-hoc scan would require holding all N events in
+memory grouped by card_id; recording only fraud batch_ids (~1,000) avoids this.
+As a trade-off, test data generation is deterministic: fraud events are clustered
+within `duration`, normal events are exactly spaced by `duration`. This means
+precision is structurally 100% (normal events never trigger the rule) and threshold
+does not affect results. The only tuning variable is `lookback`, which controls
+recall by determining how many recent events per card are examined.
 
-| threshold | lookback | Producer RPS | Consumer RPS | Precision | Recall | Latency p50 | Latency p99 |
-|-----------|----------|-------------|-------------|-----------|--------|-------------|-------------|
-| 5 | 1000 | 656K | 111K | 100% | 81.4% | 44.2s | 74.6s |
-| 10 | 1000 | - | - | - | - | - | - |
-| 20 | 1000 | - | - | - | - | - | - |
+| lookback | Producer RPS | Consumer RPS | Recall | Latency p50 | Latency p99 |
+|----------|-------------|-------------|--------|-------------|-------------|
+| 1,000 | - | - | - | - | - |
+| 7,000 | - | - | - | - | - |
