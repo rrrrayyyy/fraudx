@@ -14,7 +14,7 @@ spring:
         protobuf.key.type: com.example.proto.PaymentEventKey
         protobuf.value.type: com.example.proto.PaymentEventValue
       max-partition-fetch-bytes: 1048576
-      concurrency: 4
+      concurrency: 9
     producer:
       key-serializer: com.example.kafka.KafkaProtobufSerializer
       value-serializer: com.example.kafka.KafkaProtobufSerializer

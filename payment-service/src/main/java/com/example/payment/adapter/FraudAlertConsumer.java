@@ -23,7 +23,7 @@ public class FraudAlertConsumer {
 
     @KafkaListener(topics = "${kafka.topics.fraud-alerts.name}", groupId = "payment-alert-handler")
     public void onAlert(ConsumerRecord<FraudAlertKey, FraudAlertValue> record) {
-        if (record.value() == null) {
+        if (record.key() == null || record.value() == null) {
             return;
         }
         var alert = record.value();

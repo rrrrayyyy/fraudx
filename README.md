@@ -37,12 +37,9 @@ PS2 -- "11. Output" --> Stats
 
 For the detailed fraud detection logic, see [docs/fraud-detection-logic.md](docs/fraud-detection-logic.md).
 
-# prerequisites
-
-- Docker
-- Java 25
-
 # procedures
+
+Prerequisites: Docker, Java 25
 
 ```zsh
 # build JARs, recreate containers, and tail payment-service logs
@@ -64,12 +61,12 @@ make fraud-rps
 make payment-stats
 ```
 
-# machine spec
+# benchmark results
+
+## machine spec
 
 - CPU: Apple M4 Pro, 12 cores (8P + 4E)
 - RAM: 48GB
-
-# benchmark results
 
 ## configuration
 

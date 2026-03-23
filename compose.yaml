@@ -170,7 +170,7 @@ services:
       retries: 15
 
   kafka-ui:
-    image: ghcr.io/kafbat/kafka-ui:latest
+    image: ghcr.io/kafbat/kafka-ui:v1.4.2
     environment:
       KAFKA_CLUSTERS_0_NAME: local-cluster
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: broker-1:19092,broker-2:19092,broker-3:19092
@@ -253,7 +253,7 @@ services:
         condition: service_healthy
 
   scylladb-1:
-    image: scylladb/scylla
+    image: scylladb/scylla:2025.4.2
     ulimits:
       memlock: -1
       nofile:
@@ -276,7 +276,7 @@ services:
       retries: 60
 
   scylladb-2:
-    image: scylladb/scylla
+    image: scylladb/scylla:2025.4.2
     ulimits:
       memlock: -1
       nofile:
@@ -301,7 +301,7 @@ services:
       retries: 60
 
   scylladb-3:
-    image: scylladb/scylla
+    image: scylladb/scylla:2025.4.2
     ulimits:
       memlock: -1
       nofile:
