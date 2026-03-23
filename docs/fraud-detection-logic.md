@@ -100,7 +100,7 @@ detection query in parallel via `executeAsync`:
 SELECT processed_at, batch_id FROM payment_events_by_card
 WHERE card_id = ?
 ORDER BY processed_at DESC
-LIMIT ?  -- lookback (configurable, default 1000)
+LIMIT ?  -- lookback (default 1000, override via SCYLLA_LOOKBACK in compose.yaml)
 ```
 
 ### Sliding window detection
@@ -322,29 +322,3 @@ Sequential execution avoids this by serializing read and write phases.
 
 This optimization is viable only when ScyllaDB nodes run on separate machines with
 independent I/O. Not applicable to the current single-machine benchmark setup.
-
-## Procedures
-
-```zsh
-make up
-make logs-fraud
-
-make post-event n=10000000
-
-make fraud-rps
-make payment-stats
-
-make cql
-```
-
-Order matters: `fraud-rps` stops fraud-detection-service (must finish processing
-and publishing all alerts first), then `payment-stats` stops payment-service
-(triggers @PreDestroy → ShutdownStatsReporter with all alerts already received).
-
-### New Makefile target
-
-```makefile
-payment-stats:
-	$(DC_BASE) stop payment-service
-	docker logs $(PAYMENT_LOG) | tail -50
-```

@@ -1,4 +1,4 @@
-# fraudx architecture
+# architecture
 
 ```mermaid
 flowchart TD
@@ -37,12 +37,12 @@ PS2 -- "11. Output" --> Stats
 
 For the detailed fraud detection logic, see [docs/fraud-detection-logic.md](docs/fraud-detection-logic.md).
 
-## prerequisites
+# prerequisites
 
 - Docker
 - Java 25
 
-## procedures
+# procedures
 
 ```zsh
 # build JARs, recreate containers, and tail payment-service logs
@@ -64,16 +64,14 @@ make fraud-rps
 make payment-stats
 ```
 
-## machine spec
+# machine spec
 
-| | |
-|---|---|
-| CPU | Apple M4 Pro, 12 cores (8P + 4E) |
-| RAM | 48GB |
+- CPU: Apple M4 Pro, 12 cores (8P + 4E)
+- RAM: 48GB
 
-## benchmark results
+# benchmark results
 
-### configuration
+## configuration
 
 - **N**: 10,000,000 events (burst — all published in a single POST request)
 - **Fraud rule**: threshold=5, duration=1m (`common/src/main/resources/rules.yaml`)
@@ -92,7 +90,7 @@ precision is structurally 100% (normal events never trigger the rule) and thresh
 does not affect results. The only tuning variable is `lookback`, which controls
 recall by determining how many recent events per card are examined.
 
-### results
+## results
 
 | Metric | Value |
 |--------|-------|
