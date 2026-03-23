@@ -299,60 +299,25 @@ as a pure protobuf module with no Kafka dependency.
 - Detection logic in PaymentEventsConsumeUseCase (after insertAll)
 - FraudRulesProperties wiring (EnableConfigurationProperties already done)
 
-## TODO: Decouple detection from insert critical path
+## Async detection (not implemented — production-only optimization)
 
-Goal: reduce consumer lag by speeding up the consumer side.
-
-Currently `execute()` runs insert → detect → alert sequentially. The consumer thread
-cannot poll the next batch until detection completes.
+Decouple detection from the insert critical path: after `insertAll()`, submit
+detection to a fixed thread pool so the consumer thread polls the next batch
+immediately.
 
 ```
 Current:  [insert] → [detect + alert] → poll next batch
 Proposed: [insert] → poll next batch
-                └──→ [detect + alert] (separate thread)
+                └──→ [detect + alert] (detection thread pool)
 ```
 
-### Approach
+Benchmarked on single-machine Docker (M3 Pro, N=10M): consumer RPS dropped 10%
+(82K → 74K). Cause: ScyllaDB read/write I/O contention. All 3 nodes share the
+same SSD/memory, so concurrent insert + detect queries compete for I/O bandwidth.
+Sequential execution avoids this by serializing read and write phases.
 
-1. Add an `ExecutorService` (fixed thread pool) to `PaymentEventsConsumeUseCase`
-2. After `insertAll()` completes, submit detection work to the executor asynchronously
-3. Consumer thread returns immediately and polls the next batch
-
-```java
-private final ExecutorService detectionExecutor = Executors.newFixedThreadPool(N);
-
-public void execute(List<PaymentEvent> events) {
-    // insert (synchronous — data must be persisted before offset commit)
-    var failed = repository.insertAll(events);
-    // ... retry ...
-
-    if (rule != null && rule.enabled()) {
-        var cardIds = events.stream().map(PaymentEvent::cardId).collect(Collectors.toSet());
-        detectionExecutor.submit(() -> {
-            var detections = repository.detectFraud(cardIds, ...);
-            for (var detection : detections) {
-                if (detectedBatchIds.add(detection.batchId())) {
-                    alertPublisher.publish(detection);
-                }
-            }
-        });
-    }
-}
-```
-
-### Key points
-
-- `insertAll()` remains synchronous — ScyllaDB persistence is required before offset commit
-- `detectFraud()` can safely run async — delayed detection does not affect accuracy
-  (lookback covers historical events regardless of timing)
-- Thread pool size should match consumer concurrency (currently 9)
-- `detectedBatchIds` is already `ConcurrentHashMap.newKeySet()`, thread-safe across
-  consumer and detection threads
-
-### Expected effect
-
-Consumer RPS approaches insert-only throughput (currently bottlenecked by both
-insert and detect I/O on the critical path).
+This optimization is viable only when ScyllaDB nodes run on separate machines with
+independent I/O. Not applicable to the current single-machine benchmark setup.
 
 ## Procedures
 
