@@ -16,11 +16,14 @@ public class ShutdownStatsReporter {
     private final FraudGroundTruth groundTruth;
     private final AlertStore alertStore;
     private final BlockedCards blockedCards;
+    private final ProducerStats producerStats;
 
-    public ShutdownStatsReporter(FraudGroundTruth groundTruth, AlertStore alertStore, BlockedCards blockedCards) {
+    public ShutdownStatsReporter(FraudGroundTruth groundTruth, AlertStore alertStore, BlockedCards blockedCards,
+            ProducerStats producerStats) {
         this.groundTruth = groundTruth;
         this.alertStore = alertStore;
         this.blockedCards = blockedCards;
+        this.producerStats = producerStats;
     }
 
     @PreDestroy
@@ -53,6 +56,8 @@ public class ShutdownStatsReporter {
         double recall = (tp + fn) > 0 ? (double) tp / (tp + fn) : 0;
 
         log.info("📊 === Shutdown Stats ===");
+        log.info("📊 Producer: RPS={}, requests={}, duration(ms)={}",
+                producerStats.rps(), producerStats.count(), producerStats.durationNs() / (long) 1e6);
         log.info("📊 Ground truth batches: {}, Alerts received: {}, Blocked cards: {}",
                 truthMap.size(), alertMap.size(), blockedCards.size());
         log.info("📊 Confusion matrix: TP={}, FP={}, FN={}", tp, fp, fn);

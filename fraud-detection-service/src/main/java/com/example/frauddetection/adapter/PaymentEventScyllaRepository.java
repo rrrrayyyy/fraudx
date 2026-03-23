@@ -7,7 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.*;
 import org.springframework.stereotype.Repository;
 
-import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.*;
 import com.datastax.oss.driver.api.core.cql.*;
 import com.datastax.oss.driver.api.core.metadata.schema.ClusteringOrder;
 import com.datastax.oss.driver.api.core.type.DataTypes;
@@ -47,10 +47,14 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
                         .setTimeout(DDL_TIMEOUT));
                 log.info("✅ Table {} is created", TABLE_NAME);
                 this.insertStmt = session.prepare(
-                        SimpleStatement.newInstance(generateInsertCql()).setIdempotent(true));
+                        SimpleStatement.newInstance(generateInsertCql())
+                                .setIdempotent(true)
+                                .setConsistencyLevel(DefaultConsistencyLevel.LOCAL_QUORUM));
                 this.detectStmt = session.prepare(
-                        "SELECT processed_at, batch_id FROM " + TABLE_NAME
-                                + " WHERE card_id = ? ORDER BY processed_at DESC LIMIT ?");
+                        SimpleStatement.newInstance(
+                                "SELECT processed_at, batch_id FROM " + TABLE_NAME
+                                        + " WHERE card_id = ? ORDER BY processed_at DESC LIMIT ?")
+                                .setConsistencyLevel(DefaultConsistencyLevel.LOCAL_QUORUM));
                 log.info("✅ Prepared statements successfully");
                 return;
             } catch (Exception e) {
@@ -82,10 +86,10 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
     }
 
     @Override
-    public List<DetectionResult> detectFraud(Set<String> cardIds, int threshold, Duration duration) {
+    public List<DetectionResult> detectFraud(Set<String> cardIds, int threshold, Duration duration, int lookback) {
         var futures = new HashMap<String, CompletableFuture<com.datastax.oss.driver.api.core.cql.AsyncResultSet>>();
         for (var cardId : cardIds) {
-            futures.put(cardId, session.executeAsync(detectStmt.bind(cardId, threshold))
+            futures.put(cardId, session.executeAsync(detectStmt.bind(cardId, lookback))
                     .toCompletableFuture());
         }
         var results = new ArrayList<DetectionResult>();
@@ -96,11 +100,13 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
                 for (var row : rs.currentPage()) {
                     rows.add(row);
                 }
-                if (rows.size() == threshold) {
-                    var newest = rows.getFirst().getInstant("processed_at");
-                    var oldest = rows.getLast().getInstant("processed_at");
+                for (int i = 0; i <= rows.size() - threshold; i++) {
+                    var newest = rows.get(i).getInstant("processed_at");
+                    var oldest = rows.get(i + threshold - 1).getInstant("processed_at");
                     if (Duration.between(oldest, newest).compareTo(duration) <= 0) {
-                        results.add(new DetectionResult(entry.getKey(), rows.getFirst().getString("batch_id")));
+                        results.add(new DetectionResult(entry.getKey(),
+                                rows.get(i).getString("batch_id")));
+                        i += threshold - 1;
                     }
                 }
             } catch (Exception e) {

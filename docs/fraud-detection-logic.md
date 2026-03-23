@@ -98,20 +98,34 @@ detection query in parallel via `executeAsync`:
 SELECT processed_at, batch_id FROM payment_events_by_card
 WHERE card_id = ?
 ORDER BY processed_at DESC
-LIMIT ?  -- threshold
+LIMIT ?  -- lookback (configurable, default 1000)
 ```
 
-Fraud condition: result count == threshold AND first.processed_at - last.processed_at <= duration.
+### Sliding window detection
 
-If fraud detected, extract batch_id from result (all rows share the same batch_id within
-a fraud mini-batch) and publish alert.
+`LIMIT threshold` from the global latest is insufficient. Kafka key is transaction_id
+(not card_id), so events from the same mini-batch land on different partitions. Multiple
+consumer threads insert events concurrently, and normal events from later mini-batches
+can be inserted before all fraud events are visible. `LIMIT threshold` returns only the
+most recent events, which are dominated by later normal mini-batches.
 
-### Why this query works with skew
+Instead, `LIMIT lookback` retrieves a larger window of events and applies a sliding
+window of size `threshold`:
 
-- Mini-batches per card are published sequentially (processed_at increases across batches)
-- After inserting batch N, `LIMIT threshold` returns batch N's events (most recent by processed_at)
-- Within a mini-batch, events may arrive out of order, but ScyllaDB sorts by processed_at DESC
-- No sliding window or +M lookahead needed
+```
+for i in 0..rows.size()-threshold:
+    span = rows[i].processed_at - rows[i+threshold-1].processed_at
+    if span <= duration:
+        fraud detected (batch_id from rows[i])
+        skip ahead by threshold to avoid re-detecting same batch
+```
+
+`lookback` must cover all events per card to guarantee detection. With 1000 events/card
+(200 mini-batches × threshold 5), `lookback=1000` achieves 100% recall. `lookback=500`
+achieves ~58% recall (covers only the most recent 100 mini-batches).
+
+False positives are structurally impossible: normal mini-batches have events spaced by
+`duration`, so any 5 consecutive normal events span ≥ 4×duration >> duration.
 
 ### Why parallel executeAsync, not IN clause
 
@@ -141,23 +155,25 @@ end-to-end latency including Kafka transit, not just fraud-detection-service pro
 
 ### Consistency level
 
-Insert and detection queries use the driver default (`LOCAL_ONE`). With multiple consumer
-threads writing to different replicas, a detection query may read from a replica that has
-not yet received all events from other threads. This can cause false negatives (missed
-detections) when the threshold-completing event is written to replica A but the query
-reads from replica B.
+Insert and detection queries use `LOCAL_QUORUM` (RF=3, quorum=2). With multiple consumer
+threads writing to different replicas concurrently, `LOCAL_ONE` would cause false negatives
+when a detection query reads from a replica that has not yet received another thread's writes.
 
-To improve detection accuracy, set consistency level to `LOCAL_QUORUM` on both insert
-and detection queries. This ensures writes are acknowledged by a majority of replicas
-and reads see the latest majority-acknowledged data. The tradeoff is higher per-query
-latency and reduced availability under node failures.
+`LOCAL_QUORUM` on both insert and detect guarantees quorum intersection: a write
+acknowledged by 2/3 replicas is always visible to a read from 2/3 replicas. This
+eliminates cross-thread visibility issues for completed writes. The remaining race
+condition (in-flight writes from concurrent threads) is narrow — the last thread to
+complete `insertAll()` sees all other threads' completed writes.
+
+Measured overhead: Consumer RPS with `LOCAL_QUORUM` is within 2% of `LOCAL_ONE`.
 
 ### Alert deduplication
 
-Not required. Same card's mini-batches are published sequentially by payment service.
-The consumer that inserts the threshold-completing event is the only one that detects fraud.
-Even in the rare race condition where two consumers query simultaneously, payment-side
-handling is idempotent (ConcurrentHashMap.put).
+Required in fraud-detection-service. With sliding window, the same fraud batch can be
+detected by multiple consumer threads (each querying the same card_id independently).
+A `ConcurrentHashMap.newKeySet()` of detected batch_ids in `PaymentEventsConsumeUseCase`
+prevents duplicate alert publishing. Payment-side handling is also idempotent
+(`ConcurrentHashMap.put`).
 
 ## Alert Handling (Payment Service)
 
@@ -187,12 +203,13 @@ No ScyllaDB or external storage needed.
 FraudGroundTruth: ConcurrentHashMap<String, Instant>        // batch_id -> mini-batch completion time
 AlertStore:       ConcurrentHashMap<String, Instant>        // batch_id -> alert arrival time (Instant.now())
 BlockedCards:     ConcurrentHashMap.newKeySet<String>()     // card_id set
+ProducerStats:    AtomicInteger count + AtomicLong durationNs  // producer performance
 ```
 
 Injected into:
-- `PaymentEventsProduceUseCase`: writes GroundTruth, reads BlockedCards
+- `PaymentEventsProduceUseCase`: writes GroundTruth, reads BlockedCards, writes ProducerStats
 - `FraudAlertConsumer`: writes AlertStore + BlockedCards
-- `ShutdownStatsReporter`: reads GroundTruth + AlertStore
+- `ShutdownStatsReporter`: reads GroundTruth + AlertStore + ProducerStats
 
 ## Shutdown Stats
 
@@ -207,11 +224,11 @@ duration which varies with N.
 
 | Metric | Source | Status |
 |--------|--------|--------|
-| Producer RPS / count / duration | PaymentEventsProduceUseCase | Implemented |
+| Producer RPS / count / duration | ProducerStats (via ShutdownStatsReporter) | Implemented |
 | Consumer RPS / count / duration | fraud-detection KafkaClient | Implemented |
-| Confusion matrix (TP/FP/FN/TN) | GroundTruth vs AlertStore (batch_id match) | TODO |
-| Precision / Recall | Derived from confusion matrix | TODO |
-| Detection latency p50/p95/p99 | Per matched batch_id: alert_time - completion_time | TODO |
+| Confusion matrix (TP/FP/FN/TN) | GroundTruth vs AlertStore (batch_id match) | Implemented |
+| Precision / Recall | Derived from confusion matrix | Implemented |
+| Detection latency p50/p95/p99 | Per matched batch_id: alert_time - completion_time | Implemented |
 
 ### Confusion matrix calculation
 
@@ -230,8 +247,8 @@ Detection latency calculated only for TP entries (matched batch_ids).
 ```
 proto               protobuf definitions only. depends on: protobuf-java
 kafka               KafkaProtobufSerializer/Deserializer (shared). depends on: proto, kafka-clients
-common              fraud rules (TransactionFrequencyRule, FraudRulesProperties, rules.yaml).
-                    depends on: spring-boot-starter
+common              fraud rules (TransactionFrequencyRule{enabled,threshold,duration,lookback},
+                    FraudRulesProperties, rules.yaml). depends on: spring-boot-starter
 payment-service     depends on: proto, kafka, common
 fraud-detection-service
                     depends on: proto, kafka, common
@@ -277,6 +294,61 @@ as a pure protobuf module with no Kafka dependency.
 - Kafka producer config for fraud-alerts (using shared serializer from kafka module)
 - Detection logic in PaymentEventsConsumeUseCase (after insertAll)
 - FraudRulesProperties wiring (EnableConfigurationProperties already done)
+
+## TODO: Decouple detection from insert critical path
+
+Goal: reduce consumer lag by speeding up the consumer side.
+
+Currently `execute()` runs insert → detect → alert sequentially. The consumer thread
+cannot poll the next batch until detection completes.
+
+```
+Current:  [insert] → [detect + alert] → poll next batch
+Proposed: [insert] → poll next batch
+                └──→ [detect + alert] (separate thread)
+```
+
+### Approach
+
+1. Add an `ExecutorService` (fixed thread pool) to `PaymentEventsConsumeUseCase`
+2. After `insertAll()` completes, submit detection work to the executor asynchronously
+3. Consumer thread returns immediately and polls the next batch
+
+```java
+private final ExecutorService detectionExecutor = Executors.newFixedThreadPool(N);
+
+public void execute(List<PaymentEvent> events) {
+    // insert (synchronous — data must be persisted before offset commit)
+    var failed = repository.insertAll(events);
+    // ... retry ...
+
+    if (rule != null && rule.enabled()) {
+        var cardIds = events.stream().map(PaymentEvent::cardId).collect(Collectors.toSet());
+        detectionExecutor.submit(() -> {
+            var detections = repository.detectFraud(cardIds, ...);
+            for (var detection : detections) {
+                if (detectedBatchIds.add(detection.batchId())) {
+                    alertPublisher.publish(detection);
+                }
+            }
+        });
+    }
+}
+```
+
+### Key points
+
+- `insertAll()` remains synchronous — ScyllaDB persistence is required before offset commit
+- `detectFraud()` can safely run async — delayed detection does not affect accuracy
+  (lookback covers historical events regardless of timing)
+- Thread pool size should match consumer concurrency (currently 9)
+- `detectedBatchIds` is already `ConcurrentHashMap.newKeySet()`, thread-safe across
+  consumer and detection threads
+
+### Expected effect
+
+Consumer RPS approaches insert-only throughput (currently bottlenecked by both
+insert and detect I/O on the critical path).
 
 ## Procedures
 

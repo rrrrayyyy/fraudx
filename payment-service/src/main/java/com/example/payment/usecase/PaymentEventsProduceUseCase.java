@@ -3,7 +3,6 @@ package com.example.payment.usecase;
 import java.time.Instant;
 import java.util.Random;
 
-import org.slf4j.*;
 import org.springframework.stereotype.Service;
 
 import com.example.common.adapter.FraudRulesProperties;
@@ -14,18 +13,20 @@ import com.github.f4b6a3.uuid.alt.GUID;
 
 @Service
 public class PaymentEventsProduceUseCase {
-	private static final Logger log = LoggerFactory.getLogger(PaymentEventsProduceUseCase.class);
 	private final PaymentEventProducer paymentEventProducer;
 	private final FraudRulesProperties rulesProperties;
 	private final FraudGroundTruth groundTruth;
 	private final BlockedCards blockedCards;
+	private final ProducerStats producerStats;
 
 	public PaymentEventsProduceUseCase(PaymentEventProducer paymentEventProducer,
-			FraudRulesProperties rulesProperties, FraudGroundTruth groundTruth, BlockedCards blockedCards) {
+			FraudRulesProperties rulesProperties, FraudGroundTruth groundTruth, BlockedCards blockedCards,
+			ProducerStats producerStats) {
 		this.paymentEventProducer = paymentEventProducer;
 		this.rulesProperties = rulesProperties;
 		this.groundTruth = groundTruth;
 		this.blockedCards = blockedCards;
+		this.producerStats = producerStats;
 	}
 
 	public void run(int n) {
@@ -81,8 +82,6 @@ public class PaymentEventsProduceUseCase {
 			}
 		}
 
-		var ns = System.nanoTime() - startTime;
-		log.info("🚀 Producer average RPS: {} with requests: {}, duration(ms): {}, ground truth: {}",
-				(int) ((long) 1e9 * n / ns), n, ns / (long) 1e6, groundTruth.size());
+		producerStats.record(n, System.nanoTime() - startTime);
 	}
 }

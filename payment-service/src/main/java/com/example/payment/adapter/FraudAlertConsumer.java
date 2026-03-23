@@ -29,6 +29,6 @@ public class FraudAlertConsumer {
         var alert = record.value();
         alertStore.put(alert.getBatchId(), Instant.now());
         blockedCards.add(record.key().getCardId());
-        log.info("🚨 Alert received: card={}, batch={}", record.key().getCardId(), alert.getBatchId());
+        log.info("🚨 Fraud alert received: card={}, batch={}", record.key().getCardId(), alert.getBatchId());
     }
 }

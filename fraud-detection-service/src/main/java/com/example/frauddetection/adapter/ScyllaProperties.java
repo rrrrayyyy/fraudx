@@ -8,5 +8,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record ScyllaProperties(
         List<String> contactPoints,
         String localDatacenter,
-        String keyspace) {
+        String keyspace,
+        int lookback) {
 }

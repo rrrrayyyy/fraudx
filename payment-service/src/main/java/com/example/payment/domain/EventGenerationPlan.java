@@ -3,18 +3,38 @@ package com.example.payment.domain;
 import java.time.Duration;
 import java.util.Random;
 
-public record EventGenerationPlan(int n, int threshold, Duration duration, Random random) {
-	static final int EVENTS_PER_CARD = 1000;
+public record EventGenerationPlan(int n, int threshold, Duration duration, Random random, int[] cardEvents) {
+	private static final int BATCHES_PER_CARD = 200;
 	private static final double FRAUD_PROBABILITY = 0.0005;
 
-	// ceil(n / EVENTS_PER_CARD). e.g. n=1005 -> 2 cards (1000 + 5)
-	public int totalCards() {
-		return (n + EVENTS_PER_CARD - 1) / EVENTS_PER_CARD;
+	public EventGenerationPlan(int n, int threshold, Duration duration, Random random) {
+		this(n, threshold, duration, random, distributeEvents(n, threshold, random));
 	}
 
-	// last card may have fewer than EVENTS_PER_CARD. e.g. card 1 of n=1005 -> 5
+	// Randomly distribute N events across cards.
+	// Each card picks uniformly from [1, avg*2] where avg = remainingEvents/remainingCards.
+	// avg is self-correcting: if a card takes more, subsequent avg shrinks, and vice versa.
+	// Last card absorbs the remainder to guarantee total = N.
+	private static int[] distributeEvents(int n, int threshold, Random random) {
+		int totalCards = Math.max(1, n / (threshold * BATCHES_PER_CARD));
+		var events = new int[totalCards];
+		int remainingEvents = n;
+		for (int i = 0; i < totalCards - 1; i++) {
+			int remainingCards = totalCards - i;
+			int avg = remainingEvents / remainingCards;
+			events[i] = 1 + random.nextInt(avg * 2);
+			remainingEvents -= events[i];
+		}
+		events[totalCards - 1] = remainingEvents;
+		return events;
+	}
+
+	public int totalCards() {
+		return cardEvents.length;
+	}
+
 	public int eventsForCard(int cardIdx) {
-		return Math.min(EVENTS_PER_CARD, n - cardIdx * EVENTS_PER_CARD);
+		return cardEvents[cardIdx];
 	}
 
 	// ceil(eventsForCard / threshold). last batch may be smaller than threshold
