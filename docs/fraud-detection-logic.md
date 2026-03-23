@@ -13,23 +13,25 @@ Payment service subscribes to alerts, blocks cards, and outputs stats at shutdow
 ```
 Input: POST /payment-events?n=N
 
-Total cards     = N / 1000 (remainder card gets fewer events, never fraudulent)
-Per card        = 1000 events = 1000/threshold mini-batches
+Total cards     = 2N / (threshold + maxEventsPerCard)
+maxEventsPerCard = 7 days / duration   (duration=1min → 10,080)
+Per card        = Uniform[threshold, maxEventsPerCard], last card absorbs remainder (sum = N)
+Mini-batches    = ceil(eventsForCard / threshold) (varies per card)
 Per mini-batch  = threshold events (e.g., 5)
 ```
 
 ### Fraud probability
 
 - p = 0.05% per mini-batch
-- Per card (threshold=5): P(at least 1 fraud) = 1 - (1-0.0005)^200 = 9.5%
-- Expected fraud cards for N=10M (10K cards): ~950
+- Per card (threshold=5, avg ~1,008 mini-batches): P(at least 1 fraud) = 1 - (1-0.0005)^1008 ≈ 39.5%
+- Expected fraud cards for N=10M (1,983 cards): ~783
 
 | N | Cards | Expected fraud cards | Expected fraud batches |
 |---|-------|---------------------|----------------------|
-| 100K | 100 | ~9.5 | ~10 |
-| 1M | 1,000 | ~95 | ~100 |
-| 10M | 10,000 | ~950 | ~1,000 |
-| 100M | 100,000 | ~9,500 | ~10,000 |
+| 100K | 20 | ~8 | ~10 |
+| 1M | 198 | ~78 | ~100 |
+| 10M | 1,983 | ~783 | ~1,000 |
+| 100M | 19,834 | ~7,834 | ~10,000 |
 
 A card may have multiple fraudulent mini-batches. Each is independently recorded
 and expected to produce a separate alert.
@@ -120,9 +122,11 @@ for i in 0..rows.size()-threshold:
         skip ahead by threshold to avoid re-detecting same batch
 ```
 
-`lookback` must cover all events per card to guarantee detection. With 1000 events/card
-(200 mini-batches × threshold 5), `lookback=1000` achieves 100% recall. `lookback=500`
-achieves ~58% recall (covers only the most recent 100 mini-batches).
+`lookback` is a tuning parameter controlling how many recent events per card are
+examined. Events per card range from threshold to ~10,080 (avg ~5,043 for
+duration=1min). `lookback=1000` covers ~20% of a typical card's events. Higher
+lookback improves recall at the cost of increased ScyllaDB read I/O per detection
+query.
 
 False positives are structurally impossible: normal mini-batches have events spaced by
 `duration`, so any 5 consecutive normal events span ≥ 4×duration >> duration.

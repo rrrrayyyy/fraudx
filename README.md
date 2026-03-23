@@ -80,6 +80,10 @@ Changing duration does not affect results because it is used to construct the co
 answers, not as a variable under test. Recall varies with threshold because higher
 threshold increases events per card, reducing lookback coverage.
 
+Each card simulates up to 7 days of activity (max events per card = 7 days / duration).
+This bounds per-card event count to a realistic range derived from the rule's time
+resolution, not an arbitrary constant.
+
 Ground truth is recorded at generation time (batch_id + timestamp only), not by
 post-hoc scan of all events. This keeps memory proportional to fraud count (~1000),
 not to N.
