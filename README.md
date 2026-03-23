@@ -71,11 +71,13 @@ make payment-stats
 | CPU | Apple M4 Pro, 12 cores (8P + 4E) |
 | RAM | 48GB |
 
-## benchmark results (N=10M)
+## benchmark results
 
-Fraud rules are configured in `common/src/main/resources/rules.yaml`
-(threshold=5, duration=1m). `lookback` is configured per environment
-in `compose.yaml` (`SCYLLA_LOOKBACK`).
+### configuration
+
+- **N**: 10,000,000 events (burst — all published in a single POST request)
+- **Fraud rule**: threshold=5, duration=1m (`common/src/main/resources/rules.yaml`)
+- **lookback**: 9,500 (`SCYLLA_LOOKBACK` in `compose.yaml`)
 
 Each card simulates up to 7 days of activity (max events per card = 7 days / duration).
 This bounds per-card event count to a realistic range derived from the rule's time
@@ -90,7 +92,20 @@ precision is structurally 100% (normal events never trigger the rule) and thresh
 does not affect results. The only tuning variable is `lookback`, which controls
 recall by determining how many recent events per card are examined.
 
-| lookback | Producer RPS | Consumer RPS | Recall | Latency p50 | Latency p99 |
-|----------|-------------|-------------|--------|-------------|-------------|
-| 1,000 | - | - | - | - | - |
-| 7,000 | - | - | - | - | - |
+### results
+
+| Metric | Value |
+|--------|-------|
+| Producer RPS | 742,455 |
+| Consumer RPS | 120,214 |
+| Recall | 99.00% |
+| Precision | 100% (structural) |
+| Confusion matrix | TP=993, FP=0, FN=10 |
+| Detection latency p50 | 43.4s |
+| Detection latency p99 | 69.6s |
+
+**Detection latency context**: All 10M events are burst-published in 13.5s, but the
+consumer takes 83s to process them. Detection latency measures alert arrival time
+minus mini-batch generation time, so it includes the full consumer lag (~70s) caused
+by burst ingestion. Under steady-state traffic, consumer lag does not accumulate
+and detection latency would be proportional to single-batch processing time.
