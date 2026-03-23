@@ -255,7 +255,7 @@ Detection latency calculated only for TP entries (matched batch_ids).
 ```
 proto               protobuf definitions only. depends on: protobuf-java
 kafka               KafkaProtobufSerializer/Deserializer (shared). depends on: proto, kafka-clients
-common              fraud rules (TransactionFrequencyRule{enabled,threshold,duration,lookback},
+common              fraud rules (TransactionFrequencyRule{enabled,threshold,duration},
                     FraudRulesProperties, rules.yaml). depends on: spring-boot-starter
 payment-service     depends on: proto, kafka, common
 fraud-detection-service

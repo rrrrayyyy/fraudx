@@ -41,3 +41,13 @@ out/
 
 ### Additional ###
 logs/
+
+### Secrets ###
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+*.truststore
