@@ -441,9 +441,9 @@ Real-world fraud probability range: 0.00003-0.00015
 Alert count scales linearly with N.
 ```
 
-## Changes from Origin Main
+## Changes from 6e442ba
 
-| Aspect | Origin main | Current (per-card timeline) |
+| Aspect | 6e442ba | Current (per-card timeline) |
 |--------|-------------|-----------------------------|
 | Data generation | Deterministic mini-batches per card, `FRAUD_PROBABILITY`, `SIMULATION_DAYS=7` | Random card selection, simulated per-card timestamps, fraud burst injection |
 | Timestamp model | Random within 7-day range | Simulated per-card timeline, jitter between jitterMin and jitterMax |
