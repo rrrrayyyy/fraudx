@@ -6,6 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import com.example.common.adapter.FraudRulesProperties;
 
 @Configuration
-@EnableConfigurationProperties(FraudRulesProperties.class)
+@EnableConfigurationProperties({ FraudRulesProperties.class, BenchmarkProperties.class, ScyllaProperties.class })
 public class FraudRulesConfig {
 }

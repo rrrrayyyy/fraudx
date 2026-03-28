@@ -1,6 +1,6 @@
 package com.example.payment.adapter;
 
-import java.time.Instant;
+import java.time.*;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.*;
@@ -26,9 +26,15 @@ public class FraudAlertConsumer {
         if (record.key() == null || record.value() == null) {
             return;
         }
+        var arrivedAt = Instant.now();
         var alert = record.value();
-        alertStore.put(alert.getBatchId(), Instant.now());
-        blockedCards.add(record.key().getCardId());
-        log.info("🚨 Fraud alert received: card={}, batch={}", record.key().getCardId(), alert.getBatchId());
+        var cardId = record.key().getCardId();
+        var triggerCreatedAt = Instant.ofEpochSecond(
+                alert.getTriggerCreatedAt().getSeconds(), alert.getTriggerCreatedAt().getNanos());
+        long latencyMs = Duration.between(triggerCreatedAt, arrivedAt).toMillis();
+        alertStore.recordAlert(cardId, latencyMs);
+        blockedCards.add(cardId);
+        log.info("🚨 Fraud alert received: card={}, trigger_created_at={}, latency={}ms", cardId, triggerCreatedAt,
+                latencyMs);
     }
 }

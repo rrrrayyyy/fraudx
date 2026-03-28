@@ -4,12 +4,12 @@ import java.time.Instant;
 
 import com.example.proto.*;
 
-public record PaymentEvent(String transactionId, Instant processedAt, String cardId, String batchId) {
+public record PaymentEvent(String transactionId, Instant processedAt, Instant createdAt, String cardId) {
     public PaymentEvent(PaymentEventKey key, PaymentEventValue val) {
         this(
                 key.getTransactionId(),
                 Instant.ofEpochSecond(val.getProcessedAt().getSeconds(), val.getProcessedAt().getNanos()),
-                val.getPaymentMethod().getCardId(),
-                val.getBatchId());
+                Instant.ofEpochSecond(val.getCreatedAt().getSeconds(), val.getCreatedAt().getNanos()),
+                val.getPaymentMethod().getCardId());
     }
 }

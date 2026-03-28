@@ -11,7 +11,7 @@ message FraudAlertKey {
 }
 
 message FraudAlertValue {
-    reserved 1;
-    string batch_id = 2; // test instrumentation: for ground truth matching only
+    reserved 1, 2;
     google.protobuf.Timestamp detected_at = 3;
+    google.protobuf.Timestamp trigger_created_at = 5;
 }

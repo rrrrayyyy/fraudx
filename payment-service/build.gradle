@@ -30,6 +30,9 @@ dependencies {
 	implementation libs.spring.kafka
 	implementation libs.kafka.clients
 
+	implementation libs.scylla.driver
+	implementation libs.commons.lang3
+
 	implementation libs.uuid.creator
 
 	testImplementation libs.spring.boot.starter.test

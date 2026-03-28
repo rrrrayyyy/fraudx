@@ -29,3 +29,18 @@ kafka:
       replication-factor: 3
     fraud-alerts:
       name: fraud-alerts
+
+benchmark:
+  cards: 10000
+  fraud-probability: 0.00004
+  burst-multiplier: 3
+  jitter-min: 5s
+  jitter-max: 12h
+
+scylla:
+  contact-points:
+    - "scylladb-1"
+    - "scylladb-2"
+    - "scylladb-3"
+  local-datacenter: datacenter1
+  keyspace: fraudx

@@ -1,4 +1,6 @@
 package com.example.frauddetection.domain;
 
-public record DetectionResult(String cardId, String batchId) {
+import java.time.Instant;
+
+public record DetectionResult(String cardId, Instant clusterTimestamp, Instant triggerCreatedAt) {
 }

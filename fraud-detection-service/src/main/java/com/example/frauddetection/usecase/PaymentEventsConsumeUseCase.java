@@ -1,14 +1,13 @@
 package com.example.frauddetection.usecase;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import org.slf4j.*;
 import org.springframework.stereotype.Service;
 
 import com.example.common.adapter.FraudRulesProperties;
-import com.example.frauddetection.adapter.ScyllaProperties;
 import com.example.frauddetection.domain.*;
 
 @Service
@@ -17,16 +16,14 @@ public class PaymentEventsConsumeUseCase {
     private final PaymentEventRepository repository;
     private final FraudAlertPublisher alertPublisher;
     private final FraudRulesProperties rulesProperties;
-    private final ScyllaProperties scyllaProperties;
     private final RetryPolicy retryPolicy;
-    private final Set<String> detectedBatchIds = ConcurrentHashMap.newKeySet();
+    private final ConcurrentHashMap<String, Set<Instant>> publishedAlerts = new ConcurrentHashMap<>();
 
     public PaymentEventsConsumeUseCase(PaymentEventRepository repository, FraudAlertPublisher alertPublisher,
-            FraudRulesProperties rulesProperties, ScyllaProperties scyllaProperties, RetryPolicy retryPolicy) {
+            FraudRulesProperties rulesProperties, RetryPolicy retryPolicy) {
         this.repository = repository;
         this.alertPublisher = alertPublisher;
         this.rulesProperties = rulesProperties;
-        this.scyllaProperties = scyllaProperties;
         this.retryPolicy = retryPolicy;
     }
 
@@ -45,11 +42,13 @@ public class PaymentEventsConsumeUseCase {
 
         var rule = rulesProperties.transactionFrequency().targetAttributes().get("card-id");
         if (rule != null && rule.enabled()) {
-            var cardIds = events.stream().map(PaymentEvent::cardId).collect(Collectors.toSet());
-            var detections = repository.detectFraud(cardIds, rule.threshold(), rule.duration(), scyllaProperties.lookback());
+            var detections = repository.detectFraud(events, rule.threshold(), rule.duration());
             for (var detection : detections) {
-                if (detectedBatchIds.add(detection.batchId())) {
-                    log.info("🚨 Fraud detected: card={}, batch={}", detection.cardId(), detection.batchId());
+                var timestamps = publishedAlerts.computeIfAbsent(detection.cardId(),
+                        k -> ConcurrentHashMap.newKeySet());
+                if (timestamps.add(detection.clusterTimestamp())) {
+                    log.info("🚨 Fraud detected: card={}, cluster={}", detection.cardId(),
+                            detection.clusterTimestamp());
                     alertPublisher.publish(detection);
                 }
             }

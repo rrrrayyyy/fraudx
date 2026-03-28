@@ -41,4 +41,3 @@ scylla:
     - "scylladb-3"
   local-datacenter: datacenter1
   keyspace: fraudx
-  lookback: 1000

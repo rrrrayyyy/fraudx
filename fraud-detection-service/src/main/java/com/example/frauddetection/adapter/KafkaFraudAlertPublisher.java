@@ -28,10 +28,13 @@ public class KafkaFraudAlertPublisher implements FraudAlertPublisher {
                 .setCardId(result.cardId())
                 .build();
         var value = FraudAlertValue.newBuilder()
-                .setBatchId(result.batchId())
                 .setDetectedAt(Timestamp.newBuilder()
                         .setSeconds(now.getEpochSecond())
                         .setNanos(now.getNano())
+                        .build())
+                .setTriggerCreatedAt(Timestamp.newBuilder()
+                        .setSeconds(result.triggerCreatedAt().getEpochSecond())
+                        .setNanos(result.triggerCreatedAt().getNano())
                         .build())
                 .build();
         kafkaTemplate.send(topic, key, value);

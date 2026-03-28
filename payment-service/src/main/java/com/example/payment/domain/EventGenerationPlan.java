@@ -1,67 +1,71 @@
 package com.example.payment.domain;
 
-import java.time.Duration;
-import java.util.Random;
+import java.time.Instant;
+import java.util.*;
 
-public record EventGenerationPlan(int n, int threshold, Duration duration, Random random, int[] cardEvents) {
-	// 7 days of simulated card activity at 1 event per duration interval.
-	// Normal events are spaced by duration (1min), so 1 day = 1440 events.
-	// 50K/day would span 35 days of simulated time — unrealistic for a single card.
-	private static final int SIMULATION_DAYS = 7;
-	private static final double FRAUD_PROBABILITY = 0.0005;
+import com.example.proto.PaymentMethod;
+import com.github.f4b6a3.uuid.alt.GUID;
 
-	public EventGenerationPlan(int n, int threshold, Duration duration, Random random) {
-		this(n, threshold, duration, random,
-				distributeEvents(n, threshold, duration, random));
+public record EventGenerationPlan(int n, int cards, Random random, CardEntry[] cardPool,
+		Map<String, Instant> lastTimestamps) {
+
+	public record CardEntry(String cardId, String userId, PaymentMethod paymentMethod) {
 	}
 
-	// Randomly distribute N events across cards.
-	// Each card gets Uniform[threshold, maxEventsPerCard] events, capped so
-	// remaining cards can each receive at least threshold events.
-	// Last card absorbs the remainder to guarantee total = N.
-	private static int[] distributeEvents(int n, int threshold, Duration duration, Random random) {
-		int maxEventsPerCard = (int) (Duration.ofDays(SIMULATION_DAYS).toNanos() / duration.toNanos());
-		int totalCards = Math.max(1, 2 * n / (threshold + maxEventsPerCard));
-		var events = new int[totalCards];
-		int remainingEvents = n;
-		for (int i = 0; i < totalCards - 1; i++) {
-			int remainingCards = totalCards - i;
-			int cap = Math.min(maxEventsPerCard,
-					remainingEvents - (remainingCards - 1) * threshold);
-			events[i] = threshold + random.nextInt(cap - threshold + 1);
-			remainingEvents -= events[i];
+	public EventGenerationPlan(int n, int cards, Random random) {
+		this(n, cards, random, allocateCardPool(cards));
+	}
+
+	private EventGenerationPlan(int n, int cards, Random random, CardEntry[] cardPool) {
+		this(n, cards, random, cardPool, initLastTimestamps(cardPool));
+	}
+
+	public CardEntry randomCard() {
+		return cardPool[random.nextInt(cards)];
+	}
+
+	public Instant nextTimestamp(String cardId, long jitterMinNanos, long jitterMaxNanos) {
+		var ts = lastTimestamps.get(cardId)
+				.plusNanos(jitterMinNanos + random.nextLong(jitterMaxNanos - jitterMinNanos));
+		lastTimestamps.put(cardId, ts);
+		return ts;
+	}
+
+	public Instant[] burstTimestamps(String cardId, int burstMax, int remaining,
+			long jitterMinNanos, long jitterMaxNanos, long durationNanos) {
+		int burstSize = Math.min(2 + random.nextInt(burstMax - 1), remaining);
+		var burstStart = lastTimestamps.get(cardId)
+				.plusNanos(jitterMinNanos + random.nextLong(jitterMaxNanos - jitterMinNanos));
+		var timestamps = new Instant[burstSize];
+		for (int j = 0; j < burstSize; j++) {
+			timestamps[j] = burstStart.plusNanos(random.nextLong(durationNanos));
 		}
-		events[totalCards - 1] = remainingEvents;
-		return events;
+		Arrays.sort(timestamps);
+		lastTimestamps.put(cardId, timestamps[burstSize - 1]);
+		return timestamps;
 	}
 
-	public int totalCards() {
-		return cardEvents.length;
+	private static CardEntry[] allocateCardPool(int cards) {
+		var pool = new CardEntry[cards];
+		for (int i = 0; i < cards; i++) {
+			var cardId = GUID.v4().toString();
+			var userId = GUID.v4().toString();
+			var paymentMethod = PaymentMethod.newBuilder()
+					.setId(GUID.v4().toString())
+					.setType(PaymentMethod.Type.TYPE_CARD)
+					.setCardId(cardId)
+					.build();
+			pool[i] = new CardEntry(cardId, userId, paymentMethod);
+		}
+		return pool;
 	}
 
-	public int eventsForCard(int cardIdx) {
-		return cardEvents[cardIdx];
-	}
-
-	// ceil(eventsForCard / threshold). last batch may be smaller than threshold
-	public int batchCount(int cardIdx) {
-		return (eventsForCard(cardIdx) + threshold - 1) / threshold;
-	}
-
-	// threshold for full batches, remainder for the last batch. e.g. 5 events,
-	// threshold=3 -> [3, 2]
-	public int batchSize(int cardIdx, int batchIdx) {
-		return Math.min(threshold, eventsForCard(cardIdx) - batchIdx * threshold);
-	}
-
-	// true if this batch should contain fraudulent events (only full batches can be
-	// fraud)
-	public boolean isFraud(int batchSize) {
-		return batchSize == threshold && random.nextDouble() < FRAUD_PROBABILITY;
-	}
-
-	// time range reserved per mini-batch. e.g. duration=1min, threshold=5 -> 5min
-	public long batchDurationNanos() {
-		return duration.toNanos() * threshold;
+	private static Map<String, Instant> initLastTimestamps(CardEntry[] cardPool) {
+		var now = Instant.now();
+		var map = new HashMap<String, Instant>(cardPool.length);
+		for (var card : cardPool) {
+			map.put(card.cardId(), now);
+		}
+		return map;
 	}
 }

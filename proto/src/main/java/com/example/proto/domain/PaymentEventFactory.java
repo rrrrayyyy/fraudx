@@ -22,7 +22,7 @@ public class PaymentEventFactory {
 	}
 
 	public static PaymentEventValue generateValue(String userId, PaymentMethod paymentMethod,
-			Instant processedAt, String batchId) {
+			Instant processedAt) {
 		var now = Instant.now();
 		var account = Account.newBuilder()
 				.setUserId(userId)
@@ -42,7 +42,6 @@ public class PaymentEventFactory {
 				.setPaymentMethod(paymentMethod)
 				.setProcessedAt(processedAtTs)
 				.setCreatedAt(createdAtTs)
-				.setBatchId(batchId)
 				.build();
 	}
 }

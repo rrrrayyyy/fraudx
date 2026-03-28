@@ -12,12 +12,11 @@ message PaymentEventKey {
 }
 
 message PaymentEventValue {
-    reserved 2, 10, 11, 12;
+    reserved 2, 8, 10, 11, 12;
     Account account = 1;
     int64 amount = 3;
     Currency currency = 4;
     PaymentMethod payment_method = 5;
     google.protobuf.Timestamp processed_at = 6;
     google.protobuf.Timestamp created_at = 7;
-    string batch_id = 8; // test instrumentation: for ground truth matching only
 }

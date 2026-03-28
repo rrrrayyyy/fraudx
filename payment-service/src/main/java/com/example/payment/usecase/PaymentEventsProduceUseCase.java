@@ -1,84 +1,69 @@
 package com.example.payment.usecase;
 
-import java.time.Instant;
-import java.util.Random;
+import java.time.Duration;
 
 import org.springframework.stereotype.Service;
 
 import com.example.common.adapter.FraudRulesProperties;
+import com.example.payment.adapter.BenchmarkProperties;
 import com.example.payment.domain.*;
-import com.example.proto.PaymentMethod;
 import com.example.proto.domain.PaymentEventFactory;
 import com.github.f4b6a3.uuid.alt.GUID;
 
 @Service
 public class PaymentEventsProduceUseCase {
 	private final PaymentEventProducer paymentEventProducer;
-	private final FraudRulesProperties rulesProperties;
-	private final FraudGroundTruth groundTruth;
 	private final BlockedCards blockedCards;
 	private final ProducerStats producerStats;
+	private final BenchmarkProperties benchmarkProperties;
+	private final FraudRulesProperties rulesProperties;
 
-	public PaymentEventsProduceUseCase(PaymentEventProducer paymentEventProducer,
-			FraudRulesProperties rulesProperties, FraudGroundTruth groundTruth, BlockedCards blockedCards,
-			ProducerStats producerStats) {
+	public PaymentEventsProduceUseCase(PaymentEventProducer paymentEventProducer, BlockedCards blockedCards,
+			ProducerStats producerStats, BenchmarkProperties benchmarkProperties,
+			FraudRulesProperties rulesProperties) {
 		this.paymentEventProducer = paymentEventProducer;
-		this.rulesProperties = rulesProperties;
-		this.groundTruth = groundTruth;
 		this.blockedCards = blockedCards;
 		this.producerStats = producerStats;
+		this.benchmarkProperties = benchmarkProperties;
+		this.rulesProperties = rulesProperties;
 	}
 
 	public void run(int n) {
-		var startTime = System.nanoTime();
 		var rule = rulesProperties.transactionFrequency().targetAttributes().get("card-id");
+		int threshold = rule != null ? rule.threshold() : 5;
+		long durationNanos = (rule != null ? rule.duration() : Duration.ofMinutes(1)).toNanos();
 
-		if (rule == null || !rule.enabled()) {
-			for (int i = 0; i < n; i++) {
-				var key = PaymentEventFactory.generateKey(GUID.v4().toString());
-				var value = PaymentEventFactory.generateValue(GUID.v4().toString());
-				paymentEventProducer.publish(key, value);
+		var plan = new EventGenerationPlan(n, benchmarkProperties.cards(), new java.util.Random());
+		var fraudProbability = benchmarkProperties.fraudProbability();
+		int burstMax = threshold * benchmarkProperties.burstMultiplier();
+		var jitterMinNanos = benchmarkProperties.jitterMin().toNanos();
+		var jitterMaxNanos = benchmarkProperties.jitterMax().toNanos();
+
+		var startTime = System.nanoTime();
+
+		for (int i = 0; i < n;) {
+			var card = plan.randomCard();
+
+			if (blockedCards.contains(card.cardId())) {
+				continue;
 			}
-		} else {
-			var plan = new EventGenerationPlan(n, rule.threshold(), rule.duration(), new Random());
 
-			for (int cardIdx = 0; cardIdx < plan.totalCards(); cardIdx++) {
-				var cardId = GUID.v4().toString();
-				var userId = GUID.v4().toString();
-				var paymentMethod = PaymentMethod.newBuilder()
-						.setId(GUID.v4().toString())
-						.setType(PaymentMethod.Type.TYPE_CARD)
-						.setCardId(cardId)
-						.build();
-				var cardBaseTime = Instant.now();
-
-				for (int batchIdx = 0; batchIdx < plan.batchCount(cardIdx); batchIdx++) {
-					if (blockedCards.contains(cardId)) {
-						break;
-					}
-
-					var batchId = GUID.v4().toString();
-					int batchSize = plan.batchSize(cardIdx, batchIdx);
-					boolean isFraud = plan.isFraud(batchSize);
-					var batchBase = cardBaseTime.plusNanos(plan.batchDurationNanos() * batchIdx);
-
-					for (int eventIdx = 0; eventIdx < batchSize; eventIdx++) {
-						Instant processedAt;
-						if (isFraud) {
-							processedAt = batchBase.plusNanos(
-									(long) (plan.random().nextDouble() * plan.duration().toNanos()));
-						} else {
-							processedAt = batchBase.plus(plan.duration().multipliedBy(eventIdx));
-						}
-						var key = PaymentEventFactory.generateKey(GUID.v4().toString());
-						var value = PaymentEventFactory.generateValue(userId, paymentMethod, processedAt, batchId);
-						paymentEventProducer.publish(key, value);
-					}
-
-					if (isFraud) {
-						groundTruth.put(batchId, Instant.now());
-					}
+			int remaining = n - i;
+			if (remaining >= 2 && plan.random().nextDouble() < fraudProbability) {
+				var timestamps = plan.burstTimestamps(card.cardId(), burstMax, remaining,
+						jitterMinNanos, jitterMaxNanos, durationNanos);
+				for (var ts : timestamps) {
+					var key = PaymentEventFactory.generateKey(GUID.v4().toString());
+					var value = PaymentEventFactory.generateValue(card.userId(), card.paymentMethod(), ts);
+					paymentEventProducer.publish(key, value);
 				}
+				i += timestamps.length;
+			} else {
+				var ts = plan.nextTimestamp(card.cardId(), jitterMinNanos, jitterMaxNanos);
+				var key = PaymentEventFactory.generateKey(GUID.v4().toString());
+				var value = PaymentEventFactory.generateValue(card.userId(), card.paymentMethod(), ts);
+				paymentEventProducer.publish(key, value);
+				i += 1;
 			}
 		}
 

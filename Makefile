@@ -37,7 +37,7 @@ fraud-rps:
 	docker logs $(FRAUD_LOG) | grep RPS
 
 payment-stats:
-	$(DC_BASE) stop payment-service
+	$(DC_BASE) stop -t 300 payment-service
 	docker logs $(PAYMENT_LOG) | tail -50
 
 cql:

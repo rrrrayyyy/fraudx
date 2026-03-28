@@ -1,10 +1,11 @@
 package com.example.frauddetection.adapter;
 
-import java.time.Duration;
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.*;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.stereotype.Repository;
 
 import com.datastax.oss.driver.api.core.*;
@@ -25,15 +26,15 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
 
     private final CqlSession session;
     private final RetryPolicy retryPolicy;
-    private final ScyllaProperties scyllaProperties;
+    private final int detectPageSize;
     private PreparedStatement insertStmt;
     private PreparedStatement detectStmt;
 
     public PaymentEventScyllaRepository(CqlSession session, RetryPolicy retryPolicy,
-            ScyllaProperties scyllaProperties) {
+            KafkaProperties kafkaProperties) {
         this.session = session;
         this.retryPolicy = retryPolicy;
-        this.scyllaProperties = scyllaProperties;
+        this.detectPageSize = kafkaProperties.getConsumer().getMaxPollRecords();
     }
 
     @PostConstruct
@@ -55,9 +56,9 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
                                 .setConsistencyLevel(DefaultConsistencyLevel.LOCAL_QUORUM));
                 this.detectStmt = session.prepare(
                         SimpleStatement.newInstance(
-                                "SELECT processed_at, batch_id FROM " + TABLE_NAME
-                                        + " WHERE card_id = ? ORDER BY processed_at DESC LIMIT ?")
-                                .setPageSize(scyllaProperties.lookback())
+                                "SELECT processed_at FROM " + TABLE_NAME
+                                        + " WHERE card_id = ? AND processed_at >= ? AND processed_at <= ?")
+                                .setPageSize(detectPageSize)
                                 .setConsistencyLevel(DefaultConsistencyLevel.LOCAL_QUORUM));
                 log.info("✅ Prepared statements successfully");
                 return;
@@ -76,7 +77,7 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
         for (int i = 0; i < events.size(); i++) {
             var event = events.get(i);
             futures[i] = session.executeAsync(insertStmt.bind(
-                    event.cardId(), event.processedAt(), event.transactionId(), event.batchId()))
+                    event.cardId(), event.processedAt(), event.transactionId(), event.createdAt()))
                     .toCompletableFuture()
                     .handle((result, ex) -> ex);
         }
@@ -90,31 +91,51 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
     }
 
     @Override
-    public List<DetectionResult> detectFraud(Set<String> cardIds, int threshold, Duration duration, int lookback) {
-        var futures = new HashMap<String, CompletableFuture<com.datastax.oss.driver.api.core.cql.AsyncResultSet>>();
-        for (var cardId : cardIds) {
-            futures.put(cardId, session.executeAsync(detectStmt.bind(cardId, lookback))
-                    .toCompletableFuture());
+    public List<DetectionResult> detectFraud(List<PaymentEvent> events, int threshold, Duration duration) {
+        // Step 1: Per-card min/max processedAt
+        var ranges = new HashMap<String, Instant[]>();
+        var triggerCreatedAts = new HashMap<String, Instant>();
+        for (var event : events) {
+            ranges.merge(event.cardId(),
+                    new Instant[] { event.processedAt(), event.processedAt() },
+                    (a, b) -> new Instant[] {
+                            a[0].isBefore(b[0]) ? a[0] : b[0],
+                            a[1].isAfter(b[1]) ? a[1] : b[1]
+                    });
+            triggerCreatedAts.putIfAbsent(event.cardId(), event.createdAt());
         }
+
+        // Step 2: Async range query per card
+        record CardQuery(String cardId, Instant createdAt, CompletableFuture<AsyncResultSet> future) {
+        }
+        var queries = new ArrayList<CardQuery>(ranges.size());
+        for (var entry : ranges.entrySet()) {
+            var cardId = entry.getKey();
+            var queryStart = entry.getValue()[0].minus(duration);
+            var queryEnd = entry.getValue()[1];
+            queries.add(new CardQuery(cardId, triggerCreatedAts.get(cardId),
+                    session.executeAsync(detectStmt.bind(cardId, queryStart, queryEnd))
+                            .toCompletableFuture()));
+        }
+
+        // Step 3: Sliding window on results
         var results = new ArrayList<DetectionResult>();
-        for (var entry : futures.entrySet()) {
+        for (var q : queries) {
             try {
-                var rs = entry.getValue().join();
-                var rows = new ArrayList<Row>();
+                var rs = q.future().join();
+                var timestamps = new ArrayList<Instant>();
                 for (var row : rs.currentPage()) {
-                    rows.add(row);
+                    timestamps.add(row.getInstant("processed_at"));
                 }
-                for (int i = 0; i <= rows.size() - threshold; i++) {
-                    var newest = rows.get(i).getInstant("processed_at");
-                    var oldest = rows.get(i + threshold - 1).getInstant("processed_at");
-                    if (Duration.between(oldest, newest).compareTo(duration) <= 0) {
-                        results.add(new DetectionResult(entry.getKey(),
-                                rows.get(i).getString("batch_id")));
-                        i += threshold - 1;
+                // sorted DESC by clustering key, exhaustive (no skip)
+                for (int i = 0; i <= timestamps.size() - threshold; i++) {
+                    if (Duration.between(timestamps.get(i + threshold - 1), timestamps.get(i))
+                            .compareTo(duration) <= 0) {
+                        results.add(new DetectionResult(q.cardId(), timestamps.get(i), q.createdAt()));
                     }
                 }
             } catch (Exception e) {
-                log.warn("Detection query failed for card {}: {}", entry.getKey(), e.getMessage());
+                log.warn("Detection query failed for card {}: {}", q.cardId(), e.getMessage());
             }
         }
         return results;
@@ -125,7 +146,7 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
                 .value("card_id", QueryBuilder.bindMarker())
                 .value("processed_at", QueryBuilder.bindMarker())
                 .value("transaction_id", QueryBuilder.bindMarker())
-                .value("batch_id", QueryBuilder.bindMarker())
+                .value("created_at", QueryBuilder.bindMarker())
                 .asCql();
     }
 
@@ -135,7 +156,7 @@ public class PaymentEventScyllaRepository implements PaymentEventRepository {
                 .withPartitionKey("card_id", DataTypes.TEXT)
                 .withClusteringColumn("processed_at", DataTypes.TIMESTAMP)
                 .withClusteringColumn("transaction_id", DataTypes.TEXT)
-                .withColumn("batch_id", DataTypes.TEXT)
+                .withColumn("created_at", DataTypes.TIMESTAMP)
                 .withClusteringOrder("processed_at", ClusteringOrder.DESC)
                 .withCompaction(SchemaBuilder.timeWindowCompactionStrategy())
                 .asCql();
